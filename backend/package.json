@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Finding the best restaurant promotions and deals while supporting local 🍔",
+  "main": "src/App.ts",
+  "scripts": {
+    "build": "tsc --project ./",
+    "prestart": "yarn run build",
+    "start": "nodemon src/App.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ubclaunchpad/foodies/issues"
+  },
+  "homepage": "https://github.com/ubclaunchpad/foodies#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.14.2",
+    "nodemon": "^2.0.6",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.3"
+  }
+}
