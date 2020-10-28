@@ -1,0 +1,30 @@
+version: '3'
+
+volumes:
+    db:
+
+services:
+    db:
+        image: postgres:12
+        tty: true
+        volumes:
+          - ./tmp/db:/var/lib/postgresql/data
+        environment:
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: postgres
+        hostname: localhost
+        ports:
+          - "5432:5432"
+    web:
+        build: ./backend
+        image: foodies:latest
+        volumes:
+          - ./backend:/foodies/backend
+        ports:
+          - "8000:8000"
+        command: bash -c "npm install && npm start"
+        depends_on: 
+          - db
+        links: 
+          - db
