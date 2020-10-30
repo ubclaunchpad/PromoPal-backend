@@ -11,9 +11,13 @@ services:
           - ./tmp/db:/var/lib/postgresql/data
         environment:
           POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_PASSWORD: password
-          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+          PGPASSWORD: admin
+          POSTGRES_USER: admin
+          POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+          POSTGRES_DB: foodies
         hostname: localhost
+        restart: always
         ports:
           - "5432:5432"
     web:
@@ -24,6 +28,7 @@ services:
         ports:
           - "8000:8000"
         command: bash -c "npm install && npm start"
+        restart: always
         depends_on: 
           - db
         links: 

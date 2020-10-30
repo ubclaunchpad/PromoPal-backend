@@ -1,10 +1,10 @@
-import express from 'express';
-
-const app = express();
+import server from './server';
 const PORT = 8000;
 
-app.get('/', (req, res) => res.send('Hello World'));
+const starter = new server().start(PORT)
+    .then(port => console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`))
+    .catch(error => {
+        console.log(error)
+    });
 
-app.listen(PORT, () => {
-    console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
-});
+export default starter;
