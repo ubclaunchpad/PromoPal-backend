@@ -1,12 +1,12 @@
 ## Dependencies:
 
- - yarn (https://classic.yarnpkg.com/en/docs/install)
+- yarn (https://classic.yarnpkg.com/en/docs/install)
 
 ---
 
 ## Modules:
 
- - testing-library (https://testing-library.com/docs/react-testing-library/cheatsheet)
+- testing-library (https://testing-library.com/docs/react-testing-library/cheatsheet)
 
 ---
 
