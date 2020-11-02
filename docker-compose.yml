@@ -9,6 +9,7 @@ services:
         tty: true
         volumes:
           - ./tmp/db:/var/lib/postgresql/data
+          - ./db:/db
         environment:
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_PASSWORD: admin
