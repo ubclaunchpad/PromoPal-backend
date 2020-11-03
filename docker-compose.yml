@@ -28,7 +28,7 @@ services:
           - ./backend:/foodies/backend
         ports:
           - "8000:8000"
-        command: bash -c "npm install && npm start"
+        command: bash -c "yarn install && yarn start"
         restart: always
         depends_on: 
           - db
