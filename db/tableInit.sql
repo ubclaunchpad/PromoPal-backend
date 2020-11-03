@@ -1,4 +1,4 @@
-CREATE TABLE User (
+CREATE TABLE Users (
     user_id INTEGER NOT NULL, 
     first_name VARCHAR(20),
     last_name VARCHAR(20),
@@ -10,8 +10,8 @@ CREATE TABLE User (
 
 CREATE TABLE Restaurant (
     restaurant_id INTEGER NOT NULL,
-    name VARCHAR(20),
-    address VARCHAR(30),
+    name VARCHAR(50),
+    address VARCHAR(50),
     PRIMARY KEY(restaurant_id)
 );
 
@@ -26,8 +26,8 @@ CREATE TABLE Promotion (
     promotion_id INTEGER NOT NULL,
     restaurant_id INTEGER,
     discount INTEGER,
-    name VARCHAR(30),
-    description VARCHAR(50),
+    name VARCHAR(50),
+    description VARCHAR(100),
     date_added timestamp with time zone,
     end_date DATE,
     price_range VARCHAR(20),
