@@ -10,6 +10,10 @@
     "test": "jest",
     "lint": "eslint . --ext .ts,.tsx --fix",
     "prettier": "prettier --write ."
+    "test": "jest",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "dropSchema": "yarn run typeorm schema:drop",
+    "syncSchema": "yarn run typeorm schema:sync",
   },
   "keywords": [],
   "author": "",
