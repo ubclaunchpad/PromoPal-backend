@@ -1,9 +1,9 @@
 export interface Dropdown {
-  text: string,
-  options: DropdownOptions[]
+  text: string;
+  options: DropdownOptions[];
 }
 
 export interface DropdownOptions {
-  link: string
-  text: string
+  link: string;
+  text: string;
 }
