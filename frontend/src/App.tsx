@@ -1,5 +1,6 @@
-import React, { ReactElement } from "react";
+import React, { CSSProperties, ReactElement } from "react";
 
+import DropdownMenu from "./components/DropdownMenu";
 import PromotionCard from "./components/promotion/PromotionCard";
 import { Promotion } from "./types/Promotion";
 
@@ -31,14 +32,25 @@ const promotions: Promotion[] = [
   },
 ];
 
-function App(): ReactElement {
-  const mapWidth = 60;
+const mapWidth = 60;
+const styles: { [identifier: string]: CSSProperties } = {
+  mapContainer: { 
+    width: `${mapWidth}%`
+  },
+  promotions: {
+    margin: 15,
+    marginBottom: 0,
+    width: `${100 - mapWidth}%` 
+  }
+}
 
+function App(): ReactElement {
   return (
     <div className="App">
+      <DropdownMenu />
       <div style={{ display: "inline-flex" }}>
-        <div style={{ width: `${mapWidth}%` }}></div>
-        <div style={{ width: `${100 - mapWidth}%` }}>
+        <div style={styles.mapContainer}></div>
+        <div style={styles.promotions}>
           {promotions.map((promotion: Promotion) => (
             <PromotionCard {...promotion} />
           ))}

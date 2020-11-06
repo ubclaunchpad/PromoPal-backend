@@ -13,7 +13,7 @@ const styles: { [identifier: string]: CSSProperties } = {
   },
   card: {
     display: "inline-block",
-    margin: 15,
+    marginBottom: 15,
     width: "100%",
   },
 };
