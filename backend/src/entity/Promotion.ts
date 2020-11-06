@@ -11,6 +11,7 @@ import {User} from "./User";
 import {Discount} from "./Discount";
 import {PromotionCategory} from "../data/PromotionCategory";
 import {CuisineType} from "../data/CuisineType";
+import {SavedPromotion} from "./SavedPromotion";
 
 /*
 * Represents a promotion
@@ -33,8 +34,8 @@ export class Promotion {
     id: number;
 
     /*
-    * ManyToOne relationship between Promotion and User
-    * Many promotions can be owned by one user
+    * ManyToOne bidirectional relationship between Promotion and User
+    * Many promotions can be owned/uploaded by one user
     * On delete cascade on foreign key userId
     * Promotion is the owning side of this association, contains column userId
     * */
@@ -45,15 +46,8 @@ export class Promotion {
     @JoinColumn()
     user: User;
 
-    // @ManyToMany(()=> Discount, discount => discount.promotions, {
-    //     cascade: true
-    // })
-    // @JoinTable({
-    //     name: "promotion_discount"
-    // })
-
     /*
-    * OneToMany relationship between Promotion and Discount
+    * OneToMany bidirectional relationship between Promotion and Discount
     * Each promotion can have many discounts
     * */
     @OneToMany(() => Discount, discount => discount.promotion, {
@@ -61,6 +55,14 @@ export class Promotion {
         nullable: false,
     })
     discounts: Discount[]
+
+    /*
+    * ManyToMany bidirectional relationship between Promotion and User
+    * SavedPromotion is the join table with custom properties
+    * Each promotion can be saved by 0 or many users
+    * */
+    @OneToMany(() => SavedPromotion, savedPromotion => savedPromotion.promotion, {})
+    savedBy: SavedPromotion[]
 
     @Column({
         type: "enum",

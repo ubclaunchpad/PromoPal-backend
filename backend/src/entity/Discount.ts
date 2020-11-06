@@ -17,12 +17,8 @@ export class Discount {
     @PrimaryGeneratedColumn("uuid")
     id: number;
 
-    // //todo: consider this more (if creating new promotion, would have to search for existing discounts?)
-    // @ManyToMany(() => Promotion, promotion => promotion.discounts)
-    // promotions: Promotion[];
-
     /*
-    * ManyToOne relationship between Discount and Promotion
+    * ManyToOne bidirectional relationship between Discount and Promotion
     * Many discounts can be owned by one promotion
     * On delete cascade on foreign key promotionId
     * */

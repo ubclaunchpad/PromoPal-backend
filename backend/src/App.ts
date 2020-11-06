@@ -5,6 +5,7 @@ import {User} from "./entity/User";
 import {Promotion} from "./entity/Promotion";
 import {Discount} from "./entity/Discount";
 import {promotions_sample, saved_promotions_mapping, users_sample} from "./resources/Data";
+import {SavedPromotion} from "./entity/SavedPromotion";
 
 //todo: ormconfig.json should not have synchronize and drop schema as true for production
 createConnection()
@@ -28,12 +29,16 @@ createConnection()
         }
 
         for (let [user, promotions] of saved_promotions_mapping) {
-            user.savedPromotions = promotions;
+            let savedPromotions: SavedPromotion[] = []
+            for (let promotion of promotions) {
+                savedPromotions.push(new SavedPromotion(user, promotion))
+            }
+            user.savedPromotions = savedPromotions;
             await userRepository.save(user);
         }
 
         // eager loading (loads everything)
-        let users: User[] = await userRepository.find({relations: ["uploadedPromotions", "savedPromotions"]});
+        let users: User[] = await userRepository.find({relations: ["uploadedPromotions", "savedPromotions", "savedPromotions.promotion"]}); // see https://stackoverflow.com/questions/61236129/typeorm-custom-many-to-many-not-pulling-relation-data
         let promotions: Promotion[] = await promotionRepository.find({relations: ["user", "discounts"]});
         let discounts: Discount[] = await discountRepository.find({relations: ["promotion"]});
 

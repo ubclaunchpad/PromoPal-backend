@@ -1,5 +1,7 @@
 import {Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable} from "typeorm";
 import {Promotion} from "./Promotion";
+import {SavedPromotion} from "./SavedPromotion";
+import {saved_promotions_mapping} from "../resources/Data";
 
 /*
 * Represents a user in our application.
@@ -19,7 +21,7 @@ export class User {
     id: number;
 
     /*
-    * OneToMany relationship between User and Promotion
+    * OneToMany bidirectional relationship between User and Promotion
     * Each user can upload 0 or more promotions.
     * */
     @OneToMany(() => Promotion, promotion => promotion.user, {
@@ -28,15 +30,14 @@ export class User {
     uploadedPromotions: Promotion[]
 
     /*
-    * ManyToMany relationship between User and Promotion
+    * ManyToMany bidirectional relationship between User and Promotion
+    * SavedPromotion is the join table with custom properties
     * Each user can save 0 or more promotions
-    * User is the owning side of the relationship, connected through join table
     * */
-    @ManyToMany(() => Promotion, {
-        cascade: true,
+    @OneToMany(() => SavedPromotion, savedPromotion => savedPromotion.user, {
+        cascade: true
     })
-    @JoinTable({name: "saved_promotions"})
-    savedPromotions: Promotion[]
+    savedPromotions: SavedPromotion[]
 
     @Column({
         name: 'first_name'

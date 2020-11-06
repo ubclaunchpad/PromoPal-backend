@@ -7,7 +7,7 @@ Requirements
 
 ##### To import data from `init_data.sql`, run this command inside a command prompt. Make sure the schema is setup and it is currently empty
 
-> `psql -d foodies -f resources/init_data.sql --username={YOUR_USERNAME}`
+> `psql -d foodies -f src/resources/init_data.sql --username={YOUR_USERNAME}`
 >
 > `psql` should prompt you to enter your password.
 
