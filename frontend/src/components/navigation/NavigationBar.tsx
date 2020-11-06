@@ -1,6 +1,8 @@
 import React, { CSSProperties, ReactElement, useState } from 'react';
 import { Menu } from 'antd';
 
+import SearchBar from "./SearchBar";
+
 enum Pages {
   Home = 'Home',
   Login = 'Login',
@@ -9,11 +11,12 @@ enum Pages {
 
 const styles: { [identifier: string]: CSSProperties } = {
   header: {
+    alignItems: 'center',
     backgroundColor: '#eee',
     display: 'inline-flex',
+    justifyContent: 'space-between',
     padding: 10,
     width: '100%',
-    verticalAlign: 'center'
   },
   logo: {
     marginLeft: 10,
@@ -27,6 +30,10 @@ const styles: { [identifier: string]: CSSProperties } = {
   menuItem: {
     borderBottom: 0,
     color: 'black'
+  },
+  navigation: {
+    display: 'inline-flex',
+    verticalAlign: 'center'
   }
 }
 
@@ -40,24 +47,27 @@ export default function NavigationBar(): ReactElement {
 
   return (
     <header style={styles.header}>
-      <h1 style={styles.logo}>
-        Logo
-      </h1>
-      <Menu
-        onClick={({ key }) => setCurrent(key as Pages)}
-        selectedKeys={[current]}
-        mode="horizontal"
-        style={styles.menu}>
-        <Menu.Item key={Pages.Home} style={isActive(Pages.Home)}>
-          Home
-        </Menu.Item>
-        <Menu.Item key={Pages.Login} style={isActive(Pages.Login)}>
-          Login
-        </Menu.Item>
-        <Menu.Item key={Pages.UploadPromotion} style={isActive(Pages.UploadPromotion)}>
-          Upload Promotion
-        </Menu.Item>
-      </Menu>
+      <div style={styles.navigation}>
+        <h1 style={styles.logo}>
+          Logo
+        </h1>
+        <Menu
+          onClick={({ key }) => setCurrent(key as Pages)}
+          selectedKeys={[current]}
+          mode="horizontal"
+          style={styles.menu}>
+          <Menu.Item key={Pages.Home} style={isActive(Pages.Home)}>
+            Home
+          </Menu.Item>
+          <Menu.Item key={Pages.Login} style={isActive(Pages.Login)}>
+            Login
+          </Menu.Item>
+          <Menu.Item key={Pages.UploadPromotion} style={isActive(Pages.UploadPromotion)}>
+            Upload Promotion
+          </Menu.Item>
+        </Menu>
+      </div>
+      <SearchBar />
     </header>
   )
 }

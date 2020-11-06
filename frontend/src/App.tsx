@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement } from "react";
 
 import DropdownMenu from "./components/DropdownMenu";
-import NavigationBar from "./components/NavigationBar";
+import NavigationBar from "./components/navigation/NavigationBar";
 import PromotionCard from "./components/promotion/PromotionCard";
 import { Promotion } from "./types/Promotion";
 
