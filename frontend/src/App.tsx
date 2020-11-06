@@ -1,6 +1,7 @@
 import React, { CSSProperties, ReactElement } from "react";
 
 import DropdownMenu from "./components/DropdownMenu";
+import NavigationBar from "./components/NavigationBar";
 import PromotionCard from "./components/promotion/PromotionCard";
 import { Promotion } from "./types/Promotion";
 
@@ -47,6 +48,7 @@ const styles: { [identifier: string]: CSSProperties } = {
 function App(): ReactElement {
   return (
     <div className="App">
+      <NavigationBar />
       <DropdownMenu />
       <div style={{ display: "inline-flex" }}>
         <div style={styles.mapContainer}></div>
