@@ -6,7 +6,7 @@ import { SavedPromotion } from './SavedPromotion';
  * Represents a user in our application.
  * * Each user can upload/save many promotions
  * */
-@Entity()
+@Entity('user_profile')
 export class User {
   constructor(
     firstName: string,
