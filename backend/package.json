@@ -7,7 +7,9 @@
     "build": "tsc --project ./",
     "prestart": "yarn run build",
     "start": "nodemon src/App.ts",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint . --ext .ts,.tsx --fix",
+    "prettier": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -17,16 +19,37 @@
   },
   "homepage": "https://github.com/ubclaunchpad/foodies#readme",
   "dependencies": {
+    "axios": "^0.21.0",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.8",
     "@types/jest": "^26.0.15",
     "@types/node": "^14.14.2",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0",
+    "eslint": "^7.12.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.3.0",
     "jest": "^26.6.0",
+    "lint-staged": "^10.5.0",
     "nodemon": "^2.0.6",
+    "prettier": "^2.1.2",
     "ts-jest": "^26.4.1",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "yarn lint",
+      "yarn prettier"
+    ]
   }
 }
