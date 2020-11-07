@@ -1,18 +1,34 @@
-## Foodies Backend Project
+# Foodies Backend Project
 
-Requirements
+##Requirements
 1. Postgres
 2. TypeORM Global Installation (`yarn add typeorm -g`)
     - this will install the TypeORM CLI as well
 
-##### To import data from `init_data.sql`, run this command inside a command prompt. Make sure the schema is setup and it is currently empty
+##Before starting
+1. Run `yarn install` to install all dependencies
 
-> `psql -d foodies -f src/resources/init_data.sql --username={YOUR_USERNAME}`
->
-> `psql` should prompt you to enter your password.
 
-##### To drop the database schema, run:
->`yarn run dropSchema`
+## Configure environment variables
+```
+Make a copy of `sample.env` and rename it to `.env`.
+Fill out the environment variables respectively
+```
 
-##### To sync the database schema, run: (this will setup the schema, without any data)
- >`yarn run syncSchema`
+## Drop the database schema:
+```
+yarn run dropSchema
+```
+
+## Sync the database schema 
+This will setup the schema, without any data.
+```
+yarn run syncSchema
+```
+
+## Loading sample data
+To import data from `init_data.sql`, run this command inside a command prompt. Make sure the schema is setup, and it is currently empty.
+`psql` should prompt you to enter your password.
+```
+psql -d foodies -f src/resources/init_data.sql --username={YOUR_USERNAME}`
+```

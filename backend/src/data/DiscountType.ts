@@ -1,6 +1,6 @@
 export enum DiscountType {
-    PERCENTAGE = "%",
-    AMOUNT = "$",
-    OTHER = "Other"
-    // todo: more
+  PERCENTAGE = '%',
+  AMOUNT = '$',
+  OTHER = 'Other',
+  // todo: more
 }
