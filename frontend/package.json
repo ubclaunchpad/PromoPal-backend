@@ -54,5 +54,6 @@
       "yarn lint",
       "yarn prettier"
     ]
-  }
+  },
+  "proxy": "http://localhost:8000"
 }
