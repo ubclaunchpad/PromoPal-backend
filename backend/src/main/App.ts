@@ -1,5 +1,5 @@
 import express from 'express';
-import { createConnection, getRepository, Repository } from 'typeorm';
+import { createConnection, getCustomRepository, getRepository } from 'typeorm';
 import bodyParser from 'body-parser';
 import { User } from './entity/User';
 import { Promotion } from './entity/Promotion';
@@ -9,7 +9,9 @@ import {
   saved_promotions_mapping,
   users_sample,
 } from './resources/Data';
-import { SavedPromotion } from './entity/SavedPromotion';
+import { UserRepository } from './repository/UserRepository';
+import { PromotionRepository } from './repository/PromotionRepository';
+import { DiscountRepository } from './repository/DiscountRepository';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -20,12 +22,15 @@ createConnection()
     app.use(bodyParser.json());
     const PORT = 8000;
 
-    // todo: create custom repositories
-    const userRepository: Repository<User> = getRepository(User);
-    const promotionRepository: Repository<Promotion> = getRepository(Promotion);
-    const discountRepository: Repository<Discount> = getRepository(Discount);
+    const userRepository: UserRepository = getCustomRepository(UserRepository);
+    const promotionRepository: PromotionRepository = getCustomRepository(
+      PromotionRepository
+    );
+    const discountRepository: DiscountRepository = getCustomRepository(
+      DiscountRepository
+    );
 
-    // persist entities into database
+    // persist entities into database (see README.md for more details for loading data)
     for (const user of users_sample) {
       await userRepository.save(user);
     }
@@ -35,12 +40,7 @@ createConnection()
     }
 
     for (const [user, promotions] of saved_promotions_mapping) {
-      const savedPromotions: SavedPromotion[] = [];
-      for (const promotion of promotions) {
-        savedPromotions.push(new SavedPromotion(user, promotion));
-      }
-      user.savedPromotions = savedPromotions;
-      await userRepository.save(user);
+      await userRepository.addSavedPromotions(user, promotions);
     }
 
     // eager loading (loads everything)

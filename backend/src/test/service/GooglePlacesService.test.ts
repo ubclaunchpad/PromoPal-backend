@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { GooglePlacesService } from '../../src/service/GooglePlacesService';
+import { GooglePlacesService } from '../../main/service/GooglePlacesService';
 import * as dotenv from 'dotenv';
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */

@@ -17,6 +17,23 @@ Make a copy of `sample.env` and rename it to `.env`.
 Fill out the environment variables respectively
 ```
 
+## Setting up databases
+
+You will need two databases, `foodies` and `foodies_test`
+
+```
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;
+
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;
+
+ALTER USER postgres CREATEDB;
+
+// repeat these two lines for both databases
+CREATE DATABASE foodies;
+
+GRANT ALL PRIVILEGES ON DATABASE foodies TO postgres;
+```
+
 ## Drop the database schema:
 
 ```
@@ -36,6 +53,17 @@ yarn run syncSchema
 ### Change ormconfig.json
 
 Find `ormconfig.json` and change the following line to `host: localhost`
+
+### Using Intellij
+
+Make sure you created the databases first.
+Intellij can show you your databases and tables. Go to the `Database` tab and add a new data source.  
+![image](https://user-images.githubusercontent.com/49849754/98451666-bfffec80-20fc-11eb-9165-8100d3a3dd41.png)
+
+Fill out with the username and password respectively
+![image](https://user-images.githubusercontent.com/49849754/98451683-e4f45f80-20fc-11eb-8866-9dc21f3624d0.png)
+
+You should now be able to see all the databases and tables.
 
 ### Loading sample data
 
