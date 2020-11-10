@@ -49,4 +49,17 @@ describe('Unit tests for UserRepository', function () {
       );
     }
   });
+
+  test('Should not be able to add two users with the same password', async () => {
+    users_sample[1].password = users_sample[0].password;
+    await userRepository.save(users_sample[0]);
+    try {
+      await userRepository.save(users_sample[1]);
+      fail('Should  have failed');
+    } catch (e) {
+      expect(e.detail).toEqual(
+        `Key (password)=(${users_sample[0].password}) already exists.`
+      );
+    }
+  });
 });

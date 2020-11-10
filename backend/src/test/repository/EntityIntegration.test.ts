@@ -155,4 +155,34 @@ describe('Integration tests for all entities', function () {
       fail('Should not have failed: ' + e);
     }
   });
+
+  test("Should be able to remove a user's saved promotion without deleting the promotion and user", async () => {
+    const user = users_sample[0];
+    const promotion1 = promotions_sample[0];
+    const promotion2 = promotions_sample[1];
+
+    // persist into db & configure such that user1 has saved promotion1 and promotion2
+    promotion1.user = user;
+    promotion2.user = user;
+    await userRepository.save(user);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await savedPromotionRepository.addSavedPromotions(user, [
+      promotion1,
+      promotion2,
+    ]);
+
+    try {
+      await savedPromotionRepository.delete({ userId: user.id });
+      const persistedUser = await userRepository.findOne(user.id, {
+        relations: ['uploadedPromotions', 'savedPromotions'],
+      });
+      expect(persistedUser?.savedPromotions).toEqual([]);
+      expect(persistedUser?.uploadedPromotions?.length).toEqual(2);
+      expect(persistedUser?.uploadedPromotions[0].id).toEqual(promotion1.id);
+      expect(persistedUser?.uploadedPromotions[1].id).toEqual(promotion2.id);
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
 });

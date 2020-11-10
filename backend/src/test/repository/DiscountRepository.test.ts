@@ -17,7 +17,7 @@ describe('Unit tests for DiscountRepository', function () {
     return conn.close();
   });
 
-  test('Should not be able to save a discount by itself', async () => {
+  test('Should not be able to create discount without promotion', async () => {
     const discount: Discount = discounts_sample[0];
     try {
       await discountRepository.save(discount);

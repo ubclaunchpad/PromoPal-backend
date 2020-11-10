@@ -16,7 +16,7 @@ import { SavedPromotionRepository } from './repository/SavedPromotionRepository'
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
-//todo: ormconfig.json should not have synchronize and drop schema as true for production=
+//todo: ormconfig.json should not have synchronize and drop schema as true for production
 createConnection()
   .then(async (connection) => {
     const app = express();

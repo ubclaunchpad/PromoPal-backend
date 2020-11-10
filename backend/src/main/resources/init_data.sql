@@ -1,113 +1,88 @@
-INSERT INTO public."user" (id, first_name, last_name, email, username, password)
-VALUES ('767d4ad4-0bcd-43da-884b-927698f5ea79', 'John', 'Smith', 'smith.j@sample.com', 'user1', 'user1_password'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', 'Asa', 'Edward', 'edward.a@sample.com', 'user2', 'user2_password'),
-       ('7b027916-bf26-4d6a-a5d2-c0e77909cf69', 'Harry', 'James', 'james.h@sample.com', 'user3', 'user3_password'),
-       ('7c16a2d9-0e53-4cb7-bb06-72153eebde67', 'Timothy', 'Dodson', 'dodson.t@sample.com', 'user4', 'user4_password'),
-       ('1176d639-16f7-4d6b-a572-86dcd03328df', 'Yuri', 'Davis', 'davis.y@sample.com', 'user5', 'user5_password'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', 'Ethal', 'May', 'may.e@sample.com', 'user6', 'user6_password'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'Ruby', 'Eleanor', 'eleanor.r@sample.com', 'user7', 'user7_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', 'John', 'Smith', 'smith.j@sample.com', 'user1', 'user1_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', 'Asa', 'Edward', 'edward.a@sample.com', 'user2', 'user2_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('0bf0a761-a8e3-4410-8345-5b9b8b06b101', 'Harry', 'James', 'james.h@sample.com', 'user3', 'user3_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('a86bca8a-7822-4e7b-95ac-590509ae8171', 'Timothy', 'Dodson', 'dodson.t@sample.com', 'user4', 'user4_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('10c064c1-daf7-4021-974b-11f3c924100c', 'Yuri', 'Davis', 'davis.y@sample.com', 'user5', 'user5_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', 'Ethal', 'May', 'may.e@sample.com', 'user6', 'user6_password');
+INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', 'Ruby', 'Eleanor', 'eleanor.r@sample.com', 'user7', 'user7_password');
 
-INSERT INTO public.promotion (id, category, cuisine, name, description, date_added, expiration_date, price_range,
-                              "userId")
-VALUES ('fbc784cb-5311-43a7-b344-0ac839da0b3d', 'Bogo', 'Caribbean', 'promo1', 'description1',
-        '2020-11-06 05:14:10.210345', '2020-11-06 05:14:09.182000', '$', '767d4ad4-0bcd-43da-884b-927698f5ea79'),
-       ('c1db90ff-5b0d-4654-9d06-7e3a29d71e46', 'Happy Hour', 'Vietnamese', 'promo2', 'description2',
-        '2020-11-06 05:14:10.232736', '2020-11-06 05:14:09.183000', '$', '40f21718-1069-4e4b-8e62-80a7e3564c8b'),
-       ('697acd14-f3d2-4f91-8453-47543f03e1be', 'Other', 'Korean', 'promo3', 'description3',
-        '2020-11-06 05:14:10.242346', '2020-11-06 05:14:09.183000', '$', '40f21718-1069-4e4b-8e62-80a7e3564c8b'),
-       ('84e28242-320a-4d76-9758-e561550f5646', 'Bogo', 'Japanese', 'promo4', 'description4',
-        '2020-11-06 05:14:10.250411', '2020-11-06 05:14:09.183000', '$$', '40f21718-1069-4e4b-8e62-80a7e3564c8b'),
-       ('2325e21a-5d3a-456c-ab56-8a4741453ee8', 'Happy Hour', 'Other', 'promo5', 'description5',
-        '2020-11-06 05:14:10.257515', '2020-11-06 05:14:09.183000', '$$$', '7b027916-bf26-4d6a-a5d2-c0e77909cf69'),
-       ('c9d40396-4979-42bf-8114-5c97c7e5e3d1', 'Other', 'Caribbean', 'promo6', 'description6',
-        '2020-11-06 05:14:10.264931', '2020-11-06 05:14:09.183000', '$$$$', '7c16a2d9-0e53-4cb7-bb06-72153eebde67'),
-       ('2ba91b3d-b2f5-42d6-a7f9-ec708bc3f5d0', 'Bogo', 'Vietnamese', 'promo7', 'description7',
-        '2020-11-06 05:14:10.272380', '2020-11-06 05:14:09.183000', '$$$$$', '1176d639-16f7-4d6b-a572-86dcd03328df'),
-       ('54eb6680-3950-4583-8686-32e5ab996130', 'Happy Hour', 'Korean', 'promo8', 'description8',
-        '2020-11-06 05:14:10.279519', '2020-11-06 05:14:09.183000', '$', '1176d639-16f7-4d6b-a572-86dcd03328df'),
-       ('fd4ece27-094b-497c-a4b1-e38167d6a59a', 'Other', 'Japanese', 'promo9', 'description9',
-        '2020-11-06 05:14:10.286948', '2020-11-06 05:14:09.183000', '$$', '63e12b0c-3e15-46a0-bc4c-0e3a6080458a'),
-       ('75bb5721-5bcc-4a3d-b170-cfecabcf798b', 'Bogo', 'Other', 'promo10', 'description10',
-        '2020-11-06 05:14:10.297403', '2020-11-06 05:14:09.183000', '$$$', '63e12b0c-3e15-46a0-bc4c-0e3a6080458a'),
-       ('33e7162a-bf3d-4288-b712-d08f66ddf5c9', 'Happy Hour', 'Caribbean', 'promo11', 'description11',
-        '2020-11-06 05:14:10.306350', '2020-11-06 05:14:09.183000', '$$$$', '26e06366-df97-4f41-bd1e-440b0df25b45'),
-       ('1814301c-f9ae-4478-9f3d-fcbcef8666ef', 'Other', 'Vietnamese', 'promo12', 'description12',
-        '2020-11-06 05:14:10.313852', '2020-11-06 05:14:09.183000', '$$$$$', '26e06366-df97-4f41-bd1e-440b0df25b45'),
-       ('6abc9f15-d0a4-40d1-8137-b9fd9f47e118', 'Bogo', 'Korean', 'promo13', 'description13',
-        '2020-11-06 05:14:10.321149', '2020-11-06 05:14:09.183000', '$$', '26e06366-df97-4f41-bd1e-440b0df25b45'),
-       ('b5973258-864f-421d-88a9-59a8e9af2a15', 'Happy Hour', 'Japanese', 'promo14', 'description14',
-        '2020-11-06 05:14:10.328282', '2020-11-06 05:14:09.183000', '$$$', '26e06366-df97-4f41-bd1e-440b0df25b45'),
-       ('ebfe14cd-2bde-491c-8dc3-0bfe7d838bf3', 'Other', 'Other', 'promo15', 'description15',
-        '2020-11-06 05:14:10.335013', '2020-11-06 05:14:09.183000', '$$', '26e06366-df97-4f41-bd1e-440b0df25b45'),
-       ('73de3527-6a3b-4769-be9d-4dcb42140716', 'Bogo', 'Caribbean', 'promo16', 'description16',
-        '2020-11-06 05:14:10.341909', '2020-11-06 05:14:09.183000', '$', '26e06366-df97-4f41-bd1e-440b0df25b45');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('176a6748-0a25-4caa-b13d-3f06c2c2835a', 'ChIJIfBAsjeuEmsRdgu9Pl1Ps48', 'Bogo', 'Caribbean', 'promo1', 'description1', '2020-11-10 05:34:53.689353', '2020-11-10 05:34:53.064000', '895f652b-9091-4f38-adcf-93f6fd6603b4');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('60efb12d-a986-4a8b-a9dc-18cacd50a318', 'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k', 'Happy Hour', 'Vietnamese', 'promo2', 'description2', '2020-11-10 05:34:53.701886', '2020-11-10 05:34:53.064000', '584b9130-e824-41d1-9f50-e2b04642d2f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('3891856a-c5aa-46e6-8cb0-a2e0cbf6feb4', 'ChIJb0n5cWl3hlQRIbVGYLiTEgE', 'Other', 'Korean', 'promo3', 'description3', '2020-11-10 05:34:53.706478', '2020-11-10 05:34:53.064000', '584b9130-e824-41d1-9f50-e2b04642d2f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('65abe361-5432-442c-b7dc-433df1378379', 'ChIJIfBAsjeuEmsRdgu9Pl1Ps48', 'Bogo', 'Japanese', 'promo4', 'description4', '2020-11-10 05:34:53.712264', '2020-11-10 05:34:53.064000', '584b9130-e824-41d1-9f50-e2b04642d2f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('f75f8f69-87fb-4fd6-9cf3-9759908c023b', 'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k', 'Happy Hour', 'Other', 'promo5', 'description5', '2020-11-10 05:34:53.716948', '2020-11-10 05:34:53.064000', '0bf0a761-a8e3-4410-8345-5b9b8b06b101');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('92546069-da3c-40ad-b238-3514ad25eed4', 'ChIJb0n5cWl3hlQRIbVGYLiTEgE', 'Other', 'Caribbean', 'promo6', 'description6', '2020-11-10 05:34:53.721203', '2020-11-10 05:34:53.064000', 'a86bca8a-7822-4e7b-95ac-590509ae8171');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('d1fa357d-3e2f-4805-8938-ee9a1aae4b69', 'ChIJIfBAsjeuEmsRdgu9Pl1Ps48', 'Bogo', 'Vietnamese', 'promo7', 'description7', '2020-11-10 05:34:53.725977', '2020-11-10 05:34:53.064000', '10c064c1-daf7-4021-974b-11f3c924100c');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('7e7ca923-7e51-4b4a-b238-46522c679254', 'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k', 'Happy Hour', 'Korean', 'promo8', 'description8', '2020-11-10 05:34:53.730973', '2020-11-10 05:34:53.064000', '10c064c1-daf7-4021-974b-11f3c924100c');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('790b49ea-92d3-443b-b557-bf5e45c67526', 'ChIJb0n5cWl3hlQRIbVGYLiTEgE', 'Other', 'Japanese', 'promo9', 'description9', '2020-11-10 05:34:53.737667', '2020-11-10 05:34:53.064000', '38640db0-fba0-4003-b31f-5c5adbae500a');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('72d171ff-0832-44de-90f3-2329fc628f82', 'ChIJIfBAsjeuEmsRdgu9Pl1Ps48', 'Bogo', 'Other', 'promo10', 'description10', '2020-11-10 05:34:53.744077', '2020-11-10 05:34:53.064000', '38640db0-fba0-4003-b31f-5c5adbae500a');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('5da1b779-b2aa-44c7-8f06-44e74b44a5dd', 'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k', 'Happy Hour', 'Caribbean', 'promo11', 'description11', '2020-11-10 05:34:53.749182', '2020-11-10 05:34:53.064000', '5f7c1806-077f-4585-ad39-a68d633e86f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('f75b6543-560c-4e2b-bb1f-d0ad27055493', 'ChIJb0n5cWl3hlQRIbVGYLiTEgE', 'Other', 'Vietnamese', 'promo12', 'description12', '2020-11-10 05:34:53.754729', '2020-11-10 05:34:53.064000', '5f7c1806-077f-4585-ad39-a68d633e86f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('2788b4a2-b847-4a03-a17a-008a6dffc6f6', 'ChIJIfBAsjeuEmsRdgu9Pl1Ps48', 'Bogo', 'Korean', 'promo13', 'description13', '2020-11-10 05:34:53.760294', '2020-11-10 05:34:53.064000', '5f7c1806-077f-4585-ad39-a68d633e86f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('9a56bf1d-c1ef-4bff-815d-f1600b50d9ca', 'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k', 'Happy Hour', 'Japanese', 'promo14', 'description14', '2020-11-10 05:34:53.765160', '2020-11-10 05:34:53.064000', '5f7c1806-077f-4585-ad39-a68d633e86f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('42efe648-92d0-4e61-a2f2-579676605a06', 'ChIJb0n5cWl3hlQRIbVGYLiTEgE', 'Other', 'Other', 'promo15', 'description15', '2020-11-10 05:34:53.770298', '2020-11-10 05:34:53.064000', '5f7c1806-077f-4585-ad39-a68d633e86f1');
+INSERT INTO public.promotion (id, "placeId", category, cuisine, name, description, date_added, expiration_date, "userId") VALUES ('0ca8b6bb-b0d1-4623-98d2-6049f5b1b71a', 'ChIJIfBAsjeuEmsRdgu9Pl1Ps48', 'Bogo', 'Caribbean', 'promo16', 'description16', '2020-11-10 05:34:53.775525', '2020-11-10 05:34:53.064000', '5f7c1806-077f-4585-ad39-a68d633e86f1');
 
-INSERT INTO public.discount (id, type, "discountValue", "promotionId")
-VALUES ('6fba7509-fbf0-4ee7-8990-56c0b5a60b9c', '%', 1, 'fbc784cb-5311-43a7-b344-0ac839da0b3d'),
-       ('2e20d55e-0ea5-421f-ab38-ba21fadf7ae0', '%', 2, 'c1db90ff-5b0d-4654-9d06-7e3a29d71e46'),
-       ('6a38dd6b-c456-4592-b46e-924ef689991f', '$', 3, 'c1db90ff-5b0d-4654-9d06-7e3a29d71e46'),
-       ('a3ba2997-e6a6-47fd-b135-fa2e3d62f6bd', '$', 4, '697acd14-f3d2-4f91-8453-47543f03e1be'),
-       ('5f841ab6-afee-481b-8e07-145de14315c8', '%', 5, '84e28242-320a-4d76-9758-e561550f5646'),
-       ('13c942ba-19b2-4957-86a4-58f94cc9c429', '%', 6, '2325e21a-5d3a-456c-ab56-8a4741453ee8'),
-       ('354b666c-012f-4cf0-b2f8-4b3a3e67152b', '$', 7, 'c9d40396-4979-42bf-8114-5c97c7e5e3d1'),
-       ('8beb58ff-2de2-419d-b27f-fd1057ed5aba', '$', 8, '2ba91b3d-b2f5-42d6-a7f9-ec708bc3f5d0'),
-       ('df0a5ce8-8e3c-4cbf-a70f-2e7fc4c07ebe', '%', 9, '54eb6680-3950-4583-8686-32e5ab996130'),
-       ('1fac2974-745e-40dd-bd20-63546c99d235', '%', 10, 'fd4ece27-094b-497c-a4b1-e38167d6a59a'),
-       ('92da6421-e8fd-4d6d-a777-1ba3ab5af092', '$', 11, '75bb5721-5bcc-4a3d-b170-cfecabcf798b'),
-       ('8f301398-8c97-4e7e-8d8b-1b5930c84bdb', '$', 12, '75bb5721-5bcc-4a3d-b170-cfecabcf798b'),
-       ('243501e6-b77f-4a41-b65d-afd5b576a1ab', '%', 13, '75bb5721-5bcc-4a3d-b170-cfecabcf798b'),
-       ('a52c1f52-9d39-46be-a6bb-4fc8930fff74', '%', 14, '33e7162a-bf3d-4288-b712-d08f66ddf5c9'),
-       ('090927ef-2190-40d8-96ce-d7562f918430', '$', 15, '1814301c-f9ae-4478-9f3d-fcbcef8666ef'),
-       ('7c0b7be1-b942-482c-ad0c-b0b77859db99', '$', 16, '6abc9f15-d0a4-40d1-8137-b9fd9f47e118'),
-       ('2490565b-53c4-49fd-be58-e59857999eba', '%', 17, 'b5973258-864f-421d-88a9-59a8e9af2a15'),
-       ('7f818240-958f-428c-8543-782cea1432d0', '%', 18, 'ebfe14cd-2bde-491c-8dc3-0bfe7d838bf3'),
-       ('f8942688-64f6-45ff-b9dd-0e18d0b338e5', '$', 19, '73de3527-6a3b-4769-be9d-4dcb42140716'),
-       ('40f1ed0a-bfee-444d-983e-208aa633cab6', '$', 20, '73de3527-6a3b-4769-be9d-4dcb42140716');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('44ab1d61-9a26-453e-85ab-b3c9df4496a9', '%', 1, '176a6748-0a25-4caa-b13d-3f06c2c2835a');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('78200b1b-0c53-4902-b3c0-2c42cfc10be7', '%', 2, '60efb12d-a986-4a8b-a9dc-18cacd50a318');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('40211825-4e8d-4d82-8553-dcfd30d20ccf', '$', 3.99, '3891856a-c5aa-46e6-8cb0-a2e0cbf6feb4');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('bd8ea8d2-a013-4440-b334-872ddb1a4a1e', '$', 4, '65abe361-5432-442c-b7dc-433df1378379');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('7e7f0e33-fcf2-4e54-8e3b-56cc216ce45e', '%', 5.6, 'f75f8f69-87fb-4fd6-9cf3-9759908c023b');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('6c386393-5b11-4719-8ecf-98b5c54b8a4e', '%', 6, '92546069-da3c-40ad-b238-3514ad25eed4');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('a450f9f5-47b8-465c-99e5-e055088733fd', '$', 7, 'd1fa357d-3e2f-4805-8938-ee9a1aae4b69');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('8fd88084-6f7b-470b-9728-f9f3823faab6', '$', 8, '7e7ca923-7e51-4b4a-b238-46522c679254');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('a9121d35-3124-4c63-b0d3-539923a8b44f', '%', 9, '790b49ea-92d3-443b-b557-bf5e45c67526');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('84111308-f853-4317-8ac1-ccdace15debc', '%', 10, '72d171ff-0832-44de-90f3-2329fc628f82');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('d7fa581c-c916-40be-9911-0294aeee377e', '$', 11, '5da1b779-b2aa-44c7-8f06-44e74b44a5dd');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('e0357807-f2c6-4f62-baac-5102237ad118', '$', 12, 'f75b6543-560c-4e2b-bb1f-d0ad27055493');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('9b53f5aa-6bcb-4094-b176-c40cf1e6a03b', '%', 13, '2788b4a2-b847-4a03-a17a-008a6dffc6f6');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('0a962e60-6445-4b14-8e82-b9524d587c5e', '%', 14, '9a56bf1d-c1ef-4bff-815d-f1600b50d9ca');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('545496d4-91eb-4ce0-8215-0e5f3d1cc38a', '$', 15, '42efe648-92d0-4e61-a2f2-579676605a06');
+INSERT INTO public.discount (id, type, "discountValue", "promotionId") VALUES ('b4eee23d-8a64-4e98-b212-1705b19937b8', '$', 16, '0ca8b6bb-b0d1-4623-98d2-6049f5b1b71a');
 
-INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved)
-VALUES ('767d4ad4-0bcd-43da-884b-927698f5ea79', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.362702'),
-       ('767d4ad4-0bcd-43da-884b-927698f5ea79', 'c1db90ff-5b0d-4654-9d06-7e3a29d71e46', '2020-11-06 05:14:10.362702'),
-       ('767d4ad4-0bcd-43da-884b-927698f5ea79', '697acd14-f3d2-4f91-8453-47543f03e1be', '2020-11-06 05:14:10.362702'),
-       ('767d4ad4-0bcd-43da-884b-927698f5ea79', '84e28242-320a-4d76-9758-e561550f5646', '2020-11-06 05:14:10.362702'),
-       ('767d4ad4-0bcd-43da-884b-927698f5ea79', '2ba91b3d-b2f5-42d6-a7f9-ec708bc3f5d0', '2020-11-06 05:14:10.362702'),
-       ('767d4ad4-0bcd-43da-884b-927698f5ea79', '54eb6680-3950-4583-8686-32e5ab996130', '2020-11-06 05:14:10.362702'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.373879'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', 'c1db90ff-5b0d-4654-9d06-7e3a29d71e46', '2020-11-06 05:14:10.373879'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', '697acd14-f3d2-4f91-8453-47543f03e1be', '2020-11-06 05:14:10.373879'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', '84e28242-320a-4d76-9758-e561550f5646', '2020-11-06 05:14:10.373879'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', '2325e21a-5d3a-456c-ab56-8a4741453ee8', '2020-11-06 05:14:10.373879'),
-       ('40f21718-1069-4e4b-8e62-80a7e3564c8b', 'c9d40396-4979-42bf-8114-5c97c7e5e3d1', '2020-11-06 05:14:10.373879'),
-       ('7b027916-bf26-4d6a-a5d2-c0e77909cf69', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.385399'),
-       ('7b027916-bf26-4d6a-a5d2-c0e77909cf69', '2ba91b3d-b2f5-42d6-a7f9-ec708bc3f5d0', '2020-11-06 05:14:10.385399'),
-       ('7b027916-bf26-4d6a-a5d2-c0e77909cf69', '54eb6680-3950-4583-8686-32e5ab996130', '2020-11-06 05:14:10.385399'),
-       ('7c16a2d9-0e53-4cb7-bb06-72153eebde67', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.395055'),
-       ('7c16a2d9-0e53-4cb7-bb06-72153eebde67', 'fd4ece27-094b-497c-a4b1-e38167d6a59a', '2020-11-06 05:14:10.395055'),
-       ('7c16a2d9-0e53-4cb7-bb06-72153eebde67', '75bb5721-5bcc-4a3d-b170-cfecabcf798b', '2020-11-06 05:14:10.395055'),
-       ('1176d639-16f7-4d6b-a572-86dcd03328df', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.405310'),
-       ('1176d639-16f7-4d6b-a572-86dcd03328df', '75bb5721-5bcc-4a3d-b170-cfecabcf798b', '2020-11-06 05:14:10.405310'),
-       ('1176d639-16f7-4d6b-a572-86dcd03328df', '33e7162a-bf3d-4288-b712-d08f66ddf5c9', '2020-11-06 05:14:10.405310'),
-       ('1176d639-16f7-4d6b-a572-86dcd03328df', 'c1db90ff-5b0d-4654-9d06-7e3a29d71e46', '2020-11-06 05:14:10.405310'),
-       ('1176d639-16f7-4d6b-a572-86dcd03328df', '697acd14-f3d2-4f91-8453-47543f03e1be', '2020-11-06 05:14:10.405310'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.414655'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', '33e7162a-bf3d-4288-b712-d08f66ddf5c9', '2020-11-06 05:14:10.414655'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', '1814301c-f9ae-4478-9f3d-fcbcef8666ef', '2020-11-06 05:14:10.414655'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', '6abc9f15-d0a4-40d1-8137-b9fd9f47e118', '2020-11-06 05:14:10.414655'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', 'b5973258-864f-421d-88a9-59a8e9af2a15', '2020-11-06 05:14:10.414655'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', 'ebfe14cd-2bde-491c-8dc3-0bfe7d838bf3', '2020-11-06 05:14:10.414655'),
-       ('63e12b0c-3e15-46a0-bc4c-0e3a6080458a', '73de3527-6a3b-4769-be9d-4dcb42140716', '2020-11-06 05:14:10.414655'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'fbc784cb-5311-43a7-b344-0ac839da0b3d', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'c1db90ff-5b0d-4654-9d06-7e3a29d71e46', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '697acd14-f3d2-4f91-8453-47543f03e1be', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '84e28242-320a-4d76-9758-e561550f5646', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '2325e21a-5d3a-456c-ab56-8a4741453ee8', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'c9d40396-4979-42bf-8114-5c97c7e5e3d1', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '2ba91b3d-b2f5-42d6-a7f9-ec708bc3f5d0', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '54eb6680-3950-4583-8686-32e5ab996130', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'fd4ece27-094b-497c-a4b1-e38167d6a59a', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '75bb5721-5bcc-4a3d-b170-cfecabcf798b', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '33e7162a-bf3d-4288-b712-d08f66ddf5c9', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '1814301c-f9ae-4478-9f3d-fcbcef8666ef', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '6abc9f15-d0a4-40d1-8137-b9fd9f47e118', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'b5973258-864f-421d-88a9-59a8e9af2a15', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', 'ebfe14cd-2bde-491c-8dc3-0bfe7d838bf3', '2020-11-06 05:14:10.429939'),
-       ('26e06366-df97-4f41-bd1e-440b0df25b45', '73de3527-6a3b-4769-be9d-4dcb42140716', '2020-11-06 05:14:10.429939');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.783873');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', '60efb12d-a986-4a8b-a9dc-18cacd50a318', '2020-11-10 05:34:53.828355');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', '3891856a-c5aa-46e6-8cb0-a2e0cbf6feb4', '2020-11-10 05:34:53.843584');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', '65abe361-5432-442c-b7dc-433df1378379', '2020-11-10 05:34:53.849495');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', '7e7ca923-7e51-4b4a-b238-46522c679254', '2020-11-10 05:34:53.849887');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('895f652b-9091-4f38-adcf-93f6fd6603b4', 'd1fa357d-3e2f-4805-8938-ee9a1aae4b69', '2020-11-10 05:34:53.852625');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.861736');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', '60efb12d-a986-4a8b-a9dc-18cacd50a318', '2020-11-10 05:34:53.861795');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', '3891856a-c5aa-46e6-8cb0-a2e0cbf6feb4', '2020-11-10 05:34:53.861841');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', 'f75f8f69-87fb-4fd6-9cf3-9759908c023b', '2020-11-10 05:34:53.861870');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', '65abe361-5432-442c-b7dc-433df1378379', '2020-11-10 05:34:53.861896');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('584b9130-e824-41d1-9f50-e2b04642d2f1', '92546069-da3c-40ad-b238-3514ad25eed4', '2020-11-10 05:34:53.861962');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('0bf0a761-a8e3-4410-8345-5b9b8b06b101', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.866955');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('0bf0a761-a8e3-4410-8345-5b9b8b06b101', 'd1fa357d-3e2f-4805-8938-ee9a1aae4b69', '2020-11-10 05:34:53.866969');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('0bf0a761-a8e3-4410-8345-5b9b8b06b101', '7e7ca923-7e51-4b4a-b238-46522c679254', '2020-11-10 05:34:53.867015');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('a86bca8a-7822-4e7b-95ac-590509ae8171', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.870057');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('a86bca8a-7822-4e7b-95ac-590509ae8171', '790b49ea-92d3-443b-b557-bf5e45c67526', '2020-11-10 05:34:53.870110');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('a86bca8a-7822-4e7b-95ac-590509ae8171', '72d171ff-0832-44de-90f3-2329fc628f82', '2020-11-10 05:34:53.870194');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('10c064c1-daf7-4021-974b-11f3c924100c', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.873233');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('10c064c1-daf7-4021-974b-11f3c924100c', '72d171ff-0832-44de-90f3-2329fc628f82', '2020-11-10 05:34:53.873284');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('10c064c1-daf7-4021-974b-11f3c924100c', '5da1b779-b2aa-44c7-8f06-44e74b44a5dd', '2020-11-10 05:34:53.873346');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('10c064c1-daf7-4021-974b-11f3c924100c', '60efb12d-a986-4a8b-a9dc-18cacd50a318', '2020-11-10 05:34:53.873388');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('10c064c1-daf7-4021-974b-11f3c924100c', '3891856a-c5aa-46e6-8cb0-a2e0cbf6feb4', '2020-11-10 05:34:53.873479');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.877829');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', '5da1b779-b2aa-44c7-8f06-44e74b44a5dd', '2020-11-10 05:34:53.877882');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', '2788b4a2-b847-4a03-a17a-008a6dffc6f6', '2020-11-10 05:34:53.877969');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', 'f75b6543-560c-4e2b-bb1f-d0ad27055493', '2020-11-10 05:34:53.877969');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', '9a56bf1d-c1ef-4bff-815d-f1600b50d9ca', '2020-11-10 05:34:53.878022');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', '42efe648-92d0-4e61-a2f2-579676605a06', '2020-11-10 05:34:53.878046');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('38640db0-fba0-4003-b31f-5c5adbae500a', '0ca8b6bb-b0d1-4623-98d2-6049f5b1b71a', '2020-11-10 05:34:53.907628');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '176a6748-0a25-4caa-b13d-3f06c2c2835a', '2020-11-10 05:34:53.915412');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '60efb12d-a986-4a8b-a9dc-18cacd50a318', '2020-11-10 05:34:53.915473');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '3891856a-c5aa-46e6-8cb0-a2e0cbf6feb4', '2020-11-10 05:34:53.915532');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '65abe361-5432-442c-b7dc-433df1378379', '2020-11-10 05:34:53.915553');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', 'f75f8f69-87fb-4fd6-9cf3-9759908c023b', '2020-11-10 05:34:53.915604');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '92546069-da3c-40ad-b238-3514ad25eed4', '2020-11-10 05:34:53.915622');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', 'd1fa357d-3e2f-4805-8938-ee9a1aae4b69', '2020-11-10 05:34:53.915665');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '5da1b779-b2aa-44c7-8f06-44e74b44a5dd', '2020-11-10 05:34:53.925469');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', 'f75b6543-560c-4e2b-bb1f-d0ad27055493', '2020-11-10 05:34:53.925757');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '2788b4a2-b847-4a03-a17a-008a6dffc6f6', '2020-11-10 05:34:53.925999');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '9a56bf1d-c1ef-4bff-815d-f1600b50d9ca', '2020-11-10 05:34:53.926243');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '42efe648-92d0-4e61-a2f2-579676605a06', '2020-11-10 05:34:53.926529');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '0ca8b6bb-b0d1-4623-98d2-6049f5b1b71a', '2020-11-10 05:34:53.927831');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '7e7ca923-7e51-4b4a-b238-46522c679254', '2020-11-10 05:34:53.952985');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '790b49ea-92d3-443b-b557-bf5e45c67526', '2020-11-10 05:34:53.958291');
+INSERT INTO public.saved_promotion ("userId", "promotionId", date_saved) VALUES ('5f7c1806-077f-4585-ad39-a68d633e86f1', '72d171ff-0832-44de-90f3-2329fc628f82', '2020-11-10 05:34:53.959369');

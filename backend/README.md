@@ -3,6 +3,7 @@
 ## Requirements
 
 1. Postgres
+   - when installing, use the default password "postgres"
 2. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
 
@@ -19,7 +20,13 @@ Fill out the environment variables respectively
 
 ## Setting up databases
 
-You will need two databases, `foodies` and `foodies_test`
+You will need two databases, `foodies` and `foodies_test`.
+
+**Make sure your username is `postgres`**.
+
+1. Launch `psql`
+2. Connect to localhost and select everything to default. The password should be the same as the one during installation, "postgres".
+3. Once logged in, execute the following commands. **Important:** don't forget the semicolons.
 
 ```
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO postgres;
@@ -71,7 +78,7 @@ To import data from `init_data.sql`, run this command inside a command prompt. M
 `psql` should prompt you to enter your password.
 
 ```
-psql -d foodies -f src/resources/init_data.sql --username={YOUR_USERNAME}`
+psql -d foodies -f src/main/resources/init_data.sql --username=postgres
 ```
 
 ### Loading data through typeORM
@@ -109,3 +116,16 @@ for (const [user, promotions] of saved_promotions_mapping) {
 ## Local development with Docker
 
 Follow the docker instructions on the global `README.md`.
+
+## If you modify any of the entities
+
+- make sure `main/resources/Data.ts` is updated accordingly.
+- generate a new `init_data.sql` script.
+  1. Load all data using `Data.ts` into the tables.
+  2. Select all tables, right click, and select the following:  
+     ![image](https://user-images.githubusercontent.com/49849754/98633000-6f8fb700-22d5-11eb-8a02-9726213ebad4.png)
+  3. Make note of the location you save these files to and click `Export to File`  
+     ![image](https://user-images.githubusercontent.com/49849754/98633026-79191f00-22d5-11eb-833b-da2372a51da8.png)
+  4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions)  
+     ![image](https://user-images.githubusercontent.com/49849754/98633056-8504e100-22d5-11eb-9b24-54af8d87f1b1.png)
+  5. Delete the generated files.
