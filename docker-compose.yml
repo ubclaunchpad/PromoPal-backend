@@ -11,8 +11,10 @@ services:
           - ./tmp/db:/var/lib/postgresql/data
         environment:
           POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
+          POSTGRES_DB: foodies
+          POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
         hostname: localhost
         ports:
           - "5432:5432"
