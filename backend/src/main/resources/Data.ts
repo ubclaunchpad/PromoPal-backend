@@ -7,9 +7,9 @@ import { CuisineType } from '../data/CuisineType';
 
 const discount1 = new Discount(DiscountType.PERCENTAGE, 1);
 const discount2 = new Discount(DiscountType.PERCENTAGE, 2);
-const discount3 = new Discount(DiscountType.AMOUNT, 3);
+const discount3 = new Discount(DiscountType.AMOUNT, 3.99);
 const discount4 = new Discount(DiscountType.AMOUNT, 4);
-const discount5 = new Discount(DiscountType.PERCENTAGE, 5);
+const discount5 = new Discount(DiscountType.PERCENTAGE, 5.6);
 const discount6 = new Discount(DiscountType.PERCENTAGE, 6);
 const discount7 = new Discount(DiscountType.AMOUNT, 7);
 const discount8 = new Discount(DiscountType.AMOUNT, 8);
@@ -21,10 +21,6 @@ const discount13 = new Discount(DiscountType.PERCENTAGE, 13);
 const discount14 = new Discount(DiscountType.PERCENTAGE, 14);
 const discount15 = new Discount(DiscountType.AMOUNT, 15);
 const discount16 = new Discount(DiscountType.AMOUNT, 16);
-const discount17 = new Discount(DiscountType.PERCENTAGE, 17);
-const discount18 = new Discount(DiscountType.PERCENTAGE, 18);
-const discount19 = new Discount(DiscountType.AMOUNT, 19);
-const discount20 = new Discount(DiscountType.AMOUNT, 20);
 
 const user1 = new User(
   'John',
@@ -78,163 +74,163 @@ const user7 = new User(
 
 const promotion1 = new Promotion(
   user1,
-  [discount1],
+  discount1,
+  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionCategory.BOGO,
   CuisineType.CARIBBEAN,
   'promo1',
   'description1',
-  new Date(),
-  '$'
+  new Date()
 );
 const promotion2 = new Promotion(
   user2,
-  [discount2, discount3],
+  discount2,
+  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionCategory.HAPPY_HOUR,
   CuisineType.VIETNAMESE,
   'promo2',
   'description2',
-  new Date(),
-  '$'
+  new Date()
 );
 const promotion3 = new Promotion(
   user2,
-  [discount4],
+  discount3,
+  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionCategory.OTHER,
   CuisineType.KOREAN,
   'promo3',
   'description3',
-  new Date(),
-  '$'
+  new Date()
 );
 const promotion4 = new Promotion(
   user2,
-  [discount5],
+  discount4,
+  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionCategory.BOGO,
   CuisineType.JAPANESE,
   'promo4',
   'description4',
-  new Date(),
-  '$$'
+  new Date()
 );
 const promotion5 = new Promotion(
   user3,
-  [discount6],
+  discount5,
+  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionCategory.HAPPY_HOUR,
   CuisineType.OTHER,
   'promo5',
   'description5',
-  new Date(),
-  '$$$'
+  new Date()
 );
 const promotion6 = new Promotion(
   user4,
-  [discount7],
+  discount6,
+  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionCategory.OTHER,
   CuisineType.CARIBBEAN,
   'promo6',
   'description6',
-  new Date(),
-  '$$$$'
+  new Date()
 );
 const promotion7 = new Promotion(
   user5,
-  [discount8],
+  discount7,
+  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionCategory.BOGO,
   CuisineType.VIETNAMESE,
   'promo7',
   'description7',
-  new Date(),
-  '$$$$$'
+  new Date()
 );
 const promotion8 = new Promotion(
   user5,
-  [discount9],
+  discount8,
+  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionCategory.HAPPY_HOUR,
   CuisineType.KOREAN,
   'promo8',
   'description8',
-  new Date(),
-  '$'
+  new Date()
 );
 const promotion9 = new Promotion(
   user6,
-  [discount10],
+  discount9,
+  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionCategory.OTHER,
   CuisineType.JAPANESE,
   'promo9',
   'description9',
-  new Date(),
-  '$$'
+  new Date()
 );
 const promotion10 = new Promotion(
   user6,
-  [discount11, discount12, discount13],
+  discount10,
+  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionCategory.BOGO,
   CuisineType.OTHER,
   'promo10',
   'description10',
-  new Date(),
-  '$$$'
+  new Date()
 );
 const promotion11 = new Promotion(
   user7,
-  [discount14],
+  discount11,
+  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionCategory.HAPPY_HOUR,
   CuisineType.CARIBBEAN,
   'promo11',
   'description11',
-  new Date(),
-  '$$$$'
+  new Date()
 );
 const promotion12 = new Promotion(
   user7,
-  [discount15],
+  discount12,
+  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionCategory.OTHER,
   CuisineType.VIETNAMESE,
   'promo12',
   'description12',
-  new Date(),
-  '$$$$$'
+  new Date()
 );
 const promotion13 = new Promotion(
   user7,
-  [discount16],
+  discount13,
+  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionCategory.BOGO,
   CuisineType.KOREAN,
   'promo13',
   'description13',
-  new Date(),
-  '$$'
+  new Date()
 );
 const promotion14 = new Promotion(
   user7,
-  [discount17],
+  discount14,
+  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionCategory.HAPPY_HOUR,
   CuisineType.JAPANESE,
   'promo14',
   'description14',
-  new Date(),
-  '$$$'
+  new Date()
 );
 const promotion15 = new Promotion(
   user7,
-  [discount18],
+  discount15,
+  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionCategory.OTHER,
   CuisineType.OTHER,
   'promo15',
   'description15',
-  new Date(),
-  '$$'
+  new Date()
 );
 const promotion16 = new Promotion(
   user7,
-  [discount19, discount20],
+  discount16,
+  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionCategory.BOGO,
   CuisineType.CARIBBEAN,
   'promo16',
   'description16',
-  new Date(),
-  '$'
+  new Date()
 );
 
 export const discounts_sample = [
@@ -255,10 +251,6 @@ export const discounts_sample = [
   discount14,
   discount15,
   discount16,
-  discount17,
-  discount18,
-  discount19,
-  discount20,
 ];
 export const users_sample = [user1, user2, user3, user4, user5, user6, user7];
 export const promotions_sample = [

@@ -2,8 +2,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Promotion } from './Promotion';
 import { DiscountType } from '../data/DiscountType';
@@ -24,11 +24,12 @@ export class Discount {
   id: number;
 
   /*
-   * ManyToOne bidirectional relationship between Discount and Promotion
-   * Many discounts can be owned by one promotion
+   * OneToOne bidirectional relationship between Discount and Promotion
+   * Each discount is owned by one promotion
    * On delete cascade on foreign key promotionId
+   * Bidirectional for search query purposes (find promotions related to a discount)
    * */
-  @ManyToOne(() => Promotion, (promotion) => promotion.discounts, {
+  @OneToOne(() => Promotion, (promotion) => promotion.discount, {
     nullable: false,
     onDelete: 'CASCADE',
   })
@@ -42,6 +43,6 @@ export class Discount {
   })
   type: DiscountType;
 
-  @Column('decimal')
+  @Column('real')
   discountValue: number;
 }

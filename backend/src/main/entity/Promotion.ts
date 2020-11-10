@@ -6,12 +6,14 @@ import {
   OneToMany,
   JoinColumn,
   CreateDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { User } from './User';
 import { Discount } from './Discount';
 import { PromotionCategory } from '../data/PromotionCategory';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
+import { Schedule } from './Schedule';
 
 /*
  * Represents a promotion
@@ -21,26 +23,33 @@ import { SavedPromotion } from './SavedPromotion';
 export class Promotion {
   constructor(
     user: User,
-    discounts: Discount[],
+    discount: Discount,
+    placeId: string,
     category: PromotionCategory,
     cuisine: CuisineType,
     name: string,
     description: string,
-    expirationDate: Date,
-    priceRange: string
+    expirationDate: Date
   ) {
     this.user = user;
-    this.discounts = discounts;
+    this.discount = discount;
+    this.placeId = placeId;
     this.category = category;
     this.cuisine = cuisine;
     this.name = name;
     this.description = description;
     this.expirationDate = expirationDate;
-    this.priceRange = priceRange;
   }
 
   @PrimaryGeneratedColumn('uuid')
   id: number;
+
+  /*
+   * Represents Google Places API place_id
+   * Many promotions can come from the same restaurant and thus have the same placeId
+   * */
+  @Column()
+  placeId: string;
 
   /*
    * ManyToOne bidirectional relationship between Promotion and User
@@ -56,19 +65,20 @@ export class Promotion {
   user: User;
 
   /*
-   * OneToMany bidirectional relationship between Promotion and Discount
-   * Each promotion can have many discounts
+   * OneToOne bidirectional relationship between Promotion and Discount
+   * Each promotion can have a single discount
    * */
-  @OneToMany(() => Discount, (discount) => discount.promotion, {
+  @OneToOne(() => Discount, (discount) => discount.promotion, {
     cascade: true,
     nullable: false,
   })
-  discounts: Discount[];
+  discount: Discount;
 
   /*
    * ManyToMany bidirectional relationship between Promotion and User
    * SavedPromotion is the join table with custom properties
    * Each promotion can be saved by 0 or many users
+   * Not included in constructor b/c when we create a promotion, there are no users who have saved it yet
    * */
   @OneToMany(
     () => SavedPromotion,
@@ -76,6 +86,17 @@ export class Promotion {
     {}
   )
   savedBy: SavedPromotion[];
+
+  /*
+   * OneToMany bidirectional relationship between Promotion and Schedule
+   * Each promotion can have 0 or more schedules
+   * */
+  // todo: Need to figure this out, then need to add to constructor and modify Data.ts
+  @OneToMany(() => Schedule, (schedule) => schedule.promotion, {
+    nullable: false,
+    cascade: true,
+  })
+  schedules: Schedule[];
 
   @Column({
     type: 'enum',
@@ -110,9 +131,4 @@ export class Promotion {
     default: () => 'CURRENT_TIMESTAMP',
   })
   expirationDate: Date;
-
-  @Column({
-    name: 'price_range',
-  })
-  priceRange: string;
 }

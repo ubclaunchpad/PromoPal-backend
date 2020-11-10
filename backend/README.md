@@ -1,12 +1,12 @@
 # Foodies Backend Project
 
-##Requirements
+## Requirements
 
 1. Postgres
 2. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
 
-##Before starting
+## Before starting
 
 1. Run `yarn install` to install all dependencies
 

@@ -12,6 +12,7 @@ import {
 import { UserRepository } from './repository/UserRepository';
 import { PromotionRepository } from './repository/PromotionRepository';
 import { DiscountRepository } from './repository/DiscountRepository';
+import { SavedPromotionRepository } from './repository/SavedPromotionRepository';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -29,6 +30,9 @@ createConnection()
     const discountRepository: DiscountRepository = getCustomRepository(
       DiscountRepository
     );
+    const savedPromotionRepository: SavedPromotionRepository = getCustomRepository(
+      SavedPromotionRepository
+    );
 
     // persist entities into database (see README.md for more details for loading data)
     for (const user of users_sample) {
@@ -40,7 +44,7 @@ createConnection()
     }
 
     for (const [user, promotions] of saved_promotions_mapping) {
-      await userRepository.addSavedPromotions(user, promotions);
+      await savedPromotionRepository.addSavedPromotions(user, promotions);
     }
 
     // eager loading (loads everything)
@@ -52,7 +56,7 @@ createConnection()
       ],
     }); // see https://stackoverflow.com/questions/61236129/typeorm-custom-many-to-many-not-pulling-relation-data
     const promotions: Promotion[] = await promotionRepository.find({
-      relations: ['user', 'discounts'],
+      relations: ['user', 'discount'],
     });
     const discounts: Discount[] = await discountRepository.find({
       relations: ['promotion'],

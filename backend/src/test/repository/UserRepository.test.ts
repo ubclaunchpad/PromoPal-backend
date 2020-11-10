@@ -5,8 +5,11 @@ import { UserRepository } from '../../main/repository/UserRepository';
 import { BaseRepositoryTest } from './BaseRepositoryTest';
 
 describe('Unit tests for UserRepository', function () {
+  let userRepository: UserRepository;
   beforeEach(() => {
-    return BaseRepositoryTest.establishTestConnection();
+    return BaseRepositoryTest.establishTestConnection().then(() => {
+      userRepository = getCustomRepository(UserRepository);
+    });
   });
 
   afterEach(() => {
@@ -14,12 +17,36 @@ describe('Unit tests for UserRepository', function () {
     return conn.close();
   });
 
-  test('store Joe and fetch it', async () => {
+  test('Should be able to store a user and successfully retrieve the same user', async () => {
     const expectedUser: User = users_sample[0];
-    const userRepository: UserRepository = getCustomRepository(UserRepository);
     await userRepository.save(expectedUser);
-    const user = await userRepository.find({ where: { id: expectedUser.id } });
-    expect(user?.length === 1);
-    expect(user[0].firstName).toBe(expectedUser.firstName);
+    const user = await userRepository.findOne(expectedUser.id);
+    expect(user).toEqual(expectedUser);
+  });
+
+  test('Should not be able to add two users with the same username', async () => {
+    users_sample[1].username = users_sample[0].username;
+    await userRepository.save(users_sample[0]);
+    try {
+      await userRepository.save(users_sample[1]);
+      fail('Should  have failed');
+    } catch (e) {
+      expect(e.detail).toEqual(
+        `Key (username)=(${users_sample[0].username}) already exists.`
+      );
+    }
+  });
+
+  test('Should not be able to add two users with the same email', async () => {
+    users_sample[1].email = users_sample[0].email;
+    await userRepository.save(users_sample[0]);
+    try {
+      await userRepository.save(users_sample[1]);
+      fail('Should  have failed');
+    } catch (e) {
+      expect(e.detail).toEqual(
+        `Key (email)=(${users_sample[0].email}) already exists.`
+      );
+    }
   });
 });
