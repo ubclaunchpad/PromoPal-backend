@@ -30,7 +30,6 @@ class UserController {
                 select: ["id", "username", "firstName", "lastName", "email"], 
                 relations: ["uploadedPromotions", "savedPromotions"]
             });
-            // select: ["id", "username", "firstName", "lastName", "uploadedPromotions", "savedPromotions"]
             res.send(user);
             return;
         } catch (err) {
