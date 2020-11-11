@@ -10,7 +10,7 @@ class UserController {
         // get users from database
         const userRepository = getRepository(User);
         const users = await userRepository.find({
-            select: ["id", "username", "first_name", "last_name"]
+            select: ["id", "username", "firstName", "lastName"]
         });
 
         // send the users object
@@ -20,16 +20,22 @@ class UserController {
     // return one user
     static getOneById = async (req: Request, res: Response) => {
         // get the id from the url
-        const id: number = req.params.id;
+        const id: string = req.params.id;
+        console.log(id);
 
         // get user from database
         const userRepository = getRepository(User);
         try {
             const user = await userRepository.findOneOrFail(id, {
-                select: ["id", "username", "first_name", "last_name", "uploadedPromotions", "savedPromotions"]
+                select: ["id", "username", "firstName", "lastName", "email"], 
+                relations: ["uploadedPromotions", "savedPromotions"]
             });
+            // select: ["id", "username", "firstName", "lastName", "uploadedPromotions", "savedPromotions"]
+            res.send(user);
+            return;
         } catch (err) {
             res.status(404).send("User not found");
+            return;
         }
     };
 
@@ -61,4 +67,69 @@ class UserController {
         // If all ok, send 201
         res.status(201).send("User created");
     };
+
+    // update one user
+    static editUser = async (req: Request, res: Response) => {
+        // get the ID from the url
+        const id: string = req.params.id;
+
+        // get values from the body
+        const {username, email, firstName, lastName} = req.body;
+
+        // try to find user on db
+        const userRepository = getRepository(User);
+        let user;
+        try {
+            user = await userRepository.findOneOrFail(id, {
+                select: ["id", "username", "firstName", "lastName", "email"]
+            });
+        } catch (error) {
+            // not found
+            res.status(404).send("User not found");
+            return;
+        }
+
+        // validate the new values on model
+        user.username = username;
+        user.email = email;
+        user.firstName = firstName;
+        user.lastName = lastName;
+        const errors = await validate(user);
+        if (errors.length > 0) {
+            res.status(400).send(errors);
+            return;
+        }
+
+        try {
+            await userRepository.save(user);
+        } catch (e) {
+            res.status(409).send("username already in use");
+            return;
+        }
+
+        res.status(204).send();
+    };
+
+    // delete one user
+    static deleteUser = async (req: Request, res: Response) => {
+        // get the ID from the url
+        const id: number = +req.params.id;
+
+        const userRepository = getRepository(User);
+        let user: User;
+        try {
+            user = await userRepository.findOneOrFail(id);
+        } catch (error) {
+            res.status(404).send("User not found");
+            return;
+        }
+
+        // delete
+        userRepository.delete(id);
+
+        // success
+        res.status(204).send();
+    };
 }
+
+export default UserController;

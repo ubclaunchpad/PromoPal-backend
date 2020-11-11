@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Promotion } from './Promotion';
 import { SavedPromotion } from './SavedPromotion';
+import * as bcrypt from "bcryptjs";
 
 /*
  * Represents a user in our application.
@@ -69,4 +70,12 @@ export class User {
     unique: true,
   })
   password: string;
+
+  hashPassword() {
+    this.password = bcrypt.hashSync(this.password, 8);
+  }
+
+  checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
+    return bcrypt.compareSync(unencryptedPassword, this.password);
+  }
 }

@@ -5,18 +5,18 @@ import { User } from "../entity/User";
 const router = Router();
 
 // get all users
-router.get("", UserController.listAll);
+router.get("/", UserController.listAll);
 
 // get one user
-router.get(":id([0-9]+)", UserController.getOneById);
+router.get("/:id", UserController.getOneById);
 
 // create a new user
-router.post("", UserController.newUser);
+router.post("/", UserController.newUser);
 
 // edit one user
-router.patch(":id([0-9]+)", UserController.editUser);
+router.patch("/:id", UserController.editUser);
 
 // delete one user
-router.delete(":id([0-9]+)", UserController.deleteUser);
+router.delete("/:id", UserController.deleteUser);
 
 export default router;

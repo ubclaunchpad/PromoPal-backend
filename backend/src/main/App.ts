@@ -13,6 +13,7 @@ import { UserRepository } from './repository/UserRepository';
 import { PromotionRepository } from './repository/PromotionRepository';
 import { DiscountRepository } from './repository/DiscountRepository';
 import { SavedPromotionRepository } from './repository/SavedPromotionRepository';
+import UserRouter from './routers/UserRouter';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -75,6 +76,7 @@ createConnection()
 
     // define routes
     app.get('/', (req, res) => res.send('Hello World'));
+    app.use('/user', UserRouter);
     app.get('/users', async (req, res) => {
       const body = await something();
       res.send(body);

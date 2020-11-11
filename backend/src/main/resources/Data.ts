@@ -29,6 +29,7 @@ const user1 = new User(
   'user1',
   'user1_password'
 );
+user1.hashPassword();
 const user2 = new User(
   'Asa',
   'Edward',
@@ -36,6 +37,7 @@ const user2 = new User(
   'user2',
   'user2_password'
 );
+user2.hashPassword();
 const user3 = new User(
   'Harry',
   'James',
@@ -43,6 +45,7 @@ const user3 = new User(
   'user3',
   'user3_password'
 );
+user3.hashPassword();
 const user4 = new User(
   'Timothy',
   'Dodson',
@@ -50,6 +53,7 @@ const user4 = new User(
   'user4',
   'user4_password'
 );
+user4.hashPassword();
 const user5 = new User(
   'Yuri',
   'Davis',
@@ -57,6 +61,7 @@ const user5 = new User(
   'user5',
   'user5_password'
 );
+user5.hashPassword();
 const user6 = new User(
   'Ethal',
   'May',
@@ -64,6 +69,7 @@ const user6 = new User(
   'user6',
   'user6_password'
 );
+user6.hashPassword();
 const user7 = new User(
   'Ruby',
   'Eleanor',
@@ -71,6 +77,7 @@ const user7 = new User(
   'user7',
   'user7_password'
 );
+user7.hashPassword();
 
 const promotion1 = new Promotion(
   user1,
