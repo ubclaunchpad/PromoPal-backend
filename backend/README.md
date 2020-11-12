@@ -40,7 +40,9 @@ CREATE DATABASE foodies;
 
 GRANT ALL PRIVILEGES ON DATABASE foodies TO postgres;
 ```
+
 ## Unit/Integration tests
+
 Currently, all tests drop the schema after each test. Therefore, do not design tests to be reliant on data from previous tests.
 
 ## Drop the database schema:
