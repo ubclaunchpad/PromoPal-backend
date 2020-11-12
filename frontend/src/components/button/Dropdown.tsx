@@ -10,11 +10,13 @@ import {
 function constructOptions(options: DropdownOptions[]): ReactElement {
   return (
     <Menu>
-      {options.map(({ link, text }) => (
-        <Menu.Item>
-          <a href={link}>{text}</a>
-        </Menu.Item>
-      ))}
+      {options.map(
+        ({ link, text }: { link: string; text: string }, index: number) => (
+          <Menu.Item key={index}>
+            <a href={link}>{text}</a>
+          </Menu.Item>
+        )
+      )}
     </Menu>
   );
 }
@@ -39,6 +41,7 @@ export default function Dropdown({
   return (
     <DD overlay={constructOptions(options)}>
       <a
+        href="/"
         className="ant-dropdown-link"
         onClick={(e) => e.preventDefault()}
         style={styles.button}
