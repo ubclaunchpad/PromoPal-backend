@@ -67,6 +67,7 @@ export class User {
   // todo: we need something more secure
   @Column({
     unique: true,
+    select: false, // https://typeorm.io/#/select-query-builder/hidden-columns
   })
   password: string;
 }
