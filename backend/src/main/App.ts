@@ -13,7 +13,9 @@ import { UserRepository } from './repository/UserRepository';
 import { PromotionRepository } from './repository/PromotionRepository';
 import { DiscountRepository } from './repository/DiscountRepository';
 import { SavedPromotionRepository } from './repository/SavedPromotionRepository';
-import UserRouter from './routers/UserRouter';
+import { UserRouter } from './route/UserRouter';
+import { UserController } from './controller/UserController';
+import { Route } from './constant/Route';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -23,6 +25,16 @@ createConnection()
     const app = express();
     app.use(bodyParser.json());
     const PORT = 8000;
+
+    registerRouters(app);
+
+    function registerRouters(app: express.Express) {
+      app.get('/', (req, res) => res.send('Hello World'));
+    
+      const userController = new UserController();
+      const userRouter = new UserRouter(userController);
+      app.use(Route.USER, userRouter.getRoutes());
+    }
 
     const userRepository: UserRepository = getCustomRepository(UserRepository);
     const promotionRepository: PromotionRepository = getCustomRepository(
@@ -74,13 +86,7 @@ createConnection()
       loadRelationIds: true,
     });
 
-    // define routes
-    app.get('/', (req, res) => res.send('Hello World'));
-    app.use('/user', UserRouter);
-    app.get('/users', async (req, res) => {
-      const body = await something();
-      res.send(body);
-    });
+
     app.listen(PORT, () => {
       console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
     });
