@@ -3,7 +3,7 @@ import { UserController } from "../controller/UserController";
 
 export class UserRouter {
     private userRouter = Router();
-    private userController = new UserController();
+    private userController;
 
     constructor(usercontroller: UserController) {
         this.userController = usercontroller;

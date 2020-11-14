@@ -5,6 +5,7 @@ import { UserRepository } from "../repository/UserRepository";
 import { IdValidation } from "../validation/IdValidation";
 import { UserDTO, UserValidation } from "../validation/UserValidation";
 import { UserUpdateValidation, UserUpdateDTO} from "../validation/UserUpdateValidation";
+import * as bcrypt from "bcryptjs";
 
 export class UserController {
     /**
@@ -37,9 +38,7 @@ export class UserController {
                 abortEarly: false,
             });
             const userRepository = getCustomRepository(UserRepository);
-            const user = await userRepository.findOneOrFail(id, {
-                select: ["id", "username", "firstName", "lastName", "email"]
-            });
+            const user = await userRepository.findOneOrFail(id);
             return res.send(user);
         } catch (e) {
             return next(e);
@@ -55,8 +54,6 @@ export class UserController {
                 { abortEarly: false }
             );
             let user = new User(userDTO.firstName, userDTO.lastName, userDTO.email, userDTO.username, userDTO.password);
-            //  hash the password, to securely store on DB
-            user.hashPassword();
             
             // try to save, if fails, the username is already in use
             const userRepository = getCustomRepository(UserRepository);
@@ -80,6 +77,9 @@ export class UserController {
                 req.body,
                 { abortEarly: false }
             );
+            if (userUpdateDTO.password) {
+                userUpdateDTO.password = bcrypt.hashSync(userUpdateDTO.password, 8);
+            }
             const result = await userRepository.update(id, userUpdateDTO);
             res.status(204).send(result);
         } catch (e) {

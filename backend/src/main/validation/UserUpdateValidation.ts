@@ -8,7 +8,7 @@ export class UserUpdateValidation {
         username: Joi.string(),
         firstName: Joi.string(),
         lastName: Joi.string(),
-        email: Joi.string(),
+        email: Joi.string().email(),
         password: Joi.string().min(8),
     }).required();
 }

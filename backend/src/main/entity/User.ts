@@ -20,7 +20,7 @@ export class User {
     this.lastName = lastName;
     this.email = email;
     this.username = username;
-    this.password = password;
+    this.password = bcrypt.hashSync(this.password, 8);
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -68,12 +68,9 @@ export class User {
   // todo: we need something more secure
   @Column({
     unique: true,
+    select: false
   })
   password: string;
-
-  hashPassword() {
-    this.password = bcrypt.hashSync(this.password, 8);
-  }
 
   checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
     return bcrypt.compareSync(unencryptedPassword, this.password);
