@@ -1,5 +1,4 @@
 import Joi, { ObjectSchema } from 'joi';
-import { IdValidation } from './IdValidation';
 
 /**
  * check the validity of an user, used when we make a POST request to /users

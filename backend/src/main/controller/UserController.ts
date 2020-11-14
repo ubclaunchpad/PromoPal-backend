@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, response } from "express";
 import { getCustomRepository, getRepository } from "typeorm";
 import { User } from "../entity/User";
-import { validate } from "class-validator";
 import { UserRepository } from "../repository/UserRepository";
 import { IdValidation } from "../validation/IdValidation";
 import { UserDTO, UserValidation } from "../validation/UserValidation";
+import { UserUpdateValidation, UserUpdateDTO} from "../validation/UserUpdateValidation";
 
 export class UserController {
     /**
@@ -68,65 +68,37 @@ export class UserController {
     };
 
     // update one user
-    public editUser = async (req: Request, res: Response) => {
-        // get the ID from the url
-        const id: string = req.params.id;
-
-        // get values from the body
-        const {username, email, firstName, lastName} = req.body;
-
-        // try to find user on db
-        const userRepository = getRepository(User);
-        let user;
+    editUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            user = await userRepository.findOneOrFail(id, {
-                select: ["id", "username", "firstName", "lastName", "email"]
+            // get the ID from the url
+            const id = await IdValidation.schema.validateAsync(req.params.id, {
+                abortEarly: false,
             });
-        } catch (error) {
-            // not found
-            res.status(404).send("User not found");
-            return;
-        }
-
-        // validate the new values on model
-        user.username = username;
-        user.email = email;
-        user.firstName = firstName;
-        user.lastName = lastName;
-        const errors = await validate(user);
-        if (errors.length > 0) {
-            res.status(400).send(errors);
-            return;
-        }
-
-        try {
-            await userRepository.save(user);
+            const userRepository = getCustomRepository(UserRepository);
+            // get parameters from the body
+            const userUpdateDTO: UserUpdateDTO = await UserUpdateValidation.schema.validateAsync(
+                req.body,
+                { abortEarly: false }
+            );
+            const result = await userRepository.update(id, userUpdateDTO);
+            res.status(204).send(result);
         } catch (e) {
-            res.status(409).send("username already in use");
-            return;
+            next(e);
         }
-
-        res.status(204).send();
     };
 
     // delete one user
-    public deleteUser = async (req: Request, res: Response) => {
-        // get the ID from the url
-        const id: number = +req.params.id;
-
-        const userRepository = getRepository(User);
-        let user: User;
+    deleteUser = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            user = await userRepository.findOneOrFail(id);
-        } catch (error) {
-            res.status(404).send("User not found");
-            return;
+            // get the ID from the url
+            const id = await IdValidation.schema.validateAsync(req.params.id, {
+                abortEarly: false,
+            });
+            const userRepository = getCustomRepository(UserRepository);
+            const user = await userRepository.delete(id);
+            return res.status(204).send(user);
+        } catch (e) {
+            next(e);
         }
-
-        // delete
-        userRepository.delete(id);
-
-        // success
-        res.status(204).send();
     };
 }
