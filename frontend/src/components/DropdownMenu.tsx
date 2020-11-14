@@ -61,7 +61,7 @@ const styles: { [identifier: string]: CSSProperties } = {
 
 export default function DropdownMenu(): ReactElement {
   return (
-    <div style={styles.filterBar}>
+    <div id="dropdown-menu" style={styles.filterBar}>
       {dropdowns.map((dropdown) => (
         <Dropdown {...dropdown} />
       ))}

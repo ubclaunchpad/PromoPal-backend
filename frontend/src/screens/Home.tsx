@@ -1,61 +1,30 @@
-import React, { CSSProperties, ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import DropdownMenu from "../components/DropdownMenu";
-import PromotionCard from "../components/promotion/PromotionCard";
-
-import { Promotion } from "../types/Promotion";
-
-const promotions: Promotion[] = [
-  {
-    title: "Happy Hour 2pm-4pm",
-    restaurantName: "Starbucks",
-    description: "Buy one, get one free on all Grande sized drinks!",
-    date: "Nov 11, 2020",
-    liked: false,
-    image: { src: "" },
-  },
-  {
-    title: "$2 off Sandwiches",
-    restaurantName: "Grandma Loves You",
-    description: "Get $2 off any sandwich of your choice.",
-    date: "Nov 20, 2020",
-    liked: false,
-    image: { src: "" },
-  },
-  {
-    title: "10% off Breakfast",
-    restaurantName: "Elephant Grind Coffee House",
-    description:
-      "Get 10% off of your order (pre-tax) when you spend over $15 on breakfast.",
-    date: "Thursday",
-    liked: true,
-    image: { src: "" },
-  },
-];
+import MapContainer from "../components/MapContainer";
+import PromotionList from "../components/PromotionList";
 
 const mapWidth = 60;
-const styles: { [identifier: string]: CSSProperties } = {
-  mapContainer: {
-    width: `${mapWidth}%`,
-  },
-  promotions: {
-    margin: 15,
-    marginBottom: 0,
-    width: `${100 - mapWidth}%`,
-  },
-};
 
 export default function Home(): ReactElement {
+  const [height, setHeight] = useState<string>("");
+
+  useEffect(() => {
+    // Note: the following is not considered best practice, but it is used to calculate the height
+    // of the header + dropdown so that we can use it as an offset
+    const headerHeight = document.getElementById("navigation-header")
+      ?.offsetHeight;
+    const dropdownMenuHeight = document.getElementById("dropdown-menu")
+      ?.offsetHeight;
+    setHeight(`calc(100vh - ${headerHeight}px - ${dropdownMenuHeight}px)`);
+  }, []);
+
   return (
     <>
       <DropdownMenu />
-      <div style={{ display: "inline-flex" }}>
-        <div style={styles.mapContainer}></div>
-        <div style={styles.promotions}>
-          {promotions.map((promotion: Promotion) => (
-            <PromotionCard {...promotion} />
-          ))}
-        </div>
+      <div id="content-container" style={{ display: "inline-flex", height }}>
+        <MapContainer dimensions={{ width: `${mapWidth}vw`, height }} />
+        <PromotionList dimensions={{ width: `${100 - mapWidth}vw`, height }} />
       </div>
     </>
   );

@@ -39,6 +39,7 @@ export default function Dropdown({
   return (
     <DD overlay={constructOptions(options)}>
       <a
+        href="/"
         className="ant-dropdown-link"
         onClick={(e) => e.preventDefault()}
         style={styles.button}
