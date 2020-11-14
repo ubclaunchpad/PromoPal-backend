@@ -17,6 +17,8 @@ import { Route } from './constant/Route';
 import { PromotionRouter } from './route/PromotionRouter';
 import { errorHandler } from './middleware/ErrorHandler';
 import { PromotionController } from './controller/PromotionController';
+import { EnumController } from './controller/EnumController';
+import { EnumRouter } from './route/EnumRouter';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -46,6 +48,10 @@ function registerRouters(app: Express) {
   const promotionController = new PromotionController();
   const promotionRouter = new PromotionRouter(promotionController);
   app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
+
+  const enumController = new EnumController();
+  const enumRouter = new EnumRouter(enumController);
+  app.use(Route.ENUMS, enumRouter.getRoutes());
 }
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */

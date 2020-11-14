@@ -3,4 +3,5 @@
  * */
 export enum Route {
   PROMOTIONS = '/promotions',
+  ENUMS = '/enums',
 }
