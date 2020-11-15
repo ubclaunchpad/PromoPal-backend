@@ -9,6 +9,10 @@ import {
   PromotionValidation,
 } from '../validation/PromotionValidation';
 import { IdValidation } from '../validation/IdValidation';
+import {
+  PromotionQueryDTO,
+  PromotionQueryValidation,
+} from '../validation/PromotionQueryValidation';
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 export class PromotionController {
@@ -24,9 +28,15 @@ export class PromotionController {
     next: NextFunction
   ): Promise<any> => {
     try {
+      const promotionQuery: PromotionQueryDTO = await PromotionQueryValidation.schema.validateAsync(
+        request.query,
+        {
+          abortEarly: false,
+        }
+      );
       const promotions = await getCustomRepository(
         PromotionRepository
-      ).getAllPromotions(request.query);
+      ).getAllPromotions(promotionQuery);
       return response.send(promotions);
     } catch (e) {
       return next(e);

@@ -5,10 +5,7 @@ import {
   SelectQueryBuilder,
 } from 'typeorm';
 import { Promotion } from '../entity/Promotion';
-import {
-  PromotionQueryDTO,
-  PromotionQueryValidation,
-} from '../validation/PromotionQueryValidation';
+import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
@@ -16,21 +13,15 @@ import {
 export class PromotionRepository extends Repository<Promotion> {
   /**
    * Gets all promotions by constructing a query builder.
-   * * Depending on whether request.query exists, we will need to apply the necessary operations on top of
+   * * Depending on whether promotionQuery has any content, we will need to apply the necessary operations on top of
    * the queryBuilder in order to support filtering operations
    * */
-  async getAllPromotions(query: any): Promise<any> {
+  async getAllPromotions(promotionQuery: PromotionQueryDTO): Promise<any> {
     let queryBuilder = getCustomRepository(PromotionRepository)
       .createQueryBuilder('promotion')
       .innerJoinAndSelect('promotion.discount', 'discount');
 
-    if (query) {
-      const promotionQuery: PromotionQueryDTO = await PromotionQueryValidation.schema.validateAsync(
-        query,
-        { abortEarly: false }
-      );
-      queryBuilder = this.applyQueryOptions(queryBuilder, promotionQuery);
-    }
+    queryBuilder = this.applyQueryOptions(queryBuilder, promotionQuery);
 
     return queryBuilder.getMany();
   }
