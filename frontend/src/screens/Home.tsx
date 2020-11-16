@@ -3,6 +3,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import DropdownMenu from "../components/DropdownMenu";
 import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
+import { usePromotionsList } from "../contexts/PromotionsListContext";
 import * as Promotion from "../types/promotion";
 
 const mapWidth = 60;
@@ -10,7 +11,7 @@ const mapWidth = 60;
 export default function Home(): ReactElement {
   const [height, setHeight] = useState<string>("");
 
-  const { dispatch } = { dispatch: (type: any) => { /* stub */ }}
+  const { dispatch } = usePromotionsList();
 
   const dropdowns = [
     {
