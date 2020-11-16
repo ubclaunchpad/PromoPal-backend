@@ -4,15 +4,15 @@ import { DownOutlined } from "@ant-design/icons";
 
 import {
   Dropdown as DropdownType,
-  DropdownOptions,
-} from "../../types/Dropdown";
+  DropdownOption,
+} from "../../types/dropdown";
 
-function constructOptions(options: DropdownOptions[]): ReactElement {
+function constructOptions(options: DropdownOption[]): ReactElement {
   return (
     <Menu>
-      {options.map(({ link, text }) => (
+      {options.map(({ action, text }) => (
         <Menu.Item>
-          <a href={link}>{text}</a>
+          <div onClick={action}>{text}</div>
         </Menu.Item>
       ))}
     </Menu>
