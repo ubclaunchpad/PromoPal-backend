@@ -8,7 +8,7 @@ import { DiscountType } from '../data/DiscountType';
  * */
 export class PromotionQueryValidation {
   static schema: ObjectSchema = Joi.object({
-    name: Joi.string(),
+    searchQuery: Joi.string(),
     discountType: Joi.string().valid(...Object.values(DiscountType)),
     category: Joi.string().valid(...Object.values(PromotionCategory)),
     cuisine: Joi.string().valid(...Object.values(CuisineType)),
@@ -17,9 +17,9 @@ export class PromotionQueryValidation {
 }
 
 export interface PromotionQueryDTO {
-  name: string;
-  discountType: DiscountType;
-  category: PromotionCategory;
-  cuisine: CuisineType;
-  expirationDate: string;
+  searchQuery?: string;
+  discountType?: DiscountType;
+  category?: PromotionCategory;
+  cuisine?: CuisineType;
+  expirationDate?: string;
 }

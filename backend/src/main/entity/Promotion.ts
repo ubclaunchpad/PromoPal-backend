@@ -42,7 +42,7 @@ export class Promotion {
   }
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * Represents Google Places API place_id
@@ -131,4 +131,23 @@ export class Promotion {
     default: () => 'CURRENT_TIMESTAMP',
   })
   expirationDate: Date;
+
+  /**
+   * Represents a Postgres tsvector used for Full Text Search. Elements of a tsvector are lexemes along with their positions
+   * * Not to be included in constructor since there is a trigger that sets this column automatically on update/insert
+   * * select: false since this information should be hidden from client
+   * */
+  @Column({
+    name: 'tsvector',
+    type: 'tsvector',
+    nullable: false,
+    select: false,
+  })
+  tsVector: string;
+
+  /**
+   * Used only for full text search when returning rank back to client.
+   * Represents how relevant documents are to a particular query, so that the most relevant one can be shown
+   */
+  rank?: number;
 }

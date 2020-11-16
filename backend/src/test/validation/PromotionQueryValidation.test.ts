@@ -14,7 +14,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       cuisine: CuisineType.VIETNAMESE,
       discountType: DiscountType.AMOUNT,
       expirationDate: '2020-11-09 03:39:40.395843',
-      name: 'promo',
+      searchQuery: 'promo',
     };
   });
 
@@ -107,7 +107,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
         cuisine: 'string',
         discountType: false,
         expirationDate: true,
-        name: 1,
+        searchQuery: 1,
       };
       await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
         abortEarly: false,
@@ -115,7 +115,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(7);
-      expect(e.details[0].message).toEqual('"name" must be a string');
+      expect(e.details[0].message).toEqual('"searchQuery" must be a string');
       expect(e.details[1].message).toEqual(
         '"discountType" must be one of [%, $, Other]'
       );

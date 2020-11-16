@@ -1,9 +1,4 @@
-import {
-  EntityRepository,
-  getCustomRepository,
-  Repository,
-  SelectQueryBuilder,
-} from 'typeorm';
+import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm';
 import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 
@@ -16,66 +11,111 @@ export class PromotionRepository extends Repository<Promotion> {
    * * Depending on whether promotionQuery has any content, we will need to apply the necessary operations on top of
    * the queryBuilder in order to support filtering operations
    * */
-  async getAllPromotions(promotionQuery: PromotionQueryDTO): Promise<any> {
-    let queryBuilder = getCustomRepository(PromotionRepository)
-      .createQueryBuilder('promotion')
-      .innerJoinAndSelect('promotion.discount', 'discount');
-
-    queryBuilder = this.applyQueryOptions(queryBuilder, promotionQuery);
-
-    return queryBuilder.getMany();
+  async getAllPromotions(promotionQuery?: PromotionQueryDTO): Promise<any> {
+    if (
+      promotionQuery &&
+      JSON.stringify(promotionQuery) !== JSON.stringify({})
+    ) {
+      return this.applyQueryOptions(promotionQuery);
+    } else {
+      return this.createQueryBuilder('promotion')
+        .innerJoinAndSelect('promotion.discount', 'discount')
+        .getMany();
+    }
   }
 
   /**
    * Depending on which properties are defined inside promotionQuery, we add those properties into our query for the queryBuilder to execute.
    */
-  private applyQueryOptions(
-    queryBuilder: SelectQueryBuilder<Promotion>,
-    promotionQuery: PromotionQueryDTO
-  ): SelectQueryBuilder<Promotion> {
+  private applyQueryOptions(promotionQuery: PromotionQueryDTO): Promise<any> {
+    const queryBuilder = this.createQueryBuilder('promotion');
+
     if (promotionQuery?.category) {
-      queryBuilder = queryBuilder.andWhere('promotion.category = :category', {
+      queryBuilder.andWhere('promotion.category = :category', {
         category: promotionQuery.category,
       });
     }
 
     if (promotionQuery?.cuisine) {
-      queryBuilder = queryBuilder.andWhere('promotion.cuisine = :cuisine', {
+      queryBuilder.andWhere('promotion.cuisine = :cuisine', {
         cuisine: promotionQuery.cuisine,
       });
     }
 
     if (promotionQuery?.discountType) {
-      queryBuilder = queryBuilder.andWhere('discount.type = :type', {
+      queryBuilder.andWhere('discount.type = :type', {
         type: promotionQuery.discountType,
       });
     }
 
     if (promotionQuery?.expirationDate) {
-      queryBuilder = queryBuilder.andWhere(
-        'promotion.expirationDate >= :date',
-        {
-          date: new Date(promotionQuery.expirationDate),
-        }
-      );
-    }
-
-    if (promotionQuery?.name) {
-      let name = promotionQuery.name;
-
-      // first escape % and _ (request needs to show it as https://stackoverflow.com/questions/17342671/pass-a-percent-sign-in-a-url-and-get-exact-value-of-it-using-php)
-      // this way users can query promotions that contain % or _
-      name = name.replace('%', '\\%');
-      name = name.replace('_', '\\_');
-
-      // add wildcards
-      name = `%${name.replace(/ /g, '%')}%`;
-
-      queryBuilder = queryBuilder.andWhere('promotion.name ilike :name', {
-        name: name,
+      queryBuilder.andWhere('promotion.expirationDate >= :date', {
+        date: new Date(promotionQuery.expirationDate),
       });
     }
 
-    return queryBuilder;
+    if (promotionQuery?.searchQuery) {
+      return this.fullTextSearch(queryBuilder, promotionQuery);
+    }
+
+    return queryBuilder.getMany();
   }
+
+  private async fullTextSearch(
+    queryBuilder: SelectQueryBuilder<Promotion>,
+    promotionQuery: PromotionQueryDTO
+  ): Promise<any> {
+    // todo: modify searchQuery accordingly
+    // todo: decide how to handle special characters (e.g. single quotes, AT&T as a single word)
+    const searchQuery = promotionQuery.searchQuery;
+
+    const arrayOfIdRank: IdRank[] = await this.createQueryBuilder('promotion')
+      .select('promotion.id', 'id')
+      .addSelect(
+        `ts_rank_cd(tsvector, replace(plainto_tsquery('${searchQuery}')::text, '&', '|')::tsquery)`,
+        'rank'
+      )
+      .where(
+        `tsvector @@ replace(plainto_tsquery('${searchQuery}')::text, '&', '|')::tsquery`
+      )
+      // .addSelect(`ts_rank_cd(tsvector, plainto_tsquery('${searchQuery}'))`, 'rank')
+      // .where(`tsvector @@ plainto_tsquery('${searchQuery}')`)
+      .orderBy('rank', 'DESC')
+      .getRawMany();
+
+    if (!arrayOfIdRank?.length) {
+      return [];
+    }
+
+    const promotions: Promotion[] = await queryBuilder
+      .innerJoinAndSelect('promotion.discount', 'discount')
+      .andWhere('promotion.id IN (:...ids)', {
+        ids: arrayOfIdRank.map((idRank) => idRank.id),
+      })
+      .getMany();
+
+    if (!promotions?.length) {
+      return [];
+    }
+
+    const mapIdToPromotion: Map<string, Promotion> = new Map(
+      promotions.map((promotion) => [promotion.id, promotion])
+    );
+
+    const result = [];
+    for (const idRank of arrayOfIdRank) {
+      const promotion = mapIdToPromotion.get(idRank.id);
+      if (promotion) {
+        promotion.rank = idRank.rank;
+        result.push(promotion);
+      }
+    }
+
+    return result;
+  }
+}
+
+interface IdRank {
+  id: string;
+  rank: number;
 }

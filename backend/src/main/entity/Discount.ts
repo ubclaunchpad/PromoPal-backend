@@ -21,7 +21,7 @@ export class Discount {
   }
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * OneToOne bidirectional relationship between Discount and Promotion

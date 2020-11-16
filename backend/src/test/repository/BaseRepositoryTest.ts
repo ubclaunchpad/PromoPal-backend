@@ -15,6 +15,7 @@ export class BaseRepositoryTest {
       logging: false,
       entities: ['src/main/entity/**/*.ts'],
       migrations: ['src/main/migration/**/*.ts'],
+      migrationsRun: true,
       subscribers: ['src/main/subscriber/**/*.ts'],
       cli: {
         entitiesDir: 'src/main/entity',
