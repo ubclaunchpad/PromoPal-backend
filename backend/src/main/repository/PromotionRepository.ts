@@ -101,12 +101,15 @@ export class PromotionRepository extends Repository<Promotion> {
       promotions.map((promotion) => [promotion.id, promotion])
     );
 
-    const result = [];
+    const result: PromotionWithRank[] = [];
     for (const idRank of arrayOfIdRank) {
       const promotion = mapIdToPromotion.get(idRank.id);
       if (promotion) {
-        promotion.rank = idRank.rank;
-        result.push(promotion);
+        const promotionWithRank: PromotionWithRank = {
+          ...promotion,
+          rank: idRank.rank,
+        };
+        result.push(promotionWithRank);
       }
     }
 
@@ -114,7 +117,19 @@ export class PromotionRepository extends Repository<Promotion> {
   }
 }
 
+/**
+ * Represents a promotion id and rank
+ * */
 interface IdRank {
   id: string;
+  rank: number;
+}
+
+/**
+ * Used only for full text search when returning rank and promotion back to client.
+ * * rank - represents how relevant documents are to a particular query, so that the most relevant one can be shown
+ * * even though we may return a Promotion or
+ * */
+export interface PromotionWithRank extends Promotion {
   rank: number;
 }

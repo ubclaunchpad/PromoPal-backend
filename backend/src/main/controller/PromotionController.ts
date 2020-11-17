@@ -20,6 +20,9 @@ export class PromotionController {
    * * First we need to validate the query params and cast that into a PromotionQueryDTO
    * * Then we apply the query options into the query builder depending on which properties are present
    * * Now we execute the query builder and return its results
+   *
+   * Note: if request.query contains searchQuery property, result returned back will have new property rank and will be sorted by rank non-ascending.
+   * Rank represents how relevant the search query applies to the promotion
    */
   getAllPromotions = async (
     request: Request,

@@ -144,10 +144,4 @@ export class Promotion {
     select: false,
   })
   tsVector: string;
-
-  /**
-   * Used only for full text search when returning rank back to client.
-   * Represents how relevant documents are to a particular query, so that the most relevant one can be shown
-   */
-  rank?: number;
 }

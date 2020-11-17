@@ -2,7 +2,10 @@ import { getConnection, getCustomRepository } from 'typeorm';
 import { promotions_sample, users_sample } from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
 import { BaseRepositoryTest } from './BaseRepositoryTest';
-import { PromotionRepository } from '../../main/repository/PromotionRepository';
+import {
+  PromotionRepository,
+  PromotionWithRank,
+} from '../../main/repository/PromotionRepository';
 import assert from 'assert';
 import { DiscountRepository } from '../../main/repository/DiscountRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
@@ -243,13 +246,13 @@ describe('Integration tests for all entities', function () {
     }
 
     try {
-      const promotions: Promotion[] = await promotionRepository.getAllPromotions(
+      const promotions: PromotionWithRank[] = await promotionRepository.getAllPromotions(
         promotionQueryDTO
       );
       // expecting 2 promotions
       expect(promotions?.length).toEqual(2);
 
-      // check that rank is decreasing
+      // check that rank exists on the promotion and is decreasing
       let currRank = 1;
       for (const promotion of promotions) {
         if (promotion.rank) {
