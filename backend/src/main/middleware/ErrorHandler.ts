@@ -6,7 +6,6 @@ import { ValidationError } from 'joi';
 /**
  * Middleware function to catch all global errors and convert them into FrontEndErrorObjects
  * */
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 export function errorHandler(
   error: Error,

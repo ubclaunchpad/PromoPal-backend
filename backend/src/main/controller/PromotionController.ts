@@ -14,7 +14,6 @@ import {
   PromotionQueryValidation,
 } from '../validation/PromotionQueryValidation';
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export class PromotionController {
   /**
    * Retrieves all promotions and their discounts

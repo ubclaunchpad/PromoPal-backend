@@ -2,7 +2,6 @@ import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm';
 import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
 export class PromotionRepository extends Repository<Promotion> {

@@ -10,7 +10,6 @@ enum SupportedEnums {
   CuisineType = 'CuisineType',
 }
 
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 export class EnumController {
   // validates that incoming string is of type SupportedEnums
   private enumSchemaValidation = Joi.string()
@@ -43,15 +42,12 @@ export class EnumController {
    * */
   private getEnumClass(supportedEnums: SupportedEnums) {
     switch (supportedEnums) {
-      case SupportedEnums.DiscountType: {
+      case SupportedEnums.DiscountType:
         return DiscountType;
-      }
-      case SupportedEnums.PromotionCategory: {
+      case SupportedEnums.PromotionCategory:
         return PromotionCategory;
-      }
-      case SupportedEnums.CuisineType: {
+      case SupportedEnums.CuisineType:
         return CuisineType;
-      }
     }
   }
 
