@@ -4,10 +4,10 @@ import { DownOutlined } from "@ant-design/icons";
 
 import {
   Dropdown as DropdownType,
-  DropdownOptions,
+  DropdownOption,
 } from "../../types/Dropdown";
 
-function constructOptions(options: DropdownOptions[]): ReactElement {
+function constructOptions(options: DropdownOption[]): ReactElement {
   return (
     <Menu>
       {options.map(({ link, text }) => (
