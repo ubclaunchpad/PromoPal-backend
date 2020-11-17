@@ -1,7 +1,9 @@
 import React, { CSSProperties, ReactElement } from "react";
+import { Checkbox, Row, Col } from 'antd';
 
 import DropdownMenu from "../components/DropdownMenu";
 import PromotionCard from "../components/promotion/PromotionCard";
+import UploadPromoButton from "../components/button/UploadPromoButton";
 
 import { DropdownOption, Dropdown} from "../types/Dropdown";
 import { Promotion } from "../types/Promotion";
@@ -27,27 +29,7 @@ const dropdowns: Dropdown[] = [
     options,
   },
   {
-    text: "Discount Type",
-    options,
-  },
-  {
-    text: "Cuisine",
-    options,
-  },
-  {
     text: "Category",
-    options,
-  },
-  {
-    text: "Price",
-    options,
-  },
-  {
-    text: "Day of the Week",
-    options,
-  },
-  {
-    text: "Dine In Available",
     options,
   },
 ];
@@ -80,28 +62,64 @@ const promotions: Promotion[] = [
   },
 ];
 
-const mapWidth = 60;
+const dropdownMenuWidth = 30;
 const styles: { [identifier: string]: CSSProperties } = {
-  mapContainer: {
-    width: `${mapWidth}%`,
+  body: {
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 20,
+    paddingTop: 20,
+    width: "100%",
   },
+
+  dropdownMenuContainer: {
+    width: `${dropdownMenuWidth}%`,
+  },
+
+  checkBoxContainer: {
+    padding: 20,
+    width: `${100 - dropdownMenuWidth}%`,
+  },
+
   promotions: {
-    margin: 15,
-    marginBottom: 0,
-    width: `${100 - mapWidth}%`,
+    marginTop: 15,
   },
+
+  uploadPromoButtonContainer: {
+    position: "fixed",
+    bottom: 50,
+    right: 50
+  }
 };
 
-export default function Home(): ReactElement {
+function onChange() {
+  console.log("Check");
+}
+
+export default function MyPromotions(): ReactElement {
   return (
     <>
-      <DropdownMenu dropdowns={dropdowns}/>
-      <div style={{ display: "inline-flex" }}>
-        <div style={styles.mapContainer}></div>
+      <div style={styles.body}>
+        <h1>Uploaded by you</h1>
+        <div style={{ display: "inline-flex", width: "100%"}}>
+          <div style={styles.dropdownMenuContainer}>
+            <DropdownMenu dropdowns={dropdowns}/>
+          </div>
+          <div style={styles.checkBoxContainer}>
+            <Checkbox onChange={onChange} style={{ float: "right"}}>Show active deals only</Checkbox>
+          </div>
+        </div>
         <div style={styles.promotions}>
-          {promotions.map((promotion: Promotion) => (
-            <PromotionCard {...promotion} />
-          ))}
+          <Row gutter={16}>
+            {promotions.map((promotion: Promotion) => (
+              <Col span={12}>
+                <PromotionCard {...promotion} />
+              </Col>
+            ))}
+          </Row>
+        </div>
+        <div style={styles.uploadPromoButtonContainer}>
+          <UploadPromoButton />
         </div>
       </div>
     </>
