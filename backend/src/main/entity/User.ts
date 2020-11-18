@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Promotion } from './Promotion';
 import { SavedPromotion } from './SavedPromotion';
 import * as bcrypt from "bcryptjs";
+import { string } from 'joi';
 
 /*
  * Represents a user in our application.
@@ -14,13 +15,13 @@ export class User {
     lastName: string,
     email: string,
     username: string,
-    password: string
+    password: string = ""
   ) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
     this.username = username;
-    this.password = bcrypt.hashSync(this.password, 8);
+    this.password = bcrypt.hashSync(password, 8);;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -74,5 +75,9 @@ export class User {
 
   checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
     return bcrypt.compareSync(unencryptedPassword, this.password);
+  }
+
+  setHashPassword() {
+    this.password = bcrypt.hashSync(this.password, 8);
   }
 }
