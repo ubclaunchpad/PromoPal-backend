@@ -21,5 +21,5 @@ export interface PromotionQueryDTO {
   discountType?: DiscountType;
   category?: PromotionCategory;
   cuisine?: CuisineType;
-  expirationDate: Date;
+  expirationDate?: Date;
 }
