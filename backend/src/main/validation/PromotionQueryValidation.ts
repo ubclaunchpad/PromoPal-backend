@@ -12,7 +12,7 @@ export class PromotionQueryValidation {
     discountType: Joi.string().valid(...Object.values(DiscountType)),
     category: Joi.string().valid(...Object.values(PromotionCategory)),
     cuisine: Joi.string().valid(...Object.values(CuisineType)),
-    expirationDate: Joi.date(),
+    expirationDate: Joi.date(), // note incoming format is a string, and Joi will automatically convert to type Date
   }).required();
 }
 
@@ -21,5 +21,5 @@ export interface PromotionQueryDTO {
   discountType?: DiscountType;
   category?: PromotionCategory;
   cuisine?: CuisineType;
-  expirationDate?: string;
+  expirationDate: Date;
 }

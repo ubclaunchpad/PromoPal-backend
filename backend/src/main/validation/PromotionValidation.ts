@@ -20,7 +20,7 @@ export class PromotionValidation {
       .required(),
     name: Joi.string().required(),
     description: Joi.string().required(),
-    expirationDate: Joi.date().required(),
+    expirationDate: Joi.date().required(), // note incoming format is a string, and Joi will automatically convert to type Date
   }).required();
 }
 
@@ -32,5 +32,5 @@ export interface PromotionDTO {
   cuisine: CuisineType;
   name: string;
   description: string;
-  expirationDate: string;
+  expirationDate: Date;
 }
