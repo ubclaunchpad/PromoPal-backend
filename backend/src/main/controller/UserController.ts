@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction, response } from "express";
-import { getCustomRepository, getRepository } from "typeorm";
+import { getConnection, getCustomRepository, getRepository } from "typeorm";
 import { User } from "../entity/User";
 import { UserRepository } from "../repository/UserRepository";
 import { IdValidation } from "../validation/IdValidation";
 import { UserDTO, UserValidation } from "../validation/UserValidation";
 import { UserUpdateValidation, UserUpdateDTO} from "../validation/UserUpdateValidation";
 import * as bcrypt from "bcryptjs";
+import { PromotionRepository } from "../repository/PromotionRepository";
+import { SavedPromotion } from "../entity/SavedPromotion";
+import { SavedPromotionRepository } from "../repository/SavedPromotionRepository";
 
 export class UserController {
     /**
@@ -95,8 +98,68 @@ export class UserController {
                 abortEarly: false,
             });
             const userRepository = getCustomRepository(UserRepository);
-            const user = await userRepository.delete(id);
-            return res.status(204).send(user);
+            const result = await userRepository.delete(id);
+            return res.status(204).send(result);
+        } catch (e) {
+            next(e);
+        }
+    };
+
+    // get all saved promotion
+    getSaved = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // get the id of user from the url
+            const id = await IdValidation.schema.validateAsync(req.params.id, {
+                abortEarly: false,
+            });
+            const userRepository = getCustomRepository(UserRepository);
+            const savedpromotions = await userRepository.findOneOrFail(id, {
+                relations: ["savedPromotions"]
+            });
+            
+            res.status(200).send(savedpromotions);
+        } catch (e) {
+            next(e);
+        }
+    };
+    // saved new promotion
+    newSaved = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // get the id of user and promotion from the url
+            const uid = await IdValidation.schema.validateAsync(req.params.id, {
+                abortEarly: false,
+            });
+            const pid = await IdValidation.schema.validateAsync(req.params.pid, {
+                abortEarly: false,
+            });
+            // create new saved promotion for the user based on promotion id
+            const promotion = await getCustomRepository(PromotionRepository).findOneOrFail(pid);
+            const user = await getCustomRepository(UserRepository).findOneOrFail(uid);
+            const result = await getCustomRepository(UserRepository).addSavedPromotion(user, promotion);
+
+            res.status(201).send(result);
+        } catch (e) {
+            next(e);
+        }
+    };
+
+    // delete promotion
+    deleteSaved = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // get the id of user and promotion from the url
+            const uid = await IdValidation.schema.validateAsync(req.params.id, {
+                abortEarly: false,
+            });
+            const pid = await IdValidation.schema.validateAsync(req.params.pid, {
+                abortEarly: false,
+            });
+            // get saved promotion and user
+            const promotion = await getCustomRepository(PromotionRepository).findOneOrFail(pid);
+            const user = await getCustomRepository(UserRepository).findOneOrFail(uid);
+            // remove the promotion from user's list of saved promotions
+            const result = await getCustomRepository(UserRepository).removeSavedPromotion(user, promotion);
+
+            return res.status(204).send(result);
         } catch (e) {
             next(e);
         }

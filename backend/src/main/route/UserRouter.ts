@@ -16,9 +16,9 @@ export class UserRouter {
         this.userRouter.patch("/:id", this.userController.editUser);
         this.userRouter.delete("/:id", this.userController.deleteUser);
 
-        // this.userRouter.get("/:id/savedPromotions", this.userController.getSaved);
-        // this.userRouter.post("/:id/savedPromotions", this.userController.newSaved);
-        // this.userRouter.delete("/:id/savePromotions/:pid", this.userController.deleteSaved);
+        this.userRouter.get("/:id/savedPromotions/", this.userController.getSaved);
+        this.userRouter.post("/:id/savedPromotions/:pid", this.userController.newSaved);
+        this.userRouter.delete("/:id/savePromotions/:pid", this.userController.deleteSaved);
 
         return this.userRouter;
     }
