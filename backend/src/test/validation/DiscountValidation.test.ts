@@ -9,7 +9,7 @@ describe('Unit tests for DiscountValidation', function () {
   beforeEach(() => {
     discountDTO = {
       discountValue: 12.99,
-      type: DiscountType.AMOUNT,
+      discountType: DiscountType.AMOUNT,
     };
   });
 
@@ -37,7 +37,7 @@ describe('Unit tests for DiscountValidation', function () {
 
   test('Should fail if given incorrect discount type', async () => {
     try {
-      discountDTO.type = 'Invalid Discount Type';
+      discountDTO.discountType = 'Invalid Discount Type';
       await DiscountValidation.schema.validateAsync(discountDTO, {
         abortEarly: false,
       });
@@ -45,7 +45,7 @@ describe('Unit tests for DiscountValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual(
-        '"type" must be one of [%, $, Other]'
+        '"discountType" must be one of [%, $, Other]'
       );
     }
   });
@@ -84,7 +84,7 @@ describe('Unit tests for DiscountValidation', function () {
     try {
       discountDTO = {
         discountValue: '12.99',
-        type: true,
+        discountType: true,
       };
       await DiscountValidation.schema.validateAsync(discountDTO, {
         abortEarly: false,
@@ -93,9 +93,9 @@ describe('Unit tests for DiscountValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(3);
       expect(e.details[0].message).toEqual(
-        '"type" must be one of [%, $, Other]'
+        '"discountType" must be one of [%, $, Other]'
       );
-      expect(e.details[1].message).toEqual('"type" must be a string');
+      expect(e.details[1].message).toEqual('"discountType" must be a string');
       expect(e.details[2].message).toEqual('"discountValue" must be a number');
     }
   });

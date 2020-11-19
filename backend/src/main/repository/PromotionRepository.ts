@@ -27,11 +27,13 @@ export class PromotionRepository extends Repository<Promotion> {
    * Depending on which properties are defined inside promotionQuery, we add those properties into our query for the queryBuilder to execute.
    */
   private applyQueryOptions(promotionQuery: PromotionQueryDTO): Promise<any> {
-    const queryBuilder = this.createQueryBuilder('promotion');
+    const queryBuilder = this.createQueryBuilder(
+      'promotion'
+    ).innerJoinAndSelect('promotion.discount', 'discount');
 
-    if (promotionQuery?.category) {
-      queryBuilder.andWhere('promotion.category = :category', {
-        category: promotionQuery.category,
+    if (promotionQuery?.promotionType) {
+      queryBuilder.andWhere('promotion.promotionType = :promotionType', {
+        promotionType: promotionQuery.promotionType,
       });
     }
 
@@ -42,8 +44,8 @@ export class PromotionRepository extends Repository<Promotion> {
     }
 
     if (promotionQuery?.discountType) {
-      queryBuilder.andWhere('discount.type = :type', {
-        type: promotionQuery.discountType,
+      queryBuilder.andWhere('discount.discountType = :discountType', {
+        discountType: promotionQuery.discountType,
       });
     }
 
@@ -87,7 +89,6 @@ export class PromotionRepository extends Repository<Promotion> {
     }
 
     const promotions: Promotion[] = await queryBuilder
-      .innerJoinAndSelect('promotion.discount', 'discount')
       .andWhere('promotion.id IN (:...ids)', {
         ids: arrayOfIdRank.map((idRank) => idRank.id),
       })

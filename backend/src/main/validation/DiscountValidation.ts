@@ -6,7 +6,7 @@ import { DiscountType } from '../data/DiscountType';
  * */
 export class DiscountValidation {
   static schema = Joi.object({
-    type: Joi.string()
+    discountType: Joi.string()
       .valid(...Object.values(DiscountType))
       .required(),
     discountValue: Joi.number().strict().positive().precision(2).required(),
@@ -14,6 +14,6 @@ export class DiscountValidation {
 }
 
 export interface DiscountDTO {
-  type: DiscountType;
+  discountType: DiscountType;
   discountValue: number;
 }

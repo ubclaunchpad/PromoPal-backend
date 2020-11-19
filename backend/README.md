@@ -59,6 +59,14 @@ This will setup the schema, without any data.
 yarn run syncSchema
 ```
 
+## Run migrations
+
+This will run any migrations in the `/migrations` folder. Currently `ormconfig.json` is configured to run migrations when the application starts.
+
+```
+yarn run run_migration
+```
+
 ## Local development (without docker)
 
 ### Change ormconfig.json

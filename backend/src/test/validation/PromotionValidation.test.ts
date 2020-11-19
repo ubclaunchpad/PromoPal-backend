@@ -1,4 +1,4 @@
-import { PromotionCategory } from '../../main/data/PromotionCategory';
+import { PromotionType } from '../../main/data/PromotionType';
 import { CuisineType } from '../../main/data/CuisineType';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionValidation } from '../../main/validation/PromotionValidation';
@@ -12,10 +12,10 @@ describe('Unit tests for PromotionValidation', function () {
   beforeEach(() => {
     discountDTO = {
       discountValue: 12.99,
-      type: DiscountType.AMOUNT,
+      discountType: DiscountType.AMOUNT,
     };
     promotionDTO = {
-      category: PromotionCategory.BOGO,
+      promotionType: PromotionType.BOGO,
       cuisine: CuisineType.VIETNAMESE,
       description: 'description',
       discount: discountDTO,
@@ -48,9 +48,9 @@ describe('Unit tests for PromotionValidation', function () {
     }
   });
 
-  test('Should fail if given incorrect category type', async () => {
+  test('Should fail if given incorrect promotion type', async () => {
     try {
-      promotionDTO.category = 'Invalid Category';
+      promotionDTO.promotionType = 'Invalid Promotion Type';
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
@@ -58,7 +58,7 @@ describe('Unit tests for PromotionValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual(
-        '"category" must be one of [Bogo, Happy Hour, Other]'
+        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
       );
     }
   });
@@ -109,7 +109,7 @@ describe('Unit tests for PromotionValidation', function () {
   test('Should fail if promotion.discount is invalid', async () => {
     try {
       promotionDTO.discount = {
-        type: 'Invalid Type',
+        discountType: 'Invalid Type',
         discountValue: -1,
       };
       await PromotionValidation.schema.validateAsync(promotionDTO, {
@@ -119,7 +119,7 @@ describe('Unit tests for PromotionValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(2);
       expect(e.details[0].message).toEqual(
-        '"discount.type" must be one of [%, $, Other]'
+        '"discount.discountType" must be one of [%, $, Other]'
       );
       expect(e.details[1].message).toEqual(
         '"discount.discountValue" must be a positive number'
@@ -130,7 +130,7 @@ describe('Unit tests for PromotionValidation', function () {
   test('Should fail if any fields are the wrong type', async () => {
     try {
       promotionDTO = {
-        category: 'string',
+        promotionType: 'string',
         cuisine: 'string',
         description: 1,
         discount: discountDTO,
@@ -148,7 +148,7 @@ describe('Unit tests for PromotionValidation', function () {
       expect(e.details[0].message).toEqual('"userId" must be a string');
       expect(e.details[1].message).toEqual('"placeId" must be a string');
       expect(e.details[2].message).toEqual(
-        '"category" must be one of [Bogo, Happy Hour, Other]'
+        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
       );
       expect(e.details[3].message).toEqual(
         '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'

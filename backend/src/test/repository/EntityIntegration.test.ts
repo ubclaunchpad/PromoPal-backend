@@ -12,7 +12,7 @@ import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRe
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
 import { PromotionQueryDTO } from '../../main/validation/PromotionQueryValidation';
-import { PromotionCategory } from '../../main/data/PromotionCategory';
+import { PromotionType } from '../../main/data/PromotionType';
 import { DiscountType } from '../../main/data/DiscountType';
 
 describe('Integration tests for all entities', function () {
@@ -194,10 +194,15 @@ describe('Integration tests for all entities', function () {
   });
 
   test('Should see discounts loaded when getting promotions (not lazy loaded) regardless of having query or not', async () => {
-    const promotionQueryDTO: PromotionQueryDTO = {
-      category: PromotionCategory.BOGO,
+    const promotionQueryDTOWithSearchQuery: PromotionQueryDTO = {
+      promotionType: PromotionType.BOGO,
       discountType: DiscountType.PERCENTAGE,
       searchQuery: 'promo2 description1 promo1 description13',
+    };
+
+    const promotionQueryDTOWithoutSearchQuery: PromotionQueryDTO = {
+      promotionType: PromotionType.BOGO,
+      discountType: DiscountType.PERCENTAGE,
     };
 
     for (const user of users_sample) {
@@ -210,19 +215,29 @@ describe('Integration tests for all entities', function () {
 
     try {
       const promotionsWithQuery: Promotion[] = await promotionRepository.getAllPromotions(
-        promotionQueryDTO
+        promotionQueryDTOWithSearchQuery
+      );
+
+      const promotionsWithoutSerachQuery: Promotion[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTOWithoutSearchQuery
       );
       const promotionsWithoutQuery: Promotion[] = await promotionRepository.getAllPromotions();
 
       for (const promotion of promotionsWithQuery) {
         expect(!promotion.discount);
-        expect(promotion.discount.type).toBeDefined();
+        expect(promotion.discount.discountType).toBeDefined();
+        expect(promotion.discount.discountValue).toBeDefined();
+      }
+
+      for (const promotion of promotionsWithoutSerachQuery) {
+        expect(!promotion.discount);
+        expect(promotion.discount.discountType).toBeDefined();
         expect(promotion.discount.discountValue).toBeDefined();
       }
 
       for (const promotion of promotionsWithoutQuery) {
         expect(!promotion.discount);
-        expect(promotion.discount.type).toBeDefined();
+        expect(promotion.discount.discountType).toBeDefined();
         expect(promotion.discount.discountValue).toBeDefined();
       }
     } catch (e) {
@@ -232,7 +247,7 @@ describe('Integration tests for all entities', function () {
 
   test('Should be able to apply query options when getting promotions', async () => {
     const promotionQueryDTO: PromotionQueryDTO = {
-      category: PromotionCategory.BOGO,
+      promotionType: PromotionType.BOGO,
       discountType: DiscountType.PERCENTAGE,
       searchQuery: 'promo2 description1 promo1 description13',
     };
@@ -265,8 +280,12 @@ describe('Integration tests for all entities', function () {
 
       // assert values of promotionQueryDTO are found in promotions
       for (const promotion of promotions) {
-        expect(promotion.category).toEqual(promotionQueryDTO.category);
-        expect(promotion.discount.type).toEqual(promotionQueryDTO.discountType);
+        expect(promotion.promotionType).toEqual(
+          promotionQueryDTO.promotionType
+        );
+        expect(promotion.discount.discountType).toEqual(
+          promotionQueryDTO.discountType
+        );
       }
     } catch (e) {
       fail('Should not have failed: ' + e);

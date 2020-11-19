@@ -1,5 +1,5 @@
 import Joi, { ObjectSchema } from 'joi';
-import { PromotionCategory } from '../data/PromotionCategory';
+import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { DiscountDTO, DiscountValidation } from './DiscountValidation';
 import { IdValidation } from './IdValidation';
@@ -12,8 +12,8 @@ export class PromotionValidation {
     userId: IdValidation.schema,
     placeId: Joi.string().required(),
     discount: DiscountValidation.schema,
-    category: Joi.string()
-      .valid(...Object.values(PromotionCategory))
+    promotionType: Joi.string()
+      .valid(...Object.values(PromotionType))
       .required(),
     cuisine: Joi.string()
       .valid(...Object.values(CuisineType))
@@ -28,7 +28,7 @@ export interface PromotionDTO {
   userId: string;
   discount: DiscountDTO;
   placeId: string;
-  category: PromotionCategory;
+  promotionType: PromotionType;
   cuisine: CuisineType;
   name: string;
   description: string;

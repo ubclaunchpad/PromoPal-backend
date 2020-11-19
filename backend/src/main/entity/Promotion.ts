@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './User';
 import { Discount } from './Discount';
-import { PromotionCategory } from '../data/PromotionCategory';
+import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
 import { Schedule } from './Schedule';
@@ -25,7 +25,7 @@ export class Promotion {
     user: User,
     discount: Discount,
     placeId: string,
-    category: PromotionCategory,
+    promotionType: PromotionType,
     cuisine: CuisineType,
     name: string,
     description: string,
@@ -34,7 +34,7 @@ export class Promotion {
     this.user = user;
     this.discount = discount;
     this.placeId = placeId;
-    this.category = category;
+    this.promotionType = promotionType;
     this.cuisine = cuisine;
     this.name = name;
     this.description = description;
@@ -100,10 +100,10 @@ export class Promotion {
 
   @Column({
     type: 'enum',
-    enum: PromotionCategory,
-    default: PromotionCategory.OTHER,
+    enum: PromotionType,
+    default: PromotionType.OTHER,
   })
-  category: PromotionCategory;
+  promotionType: PromotionType;
 
   @Column({
     type: 'enum',

@@ -86,7 +86,7 @@ export class PromotionController {
         promotionDTO.userId
       );
       const discount = new Discount(
-        promotionDTO.discount.type,
+        promotionDTO.discount.discountType,
         promotionDTO.discount.discountValue
       );
       const expirationDate = new Date(promotionDTO.expirationDate);
@@ -94,7 +94,7 @@ export class PromotionController {
         user,
         discount,
         promotionDTO.placeId,
-        promotionDTO.category,
+        promotionDTO.promotionType,
         promotionDTO.cuisine,
         promotionDTO.name,
         promotionDTO.description,

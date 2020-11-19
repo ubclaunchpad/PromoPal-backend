@@ -1,12 +1,12 @@
 import { DiscountType } from '../data/DiscountType';
-import { PromotionCategory } from '../data/PromotionCategory';
+import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { NextFunction, Request, Response } from 'express';
 import Joi from 'joi';
 
 enum SupportedEnums {
   DiscountType = 'DiscountType',
-  PromotionCategory = 'PromotionCategory',
+  PromotionType = 'PromotionType',
   CuisineType = 'CuisineType',
 }
 
@@ -44,8 +44,8 @@ export class EnumController {
     switch (supportedEnums) {
       case SupportedEnums.DiscountType:
         return DiscountType;
-      case SupportedEnums.PromotionCategory:
-        return PromotionCategory;
+      case SupportedEnums.PromotionType:
+        return PromotionType;
       case SupportedEnums.CuisineType:
         return CuisineType;
     }

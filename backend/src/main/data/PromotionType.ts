@@ -1,4 +1,4 @@
-export enum PromotionCategory {
+export enum PromotionType {
   BOGO = 'Bogo',
   HAPPY_HOUR = 'Happy Hour',
   OTHER = 'Other',

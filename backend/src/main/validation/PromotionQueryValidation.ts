@@ -1,5 +1,5 @@
 import Joi, { ObjectSchema } from 'joi';
-import { PromotionCategory } from '../data/PromotionCategory';
+import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { DiscountType } from '../data/DiscountType';
 
@@ -10,7 +10,7 @@ export class PromotionQueryValidation {
   static schema: ObjectSchema = Joi.object({
     searchQuery: Joi.string(),
     discountType: Joi.string().valid(...Object.values(DiscountType)),
-    category: Joi.string().valid(...Object.values(PromotionCategory)),
+    promotionType: Joi.string().valid(...Object.values(PromotionType)),
     cuisine: Joi.string().valid(...Object.values(CuisineType)),
     expirationDate: Joi.date(), // note incoming format is a string, and Joi will automatically convert to type Date
   }).required();
@@ -19,7 +19,7 @@ export class PromotionQueryValidation {
 export interface PromotionQueryDTO {
   searchQuery?: string;
   discountType?: DiscountType;
-  category?: PromotionCategory;
+  promotionType?: PromotionType;
   cuisine?: CuisineType;
   expirationDate?: Date;
 }

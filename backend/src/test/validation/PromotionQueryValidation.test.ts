@@ -1,7 +1,7 @@
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionQueryValidation } from '../../main/validation/PromotionQueryValidation';
 import { CuisineType } from '../../main/data/CuisineType';
-import { PromotionCategory } from '../../main/data/PromotionCategory';
+import { PromotionType } from '../../main/data/PromotionType';
 
 describe('Unit tests for PromotionQueryValidation', function () {
   /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -10,7 +10,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
 
   beforeEach(() => {
     promotionQueryDTO = {
-      category: PromotionCategory.HAPPY_HOUR,
+      promotionType: PromotionType.HAPPY_HOUR,
       cuisine: CuisineType.VIETNAMESE,
       discountType: DiscountType.AMOUNT,
       expirationDate: '2020-11-09 03:39:40.395843',
@@ -40,9 +40,9 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
-  test('Should fail if given incorrect category type', async () => {
+  test('Should fail if given incorrect promotion type', async () => {
     try {
-      promotionQueryDTO.category = 'Invalid Category';
+      promotionQueryDTO.promotionType = 'Invalid Promotion Type';
       await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
         abortEarly: false,
       });
@@ -50,7 +50,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual(
-        '"category" must be one of [Bogo, Happy Hour, Other]'
+        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
       );
     }
   });
@@ -103,7 +103,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
   test('Should fail if any fields are the wrong type', async () => {
     try {
       promotionQueryDTO = {
-        category: 1,
+        promotionType: 1,
         cuisine: 'string',
         discountType: false,
         expirationDate: true,
@@ -121,9 +121,9 @@ describe('Unit tests for PromotionQueryValidation', function () {
       );
       expect(e.details[2].message).toEqual('"discountType" must be a string');
       expect(e.details[3].message).toEqual(
-        '"category" must be one of [Bogo, Happy Hour, Other]'
+        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
       );
-      expect(e.details[4].message).toEqual('"category" must be a string');
+      expect(e.details[4].message).toEqual('"promotionType" must be a string');
       expect(e.details[5].message).toEqual(
         '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'
       );
