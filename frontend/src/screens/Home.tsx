@@ -4,6 +4,54 @@ import DropdownMenu from "../components/DropdownMenu";
 import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
 
+import { DropdownOption, Dropdown} from "../types/Dropdown";
+
+const options: DropdownOption[] = [
+  {
+    link: "/link1",
+    text: "Option 1",
+  },
+  {
+    link: "/link2",
+    text: "Option 2",
+  },
+  {
+    link: "/link3",
+    text: "Option 3",
+  },
+];
+
+const dropdowns: Dropdown[] = [
+  {
+    text: "Sort",
+    options,
+  },
+  {
+    text: "Discount Type",
+    options,
+  },
+  {
+    text: "Cuisine",
+    options,
+  },
+  {
+    text: "Category",
+    options,
+  },
+  {
+    text: "Price",
+    options,
+  },
+  {
+    text: "Day of the Week",
+    options,
+  },
+  {
+    text: "Dine In Available",
+    options,
+  },
+];
+
 const mapWidth = 60;
 
 export default function Home(): ReactElement {
@@ -21,7 +69,7 @@ export default function Home(): ReactElement {
 
   return (
     <>
-      <DropdownMenu />
+      <DropdownMenu dropdowns={dropdowns} />
       <div id="content-container" style={{ display: "inline-flex", height }}>
         <MapContainer dimensions={{ width: `${mapWidth}vw`, height }} />
         <PromotionList dimensions={{ width: `${100 - mapWidth}vw`, height }} />
