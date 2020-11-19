@@ -64,30 +64,27 @@ describe('Unit tests for UserRepository', function () {
   });
 
   test('Should be able to add promotion into saved promotion', async () => {
-    const before_add_user = await getConnection().createQueryBuilder().relation(User, "savedPromotions")
-                                .of(users_sample[2]).loadMany();
-    const before_add_saved = saved_promotions_mapping.get(users_sample[2])?.length; 
+    const before_add_saved = saved_promotions_mapping.get(users_sample[2])?.length;
+    let result;
     try {
-      await userRepository.addSavedPromotion(users_sample[2], promotions_sample[2]);
+      await userRepository.save(users_sample[2]);
+      result = await userRepository.addSavedPromotion(users_sample[2], promotions_sample[2]);
     } catch(e) {
       fail('Shouh have added');
     }
-    const after_add_user = await getConnection().createQueryBuilder().relation(User, "savedPromotions")
-                                  .of(users_sample[2]).loadMany();
     const after_add_saved = saved_promotions_mapping.get(users_sample[2])?.length;
-    expect(after_add_user.length).toEqual(before_add_user.length + 1);
     if (before_add_saved) expect(after_add_saved).toEqual(before_add_saved + 1);
   });
   test('Should not be able to add promotion into saved promotion', async () => {
-    const before_add = await getConnection().createQueryBuilder().relation(User, "savedPromotions")
-                                .of(users_sample[2]).loadMany();
+    const before_add_saved = saved_promotions_mapping.get(users_sample[2])?.length;
+    let result;
     try {
-      await userRepository.addSavedPromotion(users_sample[2], promotions_sample[0]);
+      await userRepository.save(users_sample[2]);
+      result = await userRepository.addSavedPromotion(users_sample[2], promotions_sample[0]);
       fail("Should have failed");
     } catch(e) {
-      const savedpromotions = await getConnection().createQueryBuilder().relation(User, "savedPromotions")
-                                  .of(users_sample[2]).loadMany();
-      expect(savedpromotions.length).toEqual(before_add.length);
+      const after_add_saved = saved_promotions_mapping.get(users_sample[2])?.length;
+      if (before_add_saved) expect(after_add_saved).toEqual(before_add_saved);
     }
   });
 });
