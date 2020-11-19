@@ -18,11 +18,33 @@ describe("Unit tests for GooglePlacesService", function () {
       });
   });
 
-  test("Search for a restaurant franchines using name and location, should be successful", () => {
+  test("Search for a restaurant franchines/similiar restaurants using name and location, should be successful", () => {
     return googlePlacesAPI
       .getRestaurantPlaceID("SURA", "Robson St")
       .then((result: string) => {
         expect(result).toEqual("ChIJcw7-mYdxhlQRxq9ZD4tvuH0");
+      })
+      .catch((error: AxiosError) => {
+        fail("Did not expect to fail: " + error.message);
+      });
+  });
+
+  test("Checking restaurant name and location, should return true", () => {
+    return googlePlacesAPI
+      .isCorrectRestaurantLocation("Robson St", "ChIJcw7-mYdxhlQRxq9ZD4tvuH0")
+      .then((result: boolean) => {
+        expect(result).toBeTruthy();
+      })
+      .catch((error: AxiosError) => {
+        fail("Did not expect to fail: " + error.message);
+      });
+  });
+
+  test("Checking restaurant name and location, should return false", () => {
+    return googlePlacesAPI
+      .isCorrectRestaurantLocation("Hazelbridge", "ChIJcw7-mYdxhlQRxq9ZD4tvuH0")
+      .then((result: boolean) => {
+        expect(result).toBeFalsy();
       })
       .catch((error: AxiosError) => {
         fail("Did not expect to fail: " + error.message);
