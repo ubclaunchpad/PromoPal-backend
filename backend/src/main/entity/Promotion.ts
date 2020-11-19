@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './User';
 import { Discount } from './Discount';
-import { PromotionCategory } from '../data/PromotionCategory';
+import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
 import { Schedule } from './Schedule';
@@ -25,7 +25,7 @@ export class Promotion {
     user: User,
     discount: Discount,
     placeId: string,
-    category: PromotionCategory,
+    promotionType: PromotionType,
     cuisine: CuisineType,
     name: string,
     description: string,
@@ -34,7 +34,7 @@ export class Promotion {
     this.user = user;
     this.discount = discount;
     this.placeId = placeId;
-    this.category = category;
+    this.promotionType = promotionType;
     this.cuisine = cuisine;
     this.name = name;
     this.description = description;
@@ -42,7 +42,7 @@ export class Promotion {
   }
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * Represents Google Places API place_id
@@ -100,10 +100,10 @@ export class Promotion {
 
   @Column({
     type: 'enum',
-    enum: PromotionCategory,
-    default: PromotionCategory.OTHER,
+    enum: PromotionType,
+    default: PromotionType.OTHER,
   })
-  category: PromotionCategory;
+  promotionType: PromotionType;
 
   @Column({
     type: 'enum',
@@ -131,4 +131,17 @@ export class Promotion {
     default: () => 'CURRENT_TIMESTAMP',
   })
   expirationDate: Date;
+
+  /**
+   * Represents a Postgres tsvector used for Full Text Search. Elements of a tsvector are lexemes along with their positions
+   * * Not to be included in constructor since there is a trigger that sets this column automatically on update/insert
+   * * select: false since this information should be hidden from client
+   * */
+  @Column({
+    name: 'tsvector',
+    type: 'tsvector',
+    nullable: false,
+    select: false,
+  })
+  tsVector: string;
 }

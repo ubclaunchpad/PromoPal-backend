@@ -9,7 +9,7 @@ import { Promotion } from './Promotion';
 @Entity()
 export class Schedule {
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * ManyToOne bidirectional relationship between Schedule and Promotion

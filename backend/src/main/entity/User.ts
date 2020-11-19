@@ -23,7 +23,7 @@ export class User {
   }
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * OneToMany bidirectional relationship between User and Promotion
@@ -67,6 +67,7 @@ export class User {
   // todo: we need something more secure
   @Column({
     unique: true,
+    select: false, // https://typeorm.io/#/select-query-builder/hidden-columns
   })
   password: string;
 }

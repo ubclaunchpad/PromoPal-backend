@@ -21,7 +21,8 @@ describe('Unit tests for UserRepository', function () {
     const expectedUser: User = users_sample[0];
     await userRepository.save(expectedUser);
     const user = await userRepository.findOne(expectedUser.id);
-    expect(user).toEqual(expectedUser);
+    expect(user).toBeDefined();
+    expect(user!.id).toEqual(expectedUser.id);
   });
 
   test('Should not be able to add two users with the same username', async () => {
@@ -50,16 +51,14 @@ describe('Unit tests for UserRepository', function () {
     }
   });
 
-  test('Should not be able to add two users with the same password', async () => {
-    users_sample[1].password = users_sample[0].password;
-    await userRepository.save(users_sample[0]);
-    try {
-      await userRepository.save(users_sample[1]);
-      fail('Should  have failed');
-    } catch (e) {
-      expect(e.detail).toEqual(
-        `Key (password)=(${users_sample[0].password}) already exists.`
-      );
-    }
+  test('Should not be able to retrieve users password', async () => {
+    // this is because we do not want to get the password when we retrieve a user
+    // todo: remove this once we implement firebase
+    const expectedUser: User = users_sample[0];
+    await userRepository.save(expectedUser);
+    const user = await userRepository.findOne(expectedUser.id);
+    expect(user).toBeDefined();
+    expect(user!.password).toEqual(undefined);
+    expect(expectedUser.password).toBeDefined();
   });
 });

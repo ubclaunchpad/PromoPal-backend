@@ -41,6 +41,10 @@ CREATE DATABASE foodies;
 GRANT ALL PRIVILEGES ON DATABASE foodies TO postgres;
 ```
 
+## Unit/Integration tests
+
+Currently, all tests drop the schema after each test. Therefore, do not design tests to be reliant on data from previous tests.
+
 ## Drop the database schema:
 
 ```
@@ -53,6 +57,14 @@ This will setup the schema, without any data.
 
 ```
 yarn run syncSchema
+```
+
+## Run migrations
+
+This will run any migrations in the `/migrations` folder. Currently `ormconfig.json` is configured to run migrations when the application starts.
+
+```
+yarn run run_migration
 ```
 
 ## Local development (without docker)
@@ -91,26 +103,11 @@ dropSchema: true
 ```
 
 Then TypeORM will automatically create the schema drop the schema on every application launch
-Make sure these lines are uncommented for TypeORM to save the data in `App.ts`
+Make sure these lines are uncommented in `App.ts` for TypeORM to save the data when the application starts. After data is loaded,
+it is recommended to set `dropSchema: false`.
 
 ```
-// persist entities into database
-for (const user of users_sample) {
-  await userRepository.save(user);
-}
-
-for (const promotion of promotions_sample) {
-  await promotionRepository.save(promotion);
-}
-
-for (const [user, promotions] of saved_promotions_mapping) {
-  const savedPromotions: SavedPromotion[] = [];
-  for (const promotion of promotions) {
-    savedPromotions.push(new SavedPromotion(user, promotion));
-  }
-  user.savedPromotions = savedPromotions;
-  await userRepository.save(user);
-}
+await loadSampleData();
 ```
 
 ## Local development with Docker
