@@ -1,21 +1,28 @@
 import { AxiosError } from "axios";
 import { GooglePlacesService } from "../../src/services/GooglePlacesService";
-import * as dotenv from "dotenv";
+import { RestaurantDetails } from "../../src/types/RestaurantDetails";
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 // todo: remove eslint-disable once we add assertions
 describe("Unit tests for GooglePlacesService", function () {
   const googlePlacesAPI = new GooglePlacesService();
 
-  beforeEach(function () {
-    dotenv.config();
-  });
-
-  test("Search for a place using restaurant name, should be successful", () => {
+  test("Search for a place using restaurant name and location, should be successful", () => {
     return googlePlacesAPI
-      .getRestaurantPlaceID("Jinya")
+      .getRestaurantPlaceID("Jinya", "Robson St")
       .then((result: string) => {
         expect(result).toEqual("ChIJ4dRcUH5xhlQREcvYYxzhqv0");
+      })
+      .catch((error: AxiosError) => {
+        fail("Did not expect to fail: " + error.message);
+      });
+  });
+
+  test("Search for a restaurant franchines using name and location, should be successful", () => {
+    return googlePlacesAPI
+      .getRestaurantPlaceID("SURA", "Robson St")
+      .then((result: string) => {
+        expect(result).toEqual("ChIJcw7-mYdxhlQRxq9ZD4tvuH0");
       })
       .catch((error: AxiosError) => {
         fail("Did not expect to fail: " + error.message);
@@ -26,18 +33,19 @@ describe("Unit tests for GooglePlacesService", function () {
     // placeID can only be retrieved from getGooglePlacesSearch
     return googlePlacesAPI
       .getRestaurantDetails("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-      .then((result: Record<string, unknown>) => {
+      .then((result: RestaurantDetails) => {
         expect(result).toHaveProperty("business_status");
-        expect(result).toHaveProperty("formatted_address");
-        expect(result).toHaveProperty("formatted_phone_number");
-        expect(result).toHaveProperty("geometry");
+        expect(result).toHaveProperty("address");
+        expect(result).toHaveProperty("phone_number");
+        expect(result).toHaveProperty("lat");
+        expect(result).toHaveProperty("lon");
         expect(result).toHaveProperty("name", "RIB & CHICKEN");
         expect(result).toHaveProperty("opening_hours");
         expect(result).toHaveProperty("photos");
-        expect(result).toHaveProperty("rating", 4.7);
+        expect(result).toHaveProperty("rating", 4.6);
         expect(result).toHaveProperty("reviews");
         expect(result).toHaveProperty(
-          "url",
+          "map_url",
           "https://maps.google.com/?cid=77286563717231905"
         );
         expect(result).toHaveProperty(
@@ -53,22 +61,22 @@ describe("Unit tests for GooglePlacesService", function () {
   test("Check currRestaurants map is storing correctly", () => {
     return googlePlacesAPI
       .getRestaurantDetails("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-      .then((result: Record<string, unknown>) => {
+      .then((result: RestaurantDetails) => {
+        const restaurant = googlePlacesAPI.currRestaurants.get(
+          "ChIJb0n5cWl3hlQRIbVGYLiTEgE"
+        );
         expect(
           googlePlacesAPI.currRestaurants.has("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
         ).toBeTruthy();
-        expect(
-          googlePlacesAPI.currRestaurants.get("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-        ).toHaveProperty(
-          "url",
+        expect(restaurant).toHaveProperty(
+          "map_url",
           "https://maps.google.com/?cid=77286563717231905"
         );
-        expect(
-          googlePlacesAPI.currRestaurants.get("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-        ).toHaveProperty("user_ratings_total", 66);
-        expect(
-          googlePlacesAPI.currRestaurants.get("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-        ).toHaveProperty("website", "https://www.ribandchicken.ca/");
+        expect(restaurant).toHaveProperty("total_rating", 67);
+        expect(restaurant).toHaveProperty(
+          "website",
+          "https://www.ribandchicken.ca/"
+        );
       })
       .catch((error: AxiosError) => {
         fail("Did not expect to fail: " + error.message);
@@ -78,24 +86,26 @@ describe("Unit tests for GooglePlacesService", function () {
   test("Check multiple calls work with currRestaurants map", () => {
     return googlePlacesAPI
       .getRestaurantDetails("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-      .then((result: Record<string, unknown>) => {
+      .then((result: RestaurantDetails) => {
         return googlePlacesAPI.getRestaurantDetails(
           "ChIJb0n5cWl3hlQRIbVGYLiTEgE"
         );
       })
-      .then((resultTwo: Record<string, unknown>) => {
+      .then((resultTwo: RestaurantDetails) => {
+        const restaurant = googlePlacesAPI.currRestaurants.get(
+          "ChIJb0n5cWl3hlQRIbVGYLiTEgE"
+        );
         expect(
           googlePlacesAPI.currRestaurants.has("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
         ).toBeTruthy();
-        expect(
-          googlePlacesAPI.currRestaurants.get("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-        ).toHaveProperty(
-          "url",
+        expect(restaurant).toHaveProperty(
+          "map_url",
           "https://maps.google.com/?cid=77286563717231905"
         );
-        expect(
-          googlePlacesAPI.currRestaurants.get("ChIJb0n5cWl3hlQRIbVGYLiTEgE")
-        ).toHaveProperty("website", "https://www.ribandchicken.ca/");
+        expect(restaurant).toHaveProperty(
+          "website",
+          "https://www.ribandchicken.ca/"
+        );
       })
       .catch((error: AxiosError) => {
         fail("Did not expect to fail: " + error.message);
