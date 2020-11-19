@@ -164,4 +164,22 @@ export class UserController {
             next(e);
         }
     };
+
+    // get uploaded promotion
+    getUploaded = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            // get the id of user from the url
+            const id = await IdValidation.schema.validateAsync(req.params.id, {
+                abortEarly: false,
+            });
+            const userRepository = getCustomRepository(UserRepository);
+            const uploadedpromotions = await userRepository.findOneOrFail(id, {
+                relations: ["uploadedPromotions"]
+            });
+            
+            res.status(200).send(uploadedpromotions);
+        } catch (e) {
+            next(e);
+        }
+    };
 }
