@@ -89,7 +89,6 @@ export class PromotionController {
         promotionDTO.discount.discountType,
         promotionDTO.discount.discountValue
       );
-      const expirationDate = new Date(promotionDTO.expirationDate);
       const promotion = new Promotion(
         user,
         discount,
@@ -98,7 +97,7 @@ export class PromotionController {
         promotionDTO.cuisine,
         promotionDTO.name,
         promotionDTO.description,
-        expirationDate
+        promotionDTO.expirationDate
       );
 
       const result = await getCustomRepository(PromotionRepository).save(
