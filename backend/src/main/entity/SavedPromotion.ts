@@ -22,11 +22,11 @@ export class SavedPromotion {
 
   @Index()
   @PrimaryColumn()
-  userId: number;
+  userId: string;
 
   @Index()
   @PrimaryColumn()
-  promotionId: number;
+  promotionId: string;
 
   @CreateDateColumn({
     name: 'date_saved',
