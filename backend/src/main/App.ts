@@ -29,11 +29,9 @@ createConnection()
     registerRouters(app);
 
     function registerRouters(app: express.Express) {
-      app.get('/', (req, res) => res.send('Hello World'));
-    
       const userController = new UserController();
       const userRouter = new UserRouter(userController);
-      app.use(Route.USER, userRouter.getRoutes());
+      app.use(Route.USERS, userRouter.getRoutes());
     }
 
     const userRepository: UserRepository = getCustomRepository(UserRepository);
@@ -85,7 +83,6 @@ createConnection()
     const discountsLazy: Discount[] = await discountRepository.find({
       loadRelationIds: true,
     });
-
 
     app.listen(PORT, () => {
       console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);

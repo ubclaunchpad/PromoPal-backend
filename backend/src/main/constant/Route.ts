@@ -2,6 +2,6 @@
  * Constants for any routes we use
  * */
 export enum Route {
-    PROMOTIONS = '/promotions',
-    USER = '/users'
-}  
+  PROMOTIONS = '/promotions',
+  USERS = '/users',
+}
