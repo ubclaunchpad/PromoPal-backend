@@ -291,4 +291,102 @@ describe('Integration tests for all entities', function () {
       fail('Should not have failed: ' + e);
     }
   });
+
+  test('Should be able to get all promotions with specific discount type', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      discountType: DiscountType.PERCENTAGE,
+    };
+
+    for (const user of users_sample) {
+      await userRepository.save(user);
+    }
+
+    for (const promotion of promotions_sample) {
+      await promotionRepository.save(promotion);
+    }
+
+    try {
+      const promotions: PromotionWithRank[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toBeGreaterThan(0);
+      for (const promotion of promotions) {
+        expect(promotion?.discount.discountType).toEqual(
+          promotionQueryDTO.discountType
+        );
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Should be able to get all promotions with specific discount type and greater than a provided discount value', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      discountType: DiscountType.PERCENTAGE,
+      discountValue: 5.6,
+    };
+
+    for (const user of users_sample) {
+      await userRepository.save(user);
+    }
+
+    for (const promotion of promotions_sample) {
+      await promotionRepository.save(promotion);
+    }
+
+    try {
+      const promotions: PromotionWithRank[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toBeGreaterThan(0);
+      for (const promotion of promotions) {
+        expect(promotion?.discount.discountType).toEqual(
+          promotionQueryDTO.discountType
+        );
+        expect(promotion?.discount.discountValue).toBeGreaterThanOrEqual(
+          promotionQueryDTO.discountValue as number
+        );
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Should be able to get all promotions with specific discount type and greater than a provided discount value', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      discountType: DiscountType.PERCENTAGE,
+      discountValue: 5.6,
+    };
+
+    for (const user of users_sample) {
+      await userRepository.save(user);
+    }
+
+    for (const promotion of promotions_sample) {
+      await promotionRepository.save(promotion);
+    }
+
+    try {
+      const promotions: PromotionWithRank[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toBeGreaterThan(0);
+      for (const promotion of promotions) {
+        expect(promotion?.discount.discountType).toEqual(
+          promotionQueryDTO.discountType
+        );
+        expect(promotion?.discount.discountValue).toBeGreaterThanOrEqual(
+          promotionQueryDTO.discountValue as number
+        );
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
 });

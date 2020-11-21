@@ -13,6 +13,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       promotionType: PromotionType.HAPPY_HOUR,
       cuisine: CuisineType.VIETNAMESE,
       discountType: DiscountType.AMOUNT,
+      discountValue: 2,
       expirationDate: '2020-11-09 03:39:40.395843',
       searchQuery: 'promo',
     };
@@ -100,12 +101,78 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
+  test('Should fail if discountValue is negative', async () => {
+    try {
+      promotionQueryDTO.discountValue = -1;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual(
+        '"discountValue" must be a positive number'
+      );
+    }
+  });
+
+  test('Should be valid if discountValue is more than 2 decimals and should round as well', async () => {
+    try {
+      promotionQueryDTO.discountValue = 1.8123;
+      const result = await PromotionQueryValidation.schema.validateAsync(
+        promotionQueryDTO,
+        {
+          abortEarly: false,
+        }
+      );
+      expect(result.discountValue).toEqual(1.81);
+    } catch (e) {
+      fail('Should not have failed');
+    }
+  });
+
+  test('Should fail if discountValue is present, but discountType is not', async () => {
+    try {
+      promotionQueryDTO.discountValue = 1.88;
+      promotionQueryDTO.discountType = undefined;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual(
+        '"discountValue" missing required peer "discountType"'
+      );
+    }
+  });
+
+  test('If discountValue is improper format and discountType is missing, report both errors', async () => {
+    try {
+      promotionQueryDTO.discountValue = -1;
+      promotionQueryDTO.discountType = undefined;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(2);
+      expect(e.details[0].message).toEqual(
+        '"discountValue" must be a positive number'
+      );
+      expect(e.details[1].message).toEqual(
+        '"discountValue" missing required peer "discountType"'
+      );
+    }
+  });
+
   test('Should fail if any fields are the wrong type', async () => {
     try {
       promotionQueryDTO = {
         promotionType: 1,
         cuisine: 'string',
         discountType: false,
+        discountValue: 'hi',
         expirationDate: true,
         searchQuery: 1,
       };
@@ -114,20 +181,21 @@ describe('Unit tests for PromotionQueryValidation', function () {
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(7);
+      expect(e.details.length).toEqual(8);
       expect(e.details[0].message).toEqual('"searchQuery" must be a string');
       expect(e.details[1].message).toEqual(
         '"discountType" must be one of [%, $, Other]'
       );
       expect(e.details[2].message).toEqual('"discountType" must be a string');
-      expect(e.details[3].message).toEqual(
+      expect(e.details[3].message).toEqual('"discountValue" must be a number');
+      expect(e.details[4].message).toEqual(
         '"promotionType" must be one of [Bogo, Happy Hour, Other]'
       );
-      expect(e.details[4].message).toEqual('"promotionType" must be a string');
-      expect(e.details[5].message).toEqual(
+      expect(e.details[5].message).toEqual('"promotionType" must be a string');
+      expect(e.details[6].message).toEqual(
         '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'
       );
-      expect(e.details[6].message).toEqual(
+      expect(e.details[7].message).toEqual(
         '"expirationDate" must be a valid date'
       );
     }
