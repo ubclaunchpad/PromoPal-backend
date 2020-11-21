@@ -8,6 +8,6 @@ export interface Dropdown {
 }
 
 export interface DropdownOption {
-  link: string;
+  action: () => void;
   text: string;
 }
