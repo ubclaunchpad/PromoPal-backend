@@ -14,18 +14,21 @@ import { Promotion } from '../../main/entity/Promotion';
 import { PromotionQueryDTO } from '../../main/validation/PromotionQueryValidation';
 import { PromotionType } from '../../main/data/PromotionType';
 import { DiscountType } from '../../main/data/DiscountType';
+import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
 
 describe('Integration tests for all entities', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let discountRepository: DiscountRepository;
   let savedPromotionRepository: SavedPromotionRepository;
+  let scheduleRepository: ScheduleRepository;
   beforeEach(() => {
     return BaseRepositoryTest.establishTestConnection().then(() => {
       userRepository = getCustomRepository(UserRepository);
       promotionRepository = getCustomRepository(PromotionRepository);
       discountRepository = getCustomRepository(DiscountRepository);
       savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
+      scheduleRepository = getCustomRepository(ScheduleRepository);
     });
   });
 
@@ -60,6 +63,11 @@ describe('Integration tests for all entities', function () {
     await promotionRepository.save(promotion);
 
     try {
+      const discounts = await discountRepository.find();
+      expect(discounts).toBeDefined();
+      expect(discounts[0].discountType).toEqual(
+        promotion.discount.discountType
+      );
       await promotionRepository.delete(promotion.id);
       expect(await promotionRepository.find()).toEqual([]);
       expect(await discountRepository.find()).toEqual([]);
@@ -287,6 +295,26 @@ describe('Integration tests for all entities', function () {
           promotionQueryDTO.discountType
         );
       }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Cascade delete - deleting a promotion will delete its schedules', async () => {
+    const promotion = promotions_sample[0];
+    assert(promotion.discount !== null);
+
+    // persist into db
+    await userRepository.save(promotion.user);
+    await promotionRepository.save(promotion);
+
+    try {
+      const schedules = await scheduleRepository.find();
+      expect(schedules).toBeDefined();
+      expect(schedules.length).toEqual(promotion.schedules.length);
+      await promotionRepository.delete(promotion.id);
+      expect(await promotionRepository.find()).toEqual([]);
+      expect(await scheduleRepository.find()).toEqual([]);
     } catch (e) {
       fail('Should not have failed: ' + e);
     }

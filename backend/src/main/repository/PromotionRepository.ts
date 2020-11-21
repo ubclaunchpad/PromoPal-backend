@@ -19,6 +19,7 @@ export class PromotionRepository extends Repository<Promotion> {
     } else {
       return this.createQueryBuilder('promotion')
         .innerJoinAndSelect('promotion.discount', 'discount')
+        .innerJoinAndSelect('promotion.schedules', 'schedules')
         .getMany();
     }
   }
@@ -27,9 +28,9 @@ export class PromotionRepository extends Repository<Promotion> {
    * Depending on which properties are defined inside promotionQuery, we add those properties into our query for the queryBuilder to execute.
    */
   private applyQueryOptions(promotionQuery: PromotionQueryDTO): Promise<any> {
-    const queryBuilder = this.createQueryBuilder(
-      'promotion'
-    ).innerJoinAndSelect('promotion.discount', 'discount');
+    const queryBuilder = this.createQueryBuilder('promotion')
+      .innerJoinAndSelect('promotion.discount', 'discount')
+      .innerJoinAndSelect('promotion.schedules', 'schedules');
 
     if (promotionQuery?.promotionType) {
       queryBuilder.andWhere('promotion.promotionType = :promotionType', {

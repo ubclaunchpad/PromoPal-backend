@@ -19,6 +19,9 @@ import { errorHandler } from './middleware/ErrorHandler';
 import { PromotionController } from './controller/PromotionController';
 import { EnumController } from './controller/EnumController';
 import { EnumRouter } from './route/EnumRouter';
+import { ScheduleRepository } from './repository/ScheduleRepository';
+import { Schedule } from './entity/Schedule';
+import { SavedPromotion } from './entity/SavedPromotion';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -66,6 +69,9 @@ async function loadSampleData() {
   const savedPromotionRepository: SavedPromotionRepository = getCustomRepository(
     SavedPromotionRepository
   );
+  const scheduleRepository: ScheduleRepository = getCustomRepository(
+    ScheduleRepository
+  );
 
   // persist entities into database (see README.md for more details for loading data)
   for (const user of users_sample) {
@@ -89,9 +95,17 @@ async function loadSampleData() {
     ],
   }); // see https://stackoverflow.com/questions/61236129/typeorm-custom-many-to-many-not-pulling-relation-data
   const promotions: Promotion[] = await promotionRepository.find({
-    relations: ['user', 'discount'],
+    relations: ['user', 'discount', 'schedules'],
   });
   const discounts: Discount[] = await discountRepository.find({
+    relations: ['promotion'],
+  });
+  const savedPromotions: SavedPromotion[] = await savedPromotionRepository.find(
+    {
+      relations: ['user', 'promotion'],
+    }
+  );
+  const schedules: Schedule[] = await scheduleRepository.find({
     relations: ['promotion'],
   });
 
@@ -105,4 +119,13 @@ async function loadSampleData() {
   const discountsLazy: Discount[] = await discountRepository.find({
     loadRelationIds: true,
   });
+  const savedPromotionsLazy: SavedPromotion[] = await savedPromotionRepository.find(
+    {
+      loadRelationIds: true,
+    }
+  );
+  const schedulesLazy: Schedule[] = await scheduleRepository.find({
+    loadRelationIds: true,
+  });
+  console.log();
 }
