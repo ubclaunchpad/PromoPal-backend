@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement } from "react";
 import { HeartOutlined } from "@ant-design/icons";
 
-import { Promotion } from "../../types/Promotion";
+import { Promotion } from "../../types/promotion";
 
 const styles: { [identifier: string]: CSSProperties } = {
   descriptionContainer: {
@@ -19,18 +19,27 @@ const styles: { [identifier: string]: CSSProperties } = {
   },
 };
 
-export default function PromotionDetails(details: Promotion): ReactElement {
-  const { title, restaurantName, description, date } = details;
+export default function PromotionDetails({
+  name,
+  description,
+  expirationDate,
+  restaurantName = "Restaurant",
+}: Promotion): ReactElement {
 
   return (
     <div style={styles.descriptionContainer}>
       <div style={styles.header}>
-        <h2>{title}</h2>
+        <h2>{name}</h2>
         <HeartOutlined style={styles.heart} />
       </div>
       <h3>{restaurantName}</h3>
       <p>{description}</p>
-      <p>Expires on {date}</p>
+      <p>
+        Expires on
+        <strong>
+          {` ${new Date(expirationDate).toDateString()}`}
+        </strong>
+      </p>
     </div>
   );
 }
