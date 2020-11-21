@@ -19,6 +19,7 @@ export class PromotionValidation {
      * Will validate each item in array with ScheduleValidation's schema
      * */
     schedules: Joi.array()
+      .unique('dayOfWeek', { ignoreUndefined: true }) // ignore undefined so that in case object does not contain dayOfWeek at all
       .min(1)
       .max(7)
       .items(ScheduleValidation.schema)

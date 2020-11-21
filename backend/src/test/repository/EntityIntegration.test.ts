@@ -1,5 +1,9 @@
 import { getConnection, getCustomRepository } from 'typeorm';
-import { promotions_sample, users_sample } from '../../main/resources/Data';
+import {
+  promotions_sample,
+  schedules_sample,
+  users_sample,
+} from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
 import { BaseRepositoryTest } from './BaseRepositoryTest';
 import {
@@ -317,6 +321,25 @@ describe('Integration tests for all entities', function () {
       expect(await scheduleRepository.find()).toEqual([]);
     } catch (e) {
       fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Unique constraint - should not be able to save schedules with the same day', async () => {
+    const user = users_sample[0];
+    const promotion = promotions_sample[0];
+
+    // configure schedules of promotion to have same day of week
+    promotion.schedules = [schedules_sample[0], schedules_sample[1]];
+    promotion.schedules[0].dayOfWeek = promotion.schedules[1].dayOfWeek;
+
+    try {
+      await userRepository.save(user);
+      await promotionRepository.save(promotion);
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.message).toContain(
+        'duplicate key value violates unique constraint'
+      );
     }
   });
 });

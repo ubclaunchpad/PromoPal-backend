@@ -3,6 +3,7 @@ import { CuisineType } from '../../main/data/CuisineType';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionValidation } from '../../main/validation/PromotionValidation';
 import { Day } from '../../main/data/Day';
+import { schedules_sample } from '../../main/resources/Data';
 
 describe('Unit tests for PromotionValidation', function () {
   // mark these types as any so that we can make them improper
@@ -289,8 +290,11 @@ describe('Unit tests for PromotionValidation', function () {
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(1);
+      expect(e.details.length).toEqual(2);
       expect(e.details[0].message).toEqual(
+        '"schedules[1]" contains a duplicate value'
+      );
+      expect(e.details[1].message).toEqual(
         '"schedules" must contain less than or equal to 7 items'
       );
     }
@@ -300,9 +304,11 @@ describe('Unit tests for PromotionValidation', function () {
     try {
       const sourceSchedule = promotionDTO.schedules[0];
       promotionDTO.schedules = [];
+      const days = Object.values(Day);
       for (let i = 0; i <= 6; i++) {
-        const newSchedule = {};
+        const newSchedule = { dayOfWeek: '' };
         Object.assign(newSchedule, sourceSchedule);
+        newSchedule.dayOfWeek = days[i];
         promotionDTO.schedules.push(newSchedule);
       }
       expect(promotionDTO.schedules?.length).toEqual(7);
@@ -346,6 +352,24 @@ describe('Unit tests for PromotionValidation', function () {
       );
       expect(e.details[2].message).toEqual(
         '"schedules" does not contain 1 required value(s)'
+      );
+    }
+  });
+
+  test('Should fail if save promotion.schedules contains two schedules with the same dayOfWeek', async () => {
+    try {
+      const schedule1 = schedules_sample[0];
+      const schedule2 = schedules_sample[1];
+      schedule1.dayOfWeek = schedule2.dayOfWeek;
+      promotionDTO.schedules = [schedule1, schedule2];
+      await PromotionValidation.schema.validateAsync(promotionDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual(
+        '"schedules[1]" contains a duplicate value'
       );
     }
   });

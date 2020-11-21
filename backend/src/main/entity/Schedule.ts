@@ -4,6 +4,7 @@ import {
   JoinColumn,
   ManyToOne,
   Column,
+  Unique,
 } from 'typeorm';
 import { Promotion } from './Promotion';
 import { Day } from '../data/Day';
@@ -13,6 +14,7 @@ import { Day } from '../data/Day';
  * * Each schedule is associated with one promotion
  * */
 @Entity()
+@Unique(['promotion', 'dayOfWeek']) // https://typeorm.io/#/decorator-reference/unique
 export class Schedule {
   constructor(
     startTime: string,
