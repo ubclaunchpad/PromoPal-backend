@@ -67,6 +67,18 @@ This will run any migrations in the `/migrations` folder. Currently `ormconfig.j
 yarn run run_migration
 ```
 
+## Running unit tests
+
+If you want to run all tests in IntelliJ, add this new configuration. It's very important you specify
+the working directory as specified because TypeORM config needs the correct directory to find all the entities, migrations, subcribers etc.
+![image](https://user-images.githubusercontent.com/49849754/99886688-66ff8080-2bf3-11eb-88b1-2cb9879988db.png)
+
+You can also run tests using this command
+
+```
+yarn run test
+```
+
 ## Local development (without docker)
 
 ### Change ormconfig.json
@@ -76,10 +88,12 @@ Find `ormconfig.json` and change the following line to `host: localhost`
 ### Using Intellij
 
 Make sure you created the databases first.
-Intellij can show you your databases and tables. Go to the `Database` tab and add a new data source.  
+Intellij can show you your databases and tables. Go to the `Database` tab and add a new data source.
+
 ![image](https://user-images.githubusercontent.com/49849754/98451666-bfffec80-20fc-11eb-9165-8100d3a3dd41.png)
 
 Fill out with the username and password respectively
+
 ![image](https://user-images.githubusercontent.com/49849754/98451683-e4f45f80-20fc-11eb-8866-9dc21f3624d0.png)
 
 You should now be able to see all the databases and tables.
