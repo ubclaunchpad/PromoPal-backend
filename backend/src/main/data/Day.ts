@@ -6,5 +6,4 @@ export enum Day {
   FRIDAY = 'Friday',
   SATURDAY = 'Saturday',
   SUNDAY = 'Sunday',
-  NONE = 'None',
 }

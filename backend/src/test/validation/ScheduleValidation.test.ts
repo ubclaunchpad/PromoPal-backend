@@ -50,7 +50,7 @@ describe('Unit tests for DiscountValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(2);
       expect(e.details[0].message).toEqual(
-        '"dayOfWeek" must be one of [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday, None]'
+        '"dayOfWeek" must be one of [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]'
       );
       expect(e.details[1].message).toEqual('"dayOfWeek" must be a string');
     }
@@ -252,7 +252,7 @@ describe('Unit tests for DiscountValidation', function () {
       expect(e.details[1].message).toEqual('"endTime" must be a string');
       expect(e.details[2].message).toEqual('"isRecurring" must be a boolean');
       expect(e.details[3].message).toEqual(
-        '"dayOfWeek" must be one of [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday, None]'
+        '"dayOfWeek" must be one of [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]'
       );
       expect(e.details[4].message).toEqual('"dayOfWeek" must be a string');
     }

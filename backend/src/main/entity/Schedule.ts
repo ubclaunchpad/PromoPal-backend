@@ -60,10 +60,8 @@ export class Schedule {
   endTime: string;
 
   @Column({
-    nullable: true,
     type: 'enum',
     enum: Day,
-    default: Day.NONE,
   })
   dayOfWeek: Day;
 
