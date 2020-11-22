@@ -18,11 +18,11 @@ export default function UploadPromoButton(): ReactElement {
   }
 
   return (
-    <Button 
-      shape="circle" 
-      icon={<PlusOutlined />} 
+    <Button
+      shape="circle"
+      icon={<PlusOutlined />}
       onClick={handleClick}
       style={styles.button}
-      />
+    />
   );
 }

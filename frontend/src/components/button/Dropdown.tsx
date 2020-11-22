@@ -2,10 +2,7 @@ import React, { CSSProperties, ReactElement } from "react";
 import { Menu, Dropdown as DD } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-import {
-  Dropdown as DropdownType,
-  DropdownOption,
-} from "../../types/dropdown";
+import { Dropdown as DropdownType, DropdownOption } from "../../types/dropdown";
 
 function constructOptions(options: DropdownOption[]): ReactElement {
   return (
