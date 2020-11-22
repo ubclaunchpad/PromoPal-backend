@@ -6,7 +6,7 @@ import PromotionList from "../components/PromotionList";
 import { usePromotionsList } from "../contexts/PromotionsListContext";
 import * as Promotion from "../types/promotion";
 
-const mapWidth = 70;
+const mapWidth = 65;
 
 export default function Home(): ReactElement {
   const [height, setHeight] = useState<string>("");

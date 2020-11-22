@@ -13,16 +13,20 @@ const styles: { [identifier: string]: CSSProperties } = {
     marginTop: "5%",
     position: "absolute",
     padding: 0,
-    width: 350,
+    width: "350px",
   },
 };
 
-export default function RestaurantCard(restaurant: Restaurant): ReactElement {
+export default function RestaurantCard({
+  left,
+  ...restaurant
+}: { left: string } & Restaurant): ReactElement {
+  const containerPadding = "15px";
   return (
     <Col
       style={{
         ...styles.container,
-        left: `calc(70% - 15px - ${styles.container.width}px)`,
+        left: `calc(${left} - ${containerPadding} - ${styles.container.width})`,
       }}
     >
       <Header {...restaurant} />

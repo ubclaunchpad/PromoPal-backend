@@ -11,11 +11,14 @@ import { Restaurant } from "../../types/restaurant";
 const styles: { [identifier: string]: CSSProperties } = {
   body: {
     display: "inline-flex",
+    padding: 10,
     textAlign: "left",
     width: "100%",
-    padding: 10,
   },
   card: {
+    borderRadius: 15,
+    borderWidth: 0,
+    boxShadow: "2px 2px 4px 0px #40333333",
     cursor: "pointer",
     display: "inline-block",
     marginBottom: 15,

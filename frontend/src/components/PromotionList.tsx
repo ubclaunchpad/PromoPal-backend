@@ -9,6 +9,7 @@ import { Promotion } from "../types/promotion";
 
 const styles: { [identifier: string]: CSSProperties } = {
   container: {
+    backgroundColor: "#FFEDDC",
     padding: 15,
     paddingBottom: 0,
     overflow: "auto",
@@ -16,7 +17,7 @@ const styles: { [identifier: string]: CSSProperties } = {
 };
 
 export default function PromotionList({
-  dimensions,
+  dimensions: { width, height },
 }: {
   dimensions: { width: string; height: string };
 }): ReactElement {
@@ -26,8 +27,9 @@ export default function PromotionList({
   const { state: restaurantCardState } = useRestaurantCard();
 
   const containerStyles = {
-    marginLeft: `calc(100vw - ${dimensions.width})`,
-    ...dimensions,
+    height,
+    width,
+    marginLeft: `calc(100vw - ${width})`,
     ...styles.container,
   };
 
@@ -47,7 +49,10 @@ export default function PromotionList({
     <div style={containerStyles}>
       {/* Conditionally render the restaurant card */}
       {restaurantCardState.showCard && (
-        <RestaurantCard {...restaurantCardState.restaurant} />
+        <RestaurantCard
+          left={containerStyles.marginLeft as string}
+          {...restaurantCardState.restaurant}
+        />
       )}
       {promotions.map((promotion: Promotion) => (
         <PromotionCard key={promotion.id} {...promotion} />
