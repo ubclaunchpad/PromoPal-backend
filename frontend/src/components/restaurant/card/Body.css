@@ -1,0 +1,50 @@
+/* Tab bar */
+.ant-tabs-nav-wrap {
+  background-color: #ffeddc;
+  margin-top: 10px;
+  margin-bottom: -10px;
+}
+
+/* Tab bar button spacing */
+.ant-tabs .ant-tabs-nav-wrap .ant-tabs-nav-list .ant-tabs-tab {
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-right: 0px;
+}
+
+/* Active tab bar */
+.ant-tabs
+  .ant-tabs-nav-wrap
+  .ant-tabs-nav-list
+  .ant-tabs-tab.ant-tabs-tab-active {
+  background-color: #fac15e;
+}
+
+/* Active tab bar button text */
+.ant-tabs
+  .ant-tabs-nav-wrap
+  .ant-tabs-nav-list
+  .ant-tabs-tab.ant-tabs-tab-active
+  .ant-tabs-tab-btn {
+  font-weight: bold;
+}
+
+/* Hover: tab bar div */
+.ant-tabs .ant-tabs-nav-wrap .ant-tabs-nav-list .ant-tabs-tab:hover {
+  color: #333;
+}
+
+/* Tab bar button text */
+.ant-tabs
+  .ant-tabs-nav-wrap
+  .ant-tabs-nav-list
+  .ant-tabs-tab
+  .ant-tabs-tab-btn {
+  color: #333;
+}
+
+/* Remove underline on active tab */
+.ant-tabs .ant-tabs-nav-list .ant-tabs-ink-bar.ant-tabs-ink-bar-animated {
+  height: 0;
+  width: 0;
+}

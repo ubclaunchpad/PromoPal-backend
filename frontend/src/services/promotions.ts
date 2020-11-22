@@ -1,14 +1,55 @@
-import { SortBy, FilterBy, Category, CuisineType, DaysOfWeek, DiscountType, ServiceOptions, Sort } from "../types/promotion";
+import {
+  SortBy,
+  FilterBy,
+  Category,
+  CuisineType,
+  DaysOfWeek,
+  DiscountType,
+  ServiceOptions,
+  Sort,
+} from "../types/promotion";
 import { Promotion } from "../types/promotion";
+import { Restaurant } from "../types/restaurant";
 import { enumContainsValue } from "../utils/enum";
 
 export async function get(): Promise<Promotion[]> {
-  return fetch("/promotion")
+  return fetch("/promotions")
     .then((res: Response) => res.json())
     .catch(() => []);
 }
 
-export function sortPromotions(promotions: Promotion[], sort: SortBy): Promotion[] {
+export async function getRestaurant({
+  placeId,
+}: Promotion): Promise<Restaurant> {
+  // TODO: find restaurant given placeId from promotion
+  return {
+    id: placeId,
+    address: "1850 W 4th Ave, Vancouver, BC V6J 1M3",
+    cuisineType: "Italian",
+    distance: 500,
+    name: "Trattoria",
+    phoneNumber: "604-732-1441",
+    photos: [],
+    price: "$$",
+    rating: 4.1,
+    reviews: "https://google.com",
+    website: "https://www.glowbalgroup.com/trattoria/trattoria-burnaby.html",
+    hours: {
+      sunday: "10:30 AM - Late",
+      monday: "11:30 AM - Late",
+      tuesday: "11:30 AM - Late",
+      wednesday: "11:30 AM - Late",
+      thursday: "11:30 AM - Late",
+      friday: "11:30 AM - Late",
+      saturday: "10:30 AM - Late",
+    },
+  };
+}
+
+export function sortPromotions(
+  promotions: Promotion[],
+  sort: SortBy
+): Promotion[] {
   switch (sort) {
     case Sort.Distance:
       return sortDistance(promotions);
@@ -36,7 +77,10 @@ function sortRating(promotions: Promotion[]) {
   return promotions;
 }
 
-export function filterPromotions(promotions: Promotion[], filter: FilterBy): Promotion[] {
+export function filterPromotions(
+  promotions: Promotion[],
+  filter: FilterBy
+): Promotion[] {
   if (enumContainsValue(Category, filter)) {
     return filterCategory(promotions, filter as Category);
   } else if (enumContainsValue(CuisineType, filter)) {
@@ -52,11 +96,15 @@ export function filterPromotions(promotions: Promotion[], filter: FilterBy): Pro
 }
 
 function filterCategory(promotions: Promotion[], filter: Category) {
-  return promotions.filter(({ category }) => category.replace("\\s", "_").toUpperCase() === filter);
+  return promotions.filter(
+    ({ category }) => category.replace("\\s", "_").toUpperCase() === filter
+  );
 }
 
 function filterCuisineType(promotions: Promotion[], filter: CuisineType) {
-  return promotions.filter(({ cuisine }) => cuisine.replace("\\s", "_").toUpperCase() === filter);
+  return promotions.filter(
+    ({ cuisine }) => cuisine.replace("\\s", "_").toUpperCase() === filter
+  );
 }
 
 function filterDaysOfWeek(promotions: Promotion[], filter: DaysOfWeek) {

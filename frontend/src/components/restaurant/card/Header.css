@@ -1,0 +1,4 @@
+/* Hover: link colour */
+button.ant-btn:hover {
+  color: #333;
+}

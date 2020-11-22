@@ -9,11 +9,12 @@ export interface Promotion {
   image: PromotionImage;
   liked: boolean;
   name: string;
+  placeId: string;
   restaurantName: string;
   user: User;
 }
 
-export interface User { 
+export interface User {
   id: string;
   email: string;
   firstName: string;
@@ -72,11 +73,17 @@ export enum ServiceOptions {
   TakeOut = "TAKE_OUT",
 }
 
-export enum Sort { 
+export enum Sort {
   Distance = "DISTANCE",
   MostPopular = "MOST_POPULAR",
   Rating = "RATING",
 }
 
-export type FilterBy = "DEFAULT" | Category | CuisineType | DaysOfWeek | DiscountType | ServiceOptions;
+export type FilterBy =
+  | "DEFAULT"
+  | Category
+  | CuisineType
+  | DaysOfWeek
+  | DiscountType
+  | ServiceOptions;
 export type SortBy = "DEFAULT" | Sort;

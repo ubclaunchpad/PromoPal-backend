@@ -6,7 +6,7 @@ import PromotionList from "../components/PromotionList";
 import { usePromotionsList } from "../contexts/PromotionsListContext";
 import * as Promotion from "../types/promotion";
 
-const mapWidth = 60;
+const mapWidth = 70;
 
 export default function Home(): ReactElement {
   const [height, setHeight] = useState<string>("");
@@ -157,7 +157,7 @@ export default function Home(): ReactElement {
       ],
     },
   ];
-  
+
   useEffect(() => {
     // Note: the following is not considered best practice, but it is used to calculate the height
     // of the header + dropdown so that we can use it as an offset
