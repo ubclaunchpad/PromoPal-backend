@@ -5,11 +5,11 @@ import Joi, { ObjectSchema } from 'joi';
  */
 export class UserUpdateValidation {
   static schema: ObjectSchema = Joi.object({
-    username: Joi.string(),
-    firstName: Joi.string(),
-    lastName: Joi.string(),
-    email: Joi.string().email(),
-    password: Joi.string().min(8),
+    username: Joi.string().allow(''),
+    firstName: Joi.string().allow(''),
+    lastName: Joi.string().allow(''),
+    email: Joi.string().email().allow(''),
+    password: Joi.string().min(8).allow(''),
   }).required();
 }
 

@@ -31,18 +31,6 @@ createConnection()
     app.use(bodyParser.json());
     const PORT = 8000;
 
-    registerRouters(app);
-
-    const userRepository: UserRepository = getCustomRepository(UserRepository);
-    const promotionRepository: PromotionRepository = getCustomRepository(
-      PromotionRepository
-    );
-    const discountRepository: DiscountRepository = getCustomRepository(
-      DiscountRepository
-    );
-    const savedPromotionRepository: SavedPromotionRepository = getCustomRepository(
-      SavedPromotionRepository
-    );
     // await loadSampleData();
 
     registerRouters(app);

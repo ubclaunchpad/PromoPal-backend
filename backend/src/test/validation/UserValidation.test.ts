@@ -1,7 +1,7 @@
 import { UserValidation } from '../../main/validation/UserValidation';
 
 describe('Unit tests for UserValidation', function () {
-  let userDTO: UserValidation;
+  let userDTO: any;
 
   beforeEach(() => {
     userDTO = {
@@ -37,7 +37,7 @@ describe('Unit tests for UserValidation', function () {
 
   test('Should fail if invalid password', async () => {
     try {
-      userDTO.password = 'invalid';
+      userDTO.password = 'none';
       await UserValidation.schema.validateAsync(userDTO, {
         abortEarly: false,
       });
@@ -46,6 +46,21 @@ describe('Unit tests for UserValidation', function () {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual(
         '"password" length must be at least 8 characters long'
+      );
+    }
+  });
+
+  test('Should fail if invalid email', async () => {
+    try {
+      userDTO.email = 'invalid-email';
+      await UserValidation.schema.validateAsync(userDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual(
+        '"email" must be a valid email'
       );
     }
   });
