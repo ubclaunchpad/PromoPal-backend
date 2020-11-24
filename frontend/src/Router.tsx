@@ -5,6 +5,7 @@ import NavigationBar from "./components/navigation/NavigationBar";
 import { PromotionsListProvider } from "./contexts/PromotionsListContext";
 import Home from "./screens/Home";
 import MyPromotions from "./screens/MyPromotions"
+import MyAccount from "./screens/MyAccount"
 
 export default function Router(): ReactElement {
   return (
@@ -17,6 +18,9 @@ export default function Router(): ReactElement {
           <Route path="/login">
             {/* <Login /> */}
             <MyPromotions />
+          </Route>
+          <Route path="/myaccount">
+            <MyAccount />
           </Route>
           <Route path="/promotion/upload">{/* <UploadPromotion /> */}</Route>
           <Route path="/">
