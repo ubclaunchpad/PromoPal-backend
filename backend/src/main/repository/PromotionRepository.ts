@@ -51,7 +51,7 @@ export class PromotionRepository extends Repository<Promotion> {
 
     if (promotionQuery?.expirationDate) {
       queryBuilder.andWhere('promotion.expirationDate >= :date', {
-        date: new Date(promotionQuery.expirationDate),
+        date: promotionQuery.expirationDate,
       });
     }
 

@@ -3,7 +3,7 @@ import { Card } from "antd";
 
 import PromotionDetails from "../promotion/PromotionDetails";
 import PromotionImage from "../promotion/PromotionImage";
-import { Promotion } from "../../types/Promotion";
+import { Promotion } from "../../types/promotion";
 
 const styles: { [identifier: string]: CSSProperties } = {
   body: {

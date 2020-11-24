@@ -5,14 +5,14 @@ import { DownOutlined } from "@ant-design/icons";
 import {
   Dropdown as DropdownType,
   DropdownOption,
-} from "../../types/Dropdown";
+} from "../../types/dropdown";
 
 function constructOptions(options: DropdownOption[]): ReactElement {
   return (
     <Menu>
-      {options.map(({ link, text }) => (
+      {options.map(({ action, text }) => (
         <Menu.Item>
-          <a href={link}>{text}</a>
+          <div onClick={action}>{text}</div>
         </Menu.Item>
       ))}
     </Menu>
@@ -39,6 +39,7 @@ export default function Dropdown({
   return (
     <DD overlay={constructOptions(options)}>
       <a
+        href="/"
         className="ant-dropdown-link"
         onClick={(e) => e.preventDefault()}
         style={styles.button}
