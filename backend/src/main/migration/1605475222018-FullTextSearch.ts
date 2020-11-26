@@ -12,7 +12,7 @@ export class FullTextSearch1605475222018 implements MigrationInterface {
       'create index tsvector_idx on promotion using gin (tsvector)'
     );
     await queryRunner.query(
-      "create trigger tsvectorupdate before insert or update on promotion for each row execute procedure tsvector_update_trigger(tsvector, 'pg_catalog.english', name, description)"
+      'create trigger tsvectorupdate before insert or update on promotion for each row execute procedure tsvector_update_trigger(tsvector, \'pg_catalog.english\', name, description)'
     );
   }
 
