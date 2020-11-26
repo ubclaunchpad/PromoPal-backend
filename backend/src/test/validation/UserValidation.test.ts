@@ -59,9 +59,7 @@ describe('Unit tests for UserValidation', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"email" must be a valid email'
-      );
+      expect(e.details[0].message).toEqual('"email" must be a valid email');
     }
   });
 });
