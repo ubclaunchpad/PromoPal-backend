@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Promotion } from './Promotion';
 import { SavedPromotion } from './SavedPromotion';
+import * as bcrypt from 'bcryptjs';
 
 /*
  * Represents a user in our application.
@@ -19,7 +20,9 @@ export class User {
     this.lastName = lastName;
     this.email = email;
     this.username = username;
-    this.password = password;
+    if (password) {
+      this.password = bcrypt.hashSync(password, 8);
+    }
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -70,4 +73,12 @@ export class User {
     select: false, // https://typeorm.io/#/select-query-builder/hidden-columns
   })
   password: string;
+
+  checkIfUnencryptedPasswordIsValid(unencryptedPassword: string): boolean {
+    return bcrypt.compareSync(unencryptedPassword, this.password);
+  }
+
+  setHashPassword(): void {
+    this.password = bcrypt.hashSync(this.password, 8);
+  }
 }
