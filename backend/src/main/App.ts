@@ -13,6 +13,8 @@ import { UserRepository } from './repository/UserRepository';
 import { PromotionRepository } from './repository/PromotionRepository';
 import { DiscountRepository } from './repository/DiscountRepository';
 import { SavedPromotionRepository } from './repository/SavedPromotionRepository';
+import { UserRouter } from './route/UserRouter';
+import { UserController } from './controller/UserController';
 import { Route } from './constant/Route';
 import { PromotionRouter } from './route/PromotionRouter';
 import { errorHandler } from './middleware/ErrorHandler';
@@ -55,6 +57,10 @@ function registerRouters(app: Express) {
   const enumController = new EnumController();
   const enumRouter = new EnumRouter(enumController);
   app.use(Route.ENUMS, enumRouter.getRoutes());
+
+  const userController = new UserController();
+  const userRouter = new UserRouter(userController);
+  app.use(Route.USERS, userRouter.getRoutes());
 }
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */
