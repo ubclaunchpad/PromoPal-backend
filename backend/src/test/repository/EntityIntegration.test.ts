@@ -46,7 +46,7 @@ describe('Integration tests for all entities', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.message).toBe(
-        'null value in column "userId" violates not-null constraint'
+        'null value in column "userId" of relation "promotion" violates not-null constraint'
       );
     }
   });

@@ -29,7 +29,8 @@ export class Promotion {
     cuisine: CuisineType,
     name: string,
     description: string,
-    expirationDate: Date
+    expirationDate: Date,
+    restaurantName: string
   ) {
     this.user = user;
     this.discount = discount;
@@ -39,6 +40,7 @@ export class Promotion {
     this.name = name;
     this.description = description;
     this.expirationDate = expirationDate;
+    this.restaurantName = restaurantName;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -144,4 +146,14 @@ export class Promotion {
     select: false,
   })
   tsVector: string;
+
+  /*
+   * Represents restaurant name inputted by user
+   * Many promotions can come from the same restaurant and thus have the same restaurantName
+   * */
+  @Column()
+  restaurantName: string;
+
+  lon?: number;
+  lat?: number;
 }

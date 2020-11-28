@@ -23,6 +23,9 @@ describe('Unit tests for PromotionValidation', function () {
       name: 'name',
       placeId: '123123123',
       userId: '56588b66-7bc3-4245-98c2-5e3d4e3bd2a6',
+      lat: 34.0,
+      lon: -43.2,
+      restaurantName: 'restaurantName',
     };
   });
 
@@ -138,13 +141,16 @@ describe('Unit tests for PromotionValidation', function () {
         name: 3,
         placeId: 4,
         userId: false,
+        lat: '34.0', //todo: are numbers not validated?
+        lon: '-43.2',
+        restaurantName: 4,
       };
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(7);
+      expect(e.details.length).toEqual(8);
       expect(e.details[0].message).toEqual('"userId" must be a string');
       expect(e.details[1].message).toEqual('"placeId" must be a string');
       expect(e.details[2].message).toEqual(
@@ -158,6 +164,7 @@ describe('Unit tests for PromotionValidation', function () {
       expect(e.details[6].message).toEqual(
         '"expirationDate" must be a valid date'
       );
+      expect(e.details[7].message).toEqual('"restaurantName" must be a string');
     }
   });
 });

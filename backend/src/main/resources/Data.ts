@@ -80,7 +80,8 @@ const promotion1 = new Promotion(
   CuisineType.CARIBBEAN,
   'promo1',
   'description1',
-  new Date()
+  new Date(),
+  'restaurantName1'
 );
 const promotion2 = new Promotion(
   user2,
@@ -90,7 +91,8 @@ const promotion2 = new Promotion(
   CuisineType.VIETNAMESE,
   'promo2',
   'description2',
-  new Date()
+  new Date(),
+  'restaurantName2'
 );
 const promotion3 = new Promotion(
   user2,
@@ -100,7 +102,8 @@ const promotion3 = new Promotion(
   CuisineType.KOREAN,
   'promo3',
   'description3',
-  new Date()
+  new Date(),
+  'restaurantName3'
 );
 const promotion4 = new Promotion(
   user2,
@@ -110,7 +113,8 @@ const promotion4 = new Promotion(
   CuisineType.JAPANESE,
   'promo4',
   'description4',
-  new Date()
+  new Date(),
+  'restaurantName4'
 );
 const promotion5 = new Promotion(
   user3,
@@ -120,7 +124,8 @@ const promotion5 = new Promotion(
   CuisineType.OTHER,
   'promo5',
   'description5',
-  new Date()
+  new Date(),
+  'restaurantName5'
 );
 const promotion6 = new Promotion(
   user4,
@@ -130,7 +135,8 @@ const promotion6 = new Promotion(
   CuisineType.CARIBBEAN,
   'promo6',
   'description6',
-  new Date()
+  new Date(),
+  'restaurantName6'
 );
 const promotion7 = new Promotion(
   user5,
@@ -140,7 +146,8 @@ const promotion7 = new Promotion(
   CuisineType.VIETNAMESE,
   'promo7',
   'description7',
-  new Date()
+  new Date(),
+  'restaurantName7'
 );
 const promotion8 = new Promotion(
   user5,
@@ -150,7 +157,8 @@ const promotion8 = new Promotion(
   CuisineType.KOREAN,
   'promo8',
   'description8',
-  new Date()
+  new Date(),
+  'restaurantName8'
 );
 const promotion9 = new Promotion(
   user6,
@@ -160,7 +168,8 @@ const promotion9 = new Promotion(
   CuisineType.JAPANESE,
   'promo9',
   'description9',
-  new Date()
+  new Date(),
+  'restaurantName9'
 );
 const promotion10 = new Promotion(
   user6,
@@ -170,7 +179,8 @@ const promotion10 = new Promotion(
   CuisineType.OTHER,
   'promo10',
   'description10',
-  new Date()
+  new Date(),
+  'restaurantName10'
 );
 const promotion11 = new Promotion(
   user7,
@@ -180,7 +190,8 @@ const promotion11 = new Promotion(
   CuisineType.CARIBBEAN,
   'promo11',
   'description11',
-  new Date()
+  new Date(),
+  'restaurantName11'
 );
 const promotion12 = new Promotion(
   user7,
@@ -190,7 +201,8 @@ const promotion12 = new Promotion(
   CuisineType.VIETNAMESE,
   'promo12',
   'description12',
-  new Date()
+  new Date(),
+  'restaurantName12'
 );
 const promotion13 = new Promotion(
   user7,
@@ -200,7 +212,8 @@ const promotion13 = new Promotion(
   CuisineType.KOREAN,
   'promo13',
   'description13',
-  new Date()
+  new Date(),
+  'restaurantName13'
 );
 const promotion14 = new Promotion(
   user7,
@@ -210,7 +223,8 @@ const promotion14 = new Promotion(
   CuisineType.JAPANESE,
   'promo14',
   'description14',
-  new Date()
+  new Date(),
+  'restaurantName14'
 );
 const promotion15 = new Promotion(
   user7,
@@ -220,7 +234,8 @@ const promotion15 = new Promotion(
   CuisineType.OTHER,
   'promo15',
   'description15',
-  new Date()
+  new Date(),
+  'restaurantName15'
 );
 const promotion16 = new Promotion(
   user7,
@@ -230,7 +245,8 @@ const promotion16 = new Promotion(
   CuisineType.CARIBBEAN,
   'promo16',
   'description16',
-  new Date()
+  new Date(),
+  'restaurantName16'
 );
 
 export const discounts_sample = [
