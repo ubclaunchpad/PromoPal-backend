@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { Skeleton } from "antd";
 
-import { PromotionImage as PromotionImageProps } from "../../types/Promotion";
+import { PromotionImage as PromotionImageProps } from "../../types/promotion";
 
 export default function PromotionImage({
   src,

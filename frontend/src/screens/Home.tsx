@@ -1,108 +1,179 @@
-import React, { CSSProperties, ReactElement } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 
 import DropdownMenu from "../components/DropdownMenu";
-import PromotionCard from "../components/promotion/PromotionCard";
-
-import { DropdownOption, Dropdown} from "../types/Dropdown";
-import { Promotion } from "../types/Promotion";
-
-const options: DropdownOption[] = [
-  {
-    link: "/link1",
-    text: "Option 1",
-  },
-  {
-    link: "/link2",
-    text: "Option 2",
-  },
-  {
-    link: "/link3",
-    text: "Option 3",
-  },
-];
-
-const dropdowns: Dropdown[] = [
-  {
-    text: "Sort",
-    options,
-  },
-  {
-    text: "Discount Type",
-    options,
-  },
-  {
-    text: "Cuisine",
-    options,
-  },
-  {
-    text: "Category",
-    options,
-  },
-  {
-    text: "Price",
-    options,
-  },
-  {
-    text: "Day of the Week",
-    options,
-  },
-  {
-    text: "Dine In Available",
-    options,
-  },
-];
-
-const promotions: Promotion[] = [
-  {
-    title: "Happy Hour 2pm-4pm",
-    restaurantName: "Starbucks",
-    description: "Buy one, get one free on all Grande sized drinks!",
-    date: "Nov 11, 2020",
-    liked: false,
-    image: { src: "" },
-  },
-  {
-    title: "$2 off Sandwiches",
-    restaurantName: "Grandma Loves You",
-    description: "Get $2 off any sandwich of your choice.",
-    date: "Nov 20, 2020",
-    liked: false,
-    image: { src: "" },
-  },
-  {
-    title: "10% off Breakfast",
-    restaurantName: "Elephant Grind Coffee House",
-    description:
-      "Get 10% off of your order (pre-tax) when you spend over $15 on breakfast.",
-    date: "Thursday",
-    liked: true,
-    image: { src: "" },
-  },
-];
+import MapContainer from "../components/MapContainer";
+import PromotionList from "../components/PromotionList";
+import { usePromotionsList } from "../contexts/PromotionsListContext";
+import * as Promotion from "../types/promotion";
 
 const mapWidth = 60;
-const styles: { [identifier: string]: CSSProperties } = {
-  mapContainer: {
-    width: `${mapWidth}%`,
-  },
-  promotions: {
-    margin: 15,
-    marginBottom: 0,
-    width: `${100 - mapWidth}%`,
-  },
-};
 
 export default function Home(): ReactElement {
+  const [height, setHeight] = useState<string>("");
+
+  const { dispatch } = usePromotionsList();
+
+  const dropdowns = [
+    {
+      text: "Sort",
+      options: [
+        {
+          action: () => dispatch({ sort: Promotion.Sort.Distance }),
+          text: "Distance",
+        },
+        {
+          action: () => dispatch({ sort: Promotion.Sort.MostPopular }),
+          text: "Most Popular",
+        },
+        {
+          action: () => dispatch({ sort: Promotion.Sort.Rating }),
+          text: "Rating",
+        },
+      ],
+    },
+    {
+      text: "Discount Type",
+      options: [
+        {
+          action: () => dispatch({ filter: Promotion.DiscountType.DollarsOff }),
+          text: "$ Off",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DiscountType.PercentOff }),
+          text: "% Off",
+        },
+      ],
+    },
+    {
+      text: "Cuisine",
+      options: [
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.American }),
+          text: "American",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Chinese }),
+          text: "Chinese",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.French }),
+          text: "French",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Indian }),
+          text: "Indian",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Italian }),
+          text: "Italian",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Japanese }),
+          text: "Japanese",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Korean }),
+          text: "Korean",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Mexican }),
+          text: "Mexican",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.CuisineType.Vietnamese }),
+          text: "Vietnamese",
+        },
+      ],
+    },
+    {
+      text: "Category",
+      options: [
+        {
+          action: () => dispatch({ filter: Promotion.Category.Bakery }),
+          text: "Bakery",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.Category.BubbleTea }),
+          text: "Bubble Tea",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.Category.Coffee }),
+          text: "Coffee",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.Category.Dessert }),
+          text: "Dessert",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.Category.FastFood }),
+          text: "Fast Food",
+        },
+      ],
+    },
+    {
+      text: "Day of the Week",
+      options: [
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Sunday }),
+          text: "Sunday",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Monday }),
+          text: "Monday",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Tuesday }),
+          text: "Tuesday",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Wednesday }),
+          text: "Wednesday",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Thursday }),
+          text: "Thursday",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Friday }),
+          text: "Friday",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.DaysOfWeek.Saturday }),
+          text: "Saturday",
+        },
+      ],
+    },
+    {
+      text: "Service Options",
+      options: [
+        {
+          action: () => dispatch({ filter: Promotion.ServiceOptions.DineIn }),
+          text: "Dine-In",
+        },
+        {
+          action: () => dispatch({ filter: Promotion.ServiceOptions.TakeOut }),
+          text: "Take-Out",
+        },
+      ],
+    },
+  ];
+  
+  useEffect(() => {
+    // Note: the following is not considered best practice, but it is used to calculate the height
+    // of the header + dropdown so that we can use it as an offset
+    const headerHeight = document.getElementById("navigation-header")
+      ?.offsetHeight;
+    const dropdownMenuHeight = document.getElementById("dropdown-menu")
+      ?.offsetHeight;
+    setHeight(`calc(100vh - ${headerHeight}px - ${dropdownMenuHeight}px)`);
+  }, []);
+
   return (
     <>
-      <DropdownMenu dropdowns={dropdowns}/>
-      <div style={{ display: "inline-flex" }}>
-        <div style={styles.mapContainer}></div>
-        <div style={styles.promotions}>
-          {promotions.map((promotion: Promotion) => (
-            <PromotionCard {...promotion} />
-          ))}
-        </div>
+      <DropdownMenu dropdowns={dropdowns} />
+      <div id="content-container" style={{ display: "inline-flex", height }}>
+        <MapContainer dimensions={{ width: `${mapWidth}vw`, height }} />
+        <PromotionList dimensions={{ width: `${100 - mapWidth}vw`, height }} />
       </div>
     </>
   );

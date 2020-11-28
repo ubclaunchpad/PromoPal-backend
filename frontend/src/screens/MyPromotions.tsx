@@ -5,20 +5,20 @@ import DropdownMenu from "../components/DropdownMenu";
 import PromotionCard from "../components/promotion/PromotionCard";
 import UploadPromoButton from "../components/button/UploadPromoButton";
 
-import { DropdownOption, Dropdown} from "../types/Dropdown";
-import { Promotion } from "../types/Promotion";
+import { DropdownOption, Dropdown} from "../types/dropdown";
+import { Promotion, User } from "../types/promotion";
 
 const options: DropdownOption[] = [
   {
-    link: "/link1",
+    action: () => {},
     text: "Option 1",
   },
   {
-    link: "/link2",
+    action: () => {},
     text: "Option 2",
   },
   {
-    link: "/link3",
+    action: () => {},
     text: "Option 3",
   },
 ];
@@ -34,31 +34,70 @@ const dropdowns: Dropdown[] = [
   },
 ];
 
+const user: User = {
+  id: "u1",
+  email: "example@abc.com",
+  firstName: "John",
+  lastName: "Lee",
+  password: "123",
+  username: "user",
+}
+
 const promotions: Promotion[] = [
   {
-    title: "Happy Hour 2pm-4pm",
-    restaurantName: "Starbucks",
+    id: "1",
+    category: "Drinks",
+    cuisine: "American",
+    dateAdded: "Nov 10, 2020",
     description: "Buy one, get one free on all Grande sized drinks!",
-    date: "Nov 11, 2020",
+    discount: {
+      id: "d1",
+      discountValue: 5,
+      type: "$",
+    },
+    expirationDate: "Nov 11, 2020",
     liked: false,
     image: { src: "" },
+    name: "Happy Hour 2pm-4pm",
+    restaurantName: "Starbucks",
+    user,
   },
   {
-    title: "$2 off Sandwiches",
-    restaurantName: "Grandma Loves You",
+    id: "2",
+    category: "Lunch",
+    cuisine: "American",
+    dateAdded: "Nov 10, 2020",
     description: "Get $2 off any sandwich of your choice.",
-    date: "Nov 20, 2020",
+    discount: {
+      id: "d2",
+      discountValue: 2,
+      type: "$",
+    },
+    expirationDate: "Nov 20, 2020",
     liked: false,
-    image: { src: "" },
+    image: { "src": "" },
+    name: "$2 off Sandwiches",
+    restaurantName: "Grandma Loves You",
+    user,
   },
   {
-    title: "10% off Breakfast",
-    restaurantName: "Elephant Grind Coffee House",
+    id: "3",
+    category: "Lunch",
+    cuisine: "American",
+    dateAdded: "Nov 15, 2020",
     description:
       "Get 10% off of your order (pre-tax) when you spend over $15 on breakfast.",
-    date: "Thursday",
-    liked: true,
-    image: { src: "" },
+    discount: {
+      id: "d2",
+      discountValue: 2,
+      type: "$",
+    },
+    expirationDate: "Jan 1, 2020",
+    liked: false,
+    image: { "src": "" },
+    name: "10% off Breakfast",
+    restaurantName: "Elephant Grind Coffee House",
+    user,
   },
 ];
 

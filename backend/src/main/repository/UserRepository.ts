@@ -28,13 +28,13 @@ export class UserRepository extends Repository<User> {
   // adds a single promotion to a user's saved promotions
   // todo: we need to make sure we can handle a high number of requests of unsaving and saving a promotion, and never run into conditions
   //  where we are adding a promotion that is already save and never unsaving a promotion that is already unsaved, similar to https://github.com/ubclaunchpad/foodies/issues/49
-  addSavedPromotion(user: User, promotion: Promotion): Promise<User> {
-    const savedPromotion: SavedPromotion = new SavedPromotion(user, promotion);
-    if (user.savedPromotions) {
-      user.savedPromotions.push(savedPromotion);
-    } else {
-      user.savedPromotions = [savedPromotion];
-    }
-    return this.save(user);
-  }
+  // addSavedPromotion(user: User, promotion: Promotion): Promise<SavedPromotion> {
+  //   const savedPromotion = new SavedPromotion(user, promotion);
+  //   return getCustomRepository(SavedPromotionRepository).save(savedPromotion);
+  // }
+
+  // remove a single promotion from user's saved promotions
+  // removeSavedPromotion(user: User, promotion: Promotion): Promise<DeleteResult> {
+  //   return getCustomRepository(SavedPromotionRepository).delete({userId: user.id, promotionId: promotion.id});
+  // }
 }

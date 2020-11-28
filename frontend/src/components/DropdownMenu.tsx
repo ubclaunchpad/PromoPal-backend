@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactElement } from "react";
 
 import Dropdown from "./button/Dropdown";
 
-import { DropdownMenu as DropdownMenuType } from "../types/Dropdown";
+import { DropdownMenu as DropdownMenuType } from "../types/dropdown";
 
 const styles: { [identifier: string]: CSSProperties } = {
   filterBar: {
@@ -13,11 +13,9 @@ const styles: { [identifier: string]: CSSProperties } = {
   },
 };
 
-export default function DropdownMenu({
-  dropdowns
-}: DropdownMenuType): ReactElement {
+export default function DropdownMenu({ dropdowns }: DropdownMenuType): ReactElement {
   return (
-    <div style={styles.filterBar}>
+    <div id="dropdown-menu" style={styles.filterBar}>
       {dropdowns.map((dropdown) => (
         <Dropdown {...dropdown} />
       ))}
