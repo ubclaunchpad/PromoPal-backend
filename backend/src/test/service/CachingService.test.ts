@@ -1,10 +1,18 @@
 import { CachingService } from '../../main/service/CachingService';
 import { CachingObject } from '../../main/data/CachingObject';
 
-describe('load all data for local testing', function () {
-  // todo: why dont it stop tho
-  // NOTE: RUNNING THESE TESTS WILL ADD TO THE REDIS SERVER!!!
-  const cachingService: CachingService = new CachingService();
+describe('simple add/get for redis cache', function () {
+  // NOTE: RUNNING THESE TESTS WILL MODIFY THE REDIS SERVER!
+  let cachingService: CachingService;
+
+  beforeEach(() => {
+    cachingService = new CachingService();
+  });
+
+  afterEach(() => {
+    const client = cachingService.getClient();
+    client.quit();
+  });
 
   test('adding lat/lon value', () => {
     return cachingService

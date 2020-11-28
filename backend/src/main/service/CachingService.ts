@@ -45,4 +45,8 @@ export class CachingService {
       });
     });
   }
+
+  getClient() {
+    return this.client;
+  }
 }

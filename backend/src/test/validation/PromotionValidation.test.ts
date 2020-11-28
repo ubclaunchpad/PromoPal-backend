@@ -141,7 +141,7 @@ describe('Unit tests for PromotionValidation', function () {
         name: 3,
         placeId: 4,
         userId: false,
-        lat: '34.0', //todo: are numbers not validated?
+        lat: '34.0',
         lon: '-43.2',
         restaurantName: 4,
       };
