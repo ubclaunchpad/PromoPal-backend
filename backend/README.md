@@ -88,7 +88,7 @@ Find `ormconfig.json` and change the following line to `host: localhost`
 ### Using Intellij
 
 Make sure you created the databases first.
-Intellij can show you your databases and tables. Go to the `Database` tab and add a new data source.
+IntelliJ can show you your databases and tables. Go to the `Database` tab and add a new data source.
 
 ![image](https://user-images.githubusercontent.com/49849754/98451666-bfffec80-20fc-11eb-9165-8100d3a3dd41.png)
 
