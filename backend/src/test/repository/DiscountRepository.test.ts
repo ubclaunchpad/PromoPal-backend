@@ -1,20 +1,23 @@
-import { getConnection, getCustomRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { discounts_sample } from '../../main/resources/Data';
-import { BaseRepositoryTest } from './BaseRepositoryTest';
+import connection from './BaseRepositoryTest';
 import { Discount } from '../../main/entity/Discount';
 import { DiscountRepository } from '../../main/repository/DiscountRepository';
 
 describe('Unit tests for DiscountRepository', function () {
   let discountRepository: DiscountRepository;
-  beforeEach(() => {
-    return BaseRepositoryTest.establishTestConnection().then(() => {
-      discountRepository = getCustomRepository(DiscountRepository);
-    });
+
+  beforeAll(async () => {
+    await connection.create();
   });
 
-  afterEach(() => {
-    const conn = getConnection();
-    return conn.close();
+  afterAll(async () => {
+    await connection.close();
+  });
+
+  beforeEach(async () => {
+    await connection.clear();
+    discountRepository = getCustomRepository(DiscountRepository);
   });
 
   test('Should not be able to create discount without promotion', async () => {

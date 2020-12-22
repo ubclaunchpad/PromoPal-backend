@@ -1,10 +1,16 @@
-import { Connection, createConnection } from 'typeorm';
+import { createConnection, EntityMetadata, getConnection } from 'typeorm';
 
 // use this class whenever we want to write unit/integration tests that interact with foodies_test database.
+<<<<<<< HEAD
 export class BaseRepositoryTest {
   static establishTestConnection(): Promise<Connection> {
     return createConnection({
       name: 'default',
+=======
+const connection = {
+  async create(): Promise<void> {
+    await createConnection({
+>>>>>>> 10428e32db17095ab0e1a8a6f8ec403cb6a823a3
       type: 'postgres',
       host: 'localhost',
       port: 5432,
@@ -24,5 +30,23 @@ export class BaseRepositoryTest {
         subscribersDir: 'src/main/subscriber',
       },
     });
-  }
-}
+  },
+
+  async close(): Promise<void> {
+    await this.clear();
+    await getConnection().close();
+  },
+
+  async clear(): Promise<void> {
+    const connection = getConnection();
+    const entities = connection.entityMetadatas;
+
+    const promises = entities.map(async (entity: EntityMetadata) => {
+      const repository = connection.getRepository(entity.name);
+      return repository.query(`DELETE FROM ${entity.tableName}`);
+    });
+    await Promise.all(promises);
+  },
+};
+
+export default connection;

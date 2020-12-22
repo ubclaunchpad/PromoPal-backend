@@ -1,20 +1,23 @@
-import { getConnection, getCustomRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { users_sample } from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
-import { BaseRepositoryTest } from './BaseRepositoryTest';
+import connection from './BaseRepositoryTest';
 
 describe('Unit tests for UserRepository', function () {
   let userRepository: UserRepository;
-  beforeEach(() => {
-    return BaseRepositoryTest.establishTestConnection().then(() => {
-      userRepository = getCustomRepository(UserRepository);
-    });
+
+  beforeAll(async () => {
+    await connection.create();
   });
 
-  afterEach(() => {
-    const conn = getConnection();
-    return conn.close();
+  afterAll(async () => {
+    await connection.close();
+  });
+
+  beforeEach(async () => {
+    await connection.clear();
+    userRepository = getCustomRepository(UserRepository);
   });
 
   test('Should be able to store a user and successfully retrieve the same user', async () => {
