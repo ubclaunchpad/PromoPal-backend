@@ -4,6 +4,7 @@ import { Connection, createConnection } from 'typeorm';
 export class BaseRepositoryTest {
   static establishTestConnection(): Promise<Connection> {
     return createConnection({
+      name: 'default',
       type: 'postgres',
       host: 'localhost',
       port: 5432,
