@@ -28,7 +28,7 @@ export class UserController {
     try {
       // get users from database
       const userRepository = getCustomRepository(UserRepository);
-      const users = await userRepository.find();
+      const users = await userRepository.find({ cache: true });
 
       // send the users object
       return res.status(200).send(users);
@@ -48,7 +48,7 @@ export class UserController {
         abortEarly: false,
       });
       const userRepository = getCustomRepository(UserRepository);
-      const user = await userRepository.findOneOrFail(id);
+      const user = await userRepository.findOneOrFail(id, { cache: true });
       return res.send(user);
     } catch (e) {
       return next(e);
@@ -144,6 +144,7 @@ export class UserController {
       const userRepository = getCustomRepository(UserRepository);
       const savedpromotions = await userRepository.findOneOrFail(id, {
         relations: ['savedPromotions', 'savedPromotions.promotion'],
+        cache: true,
       });
 
       res.status(200).send(savedpromotions);
@@ -236,6 +237,7 @@ export class UserController {
       const userRepository = getCustomRepository(UserRepository);
       const uploadedpromotions = await userRepository.findOneOrFail(id, {
         relations: ['uploadedPromotions', 'uploadedPromotions.promotion'],
+        cache: true,
       });
 
       return res.status(200).send(uploadedpromotions);

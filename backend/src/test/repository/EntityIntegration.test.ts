@@ -1,7 +1,7 @@
-import { getConnection, getCustomRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { promotions_sample, users_sample } from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
-import { BaseRepositoryTest } from './BaseRepositoryTest';
+import connection from './BaseRepositoryTest';
 import {
   PromotionRepository,
   PromotionFullTextSearch,
@@ -22,18 +22,21 @@ describe('Integration tests for all entities', function () {
   let promotionRepository: PromotionRepository;
   let discountRepository: DiscountRepository;
   let savedPromotionRepository: SavedPromotionRepository;
-  beforeEach(() => {
-    return BaseRepositoryTest.establishTestConnection().then(() => {
-      userRepository = getCustomRepository(UserRepository);
-      promotionRepository = getCustomRepository(PromotionRepository);
-      discountRepository = getCustomRepository(DiscountRepository);
-      savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
-    });
+
+  beforeAll(async () => {
+    await connection.create();
   });
 
-  afterEach(() => {
-    const conn = getConnection();
-    return conn.close();
+  afterAll(async () => {
+    await connection.close();
+  });
+
+  beforeEach(async () => {
+    await connection.clear();
+    userRepository = getCustomRepository(UserRepository);
+    promotionRepository = getCustomRepository(PromotionRepository);
+    discountRepository = getCustomRepository(DiscountRepository);
+    savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
   });
 
   test('Should not be able to save a promotion if user is not saved', async () => {
