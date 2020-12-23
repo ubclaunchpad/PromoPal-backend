@@ -61,7 +61,10 @@ export class PromotionController {
       });
       const promotion = await getCustomRepository(
         PromotionRepository
-      ).findOneOrFail(id, { relations: ['discount', 'schedules'] });
+      ).findOneOrFail(id, {
+        relations: ['discount', 'schedules'],
+        cache: true,
+      });
       return response.send(promotion);
     } catch (e) {
       return next(e);

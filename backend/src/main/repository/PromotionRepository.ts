@@ -20,6 +20,7 @@ export class PromotionRepository extends Repository<Promotion> {
       return this.createQueryBuilder('promotion')
         .innerJoinAndSelect('promotion.discount', 'discount')
         .innerJoinAndSelect('promotion.schedules', 'schedules')
+        .cache(true) // https://typeorm.io/#/caching Any promotions added within the 1 second cache window won't be returned to the user
         .getMany();
     }
   }
@@ -60,7 +61,7 @@ export class PromotionRepository extends Repository<Promotion> {
       return this.fullTextSearch(queryBuilder, promotionQuery);
     }
 
-    return queryBuilder.getMany();
+    return queryBuilder.cache(true).getMany();
   }
 
   private async fullTextSearch(
