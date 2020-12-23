@@ -12,6 +12,11 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ./backend
+
 jobs:
   build:
 
@@ -24,10 +29,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Build
+      run: yarn run build --if-present
+
       # Runs a single command using the runners shell
     - name: Run a one-line script
       run: echo Hello, world!
-      working-directory: ./backend
 
       # Runs a set of commands using the runners shell
     - name: Run a multi-line script
