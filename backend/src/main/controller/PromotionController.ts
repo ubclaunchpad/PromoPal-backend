@@ -62,7 +62,7 @@ export class PromotionController {
         });
         const promotion = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .findOneOrFail(id, { relations: ['discount'] });
+          .findOneOrFail(id, { relations: ['discount'], cache: true });
         return response.send(promotion);
       });
     } catch (e) {
