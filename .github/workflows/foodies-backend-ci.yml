@@ -33,7 +33,7 @@ jobs:
       - run: yarn install --frozen-lockfile
         # https://stackoverflow.com/questions/58482655/what-is-the-closest-to-npm-ci-in-yarn
       - name: lint
-          run: yarn run lint
+        run: yarn run lint
 
   build:
     runs-on: ubuntu-latest
@@ -89,7 +89,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: yarn install --frozen-lockfile
         # https://stackoverflow.com/questions/58482655/what-is-the-closest-to-npm-ci-in-yarn
-
       - name: Test connection
         run: |
           psql -d postgresql://postgres@localhost/foodies_test --username=postgres -tc "CREATE TABLE hello(field1 INT, field2 INT)"
