@@ -68,7 +68,9 @@ jobs:
 
     - name: Test connection
       run: |
-        psql -d postgresql://postgres@localhost/foodies_test --username=postgres
+        psql -d postgresql://postgres@localhost/foodies_test --username=postgres -tc "CREATE TABLE hello(field1 INT, field2 INT)"
+        psql -d postgresql://postgres@localhost/foodies_test --username=postgres -tc "INSERT INTO TABLE hello(field1, field2) VALUES (1,2)"
+        psql -d postgresql://postgres@localhost/foodies_test --username=postgres -tc "SELECT * FROM hello"
       env:
         # note password is named differently than above when used for psql
         PGPASSWORD: postgres
