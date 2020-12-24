@@ -86,8 +86,8 @@ jobs:
         echo test, and deploy your project.
 
       # Runs integration tests
-      - name: Integration Tests
-        run: yarn run test
+    - name: Integration Tests
+      run: yarn run test
 
 #    - name: Use Node.js ${{ matrix.node-version }}
 #      uses: actions/setup-node@v1
