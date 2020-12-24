@@ -26,8 +26,8 @@ describe('Unit tests for DiscountRepository', function () {
       await discountRepository.save(discount);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toBe(
-        'null value in column "promotionId" violates not-null constraint'
+      expect(e.message).toContain(
+        'violates not-null constraint'
       );
     }
   });

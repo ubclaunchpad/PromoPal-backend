@@ -48,8 +48,8 @@ describe('Integration tests for all entities', function () {
       await promotionRepository.save(promotion);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toBe(
-        'null value in column "userId" violates not-null constraint'
+      expect(e.message).toContain(
+        'violates not-null constraint'
       );
     }
   });
@@ -93,7 +93,7 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test("Cascade delete - deleting a user should not delete saved promotions that aren't uploaded by the user", async () => {
+  test('Cascade delete - deleting a user should not delete saved promotions that aren\'t uploaded by the user', async () => {
     const user1 = users_sample[0];
     const user2 = users_sample[1];
     const promotion1 = promotions_sample[0];
@@ -166,7 +166,7 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test("Should be able to remove a user's saved promotion without deleting the promotion and user", async () => {
+  test('Should be able to remove a user\'s saved promotion without deleting the promotion and user', async () => {
     const user = users_sample[0];
     const promotion1 = promotions_sample[0];
     const promotion2 = promotions_sample[1];
