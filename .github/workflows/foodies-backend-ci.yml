@@ -20,11 +20,31 @@ defaults:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [14.x]
+
+    # Service containers to run with `runner-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: foodies_test
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
 
     steps:
     - uses: actions/checkout@v2
@@ -36,6 +56,22 @@ jobs:
       # https://stackoverflow.com/questions/58482655/what-is-the-closest-to-npm-ci-in-yarn
     - name: Build
       run: yarn run build
+
+#    - name: Connect to PostgreSQL
+#        # Environment variable used by the `client.js` script to create
+#        # a new PostgreSQL client.
+#        env:
+#          # The hostname used to communicate with the PostgreSQL service container
+#          POSTGRES_HOST: localhost
+#          # The default PostgreSQL port
+#          POSTGRES_PORT: 5432
+
+    - name: Test connection
+      run: |
+        psql -d postgresql://postgres@localhost/foodies_test --username=postgres
+      env:
+        # note password is named differently than above when used for psql
+        PGPASSWORD: postgres
 
       # Runs a single command using the runners shell
     - name: Run a one-line script
