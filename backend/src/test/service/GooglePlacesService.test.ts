@@ -30,7 +30,7 @@ describe.skip('Unit tests for GooglePlacesService', function () {
         // todo: need some assertions
       })
       .catch((error: AxiosError) => {
-        // fail('Did not expect to fail: ' + error.message);
+        fail('Did not expect to fail: ' + error.message);
       });
   });
 
@@ -47,7 +47,7 @@ describe.skip('Unit tests for GooglePlacesService', function () {
         // todo: need some assertions
       })
       .catch((error: AxiosError) => {
-        // fail('Did not expect to fail: ' + error.message);
+        fail('Did not expect to fail: ' + error.message);
       });
   });
 });
