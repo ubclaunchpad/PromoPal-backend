@@ -100,4 +100,5 @@ jobs:
 
         # Runs integration tests
       - name: Integration Tests
+        if: ${{ success() }}
         run: yarn run test
