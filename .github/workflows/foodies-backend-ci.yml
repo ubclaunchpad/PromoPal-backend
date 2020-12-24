@@ -79,6 +79,7 @@ jobs:
           --health-retries 5
         ports:
           # Maps tcp port 5432 on service container to the host
+          # By mapping ports, we are running the job directly on the host machine (vs running job in container)
           - 5432:5432
 
     steps:
