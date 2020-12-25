@@ -30,12 +30,31 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install --frozen-lockfile
+
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          # uses yarn.lock of backend since specified working directory above
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache hit
+        run: echo "${{ steps.yarn-cache-outputs.cache-hit }}"
+
+      - run: yarn install --frozen-lockfile --prefer-offline
         # https://stackoverflow.com/questions/58482655/what-is-the-closest-to-npm-ci-in-yarn
       - name: lint
         run: yarn run lint
 
   build:
+    needs: lint
     runs-on: ubuntu-latest
 
     strategy:
@@ -48,13 +67,32 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install --frozen-lockfile
+
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          # uses yarn.lock of backend since specified working directory above
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache hit
+        run: echo "${{ steps.yarn-cache-outputs.cache-hit }}"
+
+      - run: yarn install --frozen-lockfile --prefer-offline
         # https://stackoverflow.com/questions/58482655/what-is-the-closest-to-npm-ci-in-yarn
+
       - name: Build
         run: yarn run build
 
   integration_tests:
-    needs: [lint, build]
+    needs: build
     runs-on: ubuntu-latest
 
     strategy:
@@ -88,8 +126,27 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn install --frozen-lockfile
+
+      # https://github.com/actions/cache/blob/master/examples.md#node---yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          # uses yarn.lock of backend since specified working directory above
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Cache hit
+        run: echo "${{ steps.yarn-cache-outputs.cache-hit }}"
+
+      - run: yarn install --frozen-lockfile --prefer-offline
         # https://stackoverflow.com/questions/58482655/what-is-the-closest-to-npm-ci-in-yarn
+
       - name: Test connection
         run: |
           psql -d postgresql://postgres@localhost/foodies_test --username=postgres -tc "CREATE TABLE hello(field1 INT, field2 INT)"
