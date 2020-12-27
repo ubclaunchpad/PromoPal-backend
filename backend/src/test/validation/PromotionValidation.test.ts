@@ -57,9 +57,7 @@ describe('Unit tests for PromotionValidation', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
-      );
+      expect(e.details[0].message).toContain('"promotionType" must be one of');
     }
   });
 
@@ -72,9 +70,7 @@ describe('Unit tests for PromotionValidation', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'
-      );
+      expect(e.details[0].message).toContain('"cuisine" must be one of');
     }
   });
 
@@ -147,12 +143,8 @@ describe('Unit tests for PromotionValidation', function () {
       expect(e.details.length).toEqual(7);
       expect(e.details[0].message).toEqual('"userId" must be a string');
       expect(e.details[1].message).toEqual('"placeId" must be a string');
-      expect(e.details[2].message).toEqual(
-        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
-      );
-      expect(e.details[3].message).toEqual(
-        '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'
-      );
+      expect(e.details[2].message).toContain('"promotionType" must be one of');
+      expect(e.details[3].message).toContain('"cuisine" must be one of');
       expect(e.details[4].message).toEqual('"name" must be a string');
       expect(e.details[5].message).toEqual('"description" must be a string');
       expect(e.details[6].message).toEqual(

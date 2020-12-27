@@ -50,10 +50,14 @@ export class PromotionRepository extends Repository<Promotion> {
       });
     }
 
+    // see https://github.com/ubclaunchpad/foodies/issues/54
     if (promotionQuery?.expirationDate) {
-      queryBuilder.andWhere('promotion.expirationDate >= :date', {
-        date: promotionQuery.expirationDate,
-      });
+      queryBuilder.andWhere(
+        "promotion.expirationDate ::timestamptz at time zone 'UTC' >= :date ::timestamptz at time zone 'UTC'",
+        {
+          date: promotionQuery.expirationDate,
+        }
+      );
     }
 
     if (promotionQuery?.searchQuery) {
@@ -69,29 +73,41 @@ export class PromotionRepository extends Repository<Promotion> {
   ): Promise<any> {
     // todo: modify searchQuery accordingly
     // todo: decide how to handle special characters (e.g. single quotes, AT&T as a single word)
-    const searchQuery = promotionQuery.searchQuery;
 
-    const arrayOfIdRank: IdRank[] = await this.createQueryBuilder('promotion')
+    const fullTextSearchResults: FullTextSearchInterface[] = await this.createQueryBuilder(
+      'promotion'
+    )
       .select('promotion.id', 'id')
       .addSelect(
-        `ts_rank_cd(tsvector, replace(plainto_tsquery('${searchQuery}')::text, '&', '|')::tsquery)`,
+        "ts_rank_cd(tsvector, replace(plainto_tsquery(:searchQuery)::text, '&', '|')::tsquery)",
         'rank'
       )
-      .where(
-        `tsvector @@ replace(plainto_tsquery('${searchQuery}')::text, '&', '|')::tsquery`
+      .addSelect(
+        "ts_headline(description, replace(plainto_tsquery(:searchQuery)::text, '&', '|')::tsquery, 'MaxFragments=3')",
+        'boldDescription'
       )
-      // .addSelect(`ts_rank_cd(tsvector, plainto_tsquery('${searchQuery}'))`, 'rank')
-      // .where(`tsvector @@ plainto_tsquery('${searchQuery}')`)
+      // todo: double check, if we set max length for title we can use HighlightAll, otherwise we can use MaxWords/MinWords as well
+      .addSelect(
+        "ts_headline(name, replace(plainto_tsquery(:searchQuery)::text, '&', '|')::tsquery, 'HighlightAll=true')",
+        'boldName'
+      )
+      .where(
+        "tsvector @@ replace(plainto_tsquery(:searchQuery)::text, '&', '|')::tsquery",
+        {
+          searchQuery: promotionQuery.searchQuery,
+        }
+      )
       .orderBy('rank', 'DESC')
       .getRawMany();
 
-    if (!arrayOfIdRank?.length) {
+    if (!fullTextSearchResults?.length) {
       return [];
     }
 
+    // todo: can we optimize this? Although the id column is already index (b/c primary key)
     const promotions: Promotion[] = await queryBuilder
       .andWhere('promotion.id IN (:...ids)', {
-        ids: arrayOfIdRank.map((idRank) => idRank.id),
+        ids: fullTextSearchResults.map((idRank) => idRank.id),
       })
       .getMany();
 
@@ -103,13 +119,15 @@ export class PromotionRepository extends Repository<Promotion> {
       promotions.map((promotion) => [promotion.id, promotion])
     );
 
-    const result: PromotionWithRank[] = [];
-    for (const idRank of arrayOfIdRank) {
-      const promotion = mapIdToPromotion.get(idRank.id);
+    const result: PromotionFullTextSearch[] = [];
+    for (const fullTextSearchResult of fullTextSearchResults) {
+      const promotion = mapIdToPromotion.get(fullTextSearchResult.id);
       if (promotion) {
-        const promotionWithRank: PromotionWithRank = {
+        const promotionWithRank: PromotionFullTextSearch = {
           ...promotion,
-          rank: idRank.rank,
+          rank: fullTextSearchResult.rank,
+          boldDescription: fullTextSearchResult.boldDescription,
+          boldName: fullTextSearchResult.boldName,
         };
         result.push(promotionWithRank);
       }
@@ -120,18 +138,24 @@ export class PromotionRepository extends Repository<Promotion> {
 }
 
 /**
- * Represents a promotion id and rank
+ * Represents results returned from postgres full text search.
+ * * rank - scale for how relevant promotion matches the search query
+ * * boldName and boldDescription - postgres highlights areas that match the search query
  * */
-interface IdRank {
+interface FullTextSearchInterface {
   id: string;
   rank: number;
+  boldName: string;
+  boldDescription: string;
 }
 
 /**
- * Used only for full text search when returning rank and promotion back to client.
+ * Used only for full text search when client applies search query options to get promotions
  * * rank - represents how relevant documents are to a particular query, so that the most relevant one can be shown
- * * even though we may return a Promotion or
+ * * boldName and boldDescription - postgres highlights areas that match the search query
  * */
-export interface PromotionWithRank extends Promotion {
+export interface PromotionFullTextSearch extends Promotion {
   rank: number;
+  boldName: string;
+  boldDescription: string;
 }
