@@ -54,7 +54,7 @@ function getMinutes(time: string): number | null {
 }
 
 /**
- * Checks the validity of a Discount
+ * Checks the validity of a Schedule
  * */
 export class ScheduleValidation {
   // note: since schema is marked as required, this means PromotionValidation's schedules must contain at least one schedule
