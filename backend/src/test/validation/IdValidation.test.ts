@@ -1,7 +1,6 @@
 import { IdValidation } from '../../main/validation/IdValidation';
 
 describe('Unit tests for IdValidation', function () {
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   // mark these types as any so that we can make them improper
   let id: any;
 
