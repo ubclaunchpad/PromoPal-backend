@@ -34,7 +34,7 @@ createConnection()
     app.use(bodyParser.json());
     const PORT = 8000;
 
-    // await loadSampleData();
+    await loadSampleData();
 
     registerRouters(app);
     app.use(errorHandler);

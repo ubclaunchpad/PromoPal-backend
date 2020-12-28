@@ -122,6 +122,10 @@ export class PromotionRepository extends Repository<Promotion> {
       })
       .getMany();
 
+    const test = queryBuilder.andWhere('promotion.id IN (:...ids)', {
+      ids: fullTextSearchResults.map((idRank) => idRank.id),
+    });
+
     if (!promotions?.length) {
       return [];
     }
