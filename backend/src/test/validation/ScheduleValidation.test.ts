@@ -5,7 +5,7 @@ import {
 } from '../../main/validation/ScheduleValidation';
 import { Day } from '../../main/data/Day';
 
-describe('Unit tests for DiscountValidation', function () {
+describe('Unit tests for ScheduleValidation', function () {
   // mark these types as any so that we can make them improper
   let scheduleDTO: any;
 
