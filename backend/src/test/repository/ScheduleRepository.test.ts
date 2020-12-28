@@ -1,20 +1,22 @@
 import { getConnection, getCustomRepository } from 'typeorm';
 import { schedules_sample } from '../../main/resources/Data';
-import { BaseRepositoryTest } from './BaseRepositoryTest';
+import connection from './BaseRepositoryTest';
 import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
 import { Schedule } from '../../main/entity/Schedule';
 
 describe('Unit tests for DiscountRepository', function () {
   let scheduleRepository: ScheduleRepository;
-  beforeEach(() => {
-    return BaseRepositoryTest.establishTestConnection().then(() => {
-      scheduleRepository = getCustomRepository(ScheduleRepository);
-    });
+  beforeAll(async () => {
+    await connection.create();
   });
 
-  afterEach(() => {
-    const conn = getConnection();
-    return conn.close();
+  afterAll(async () => {
+    await connection.close();
+  });
+
+  beforeEach(async () => {
+    await connection.clear();
+    scheduleRepository = getCustomRepository(ScheduleRepository);
   });
 
   test('Should not be able to save schedule without promotion', async () => {

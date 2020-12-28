@@ -15,6 +15,7 @@ import {
 } from '../validation/PromotionQueryValidation';
 import { ScheduleDTO } from '../validation/ScheduleValidation';
 import { Schedule } from '../entity/Schedule';
+import * as querystring from 'querystring';
 
 export class PromotionController {
   /**
@@ -38,6 +39,13 @@ export class PromotionController {
           abortEarly: false,
         }
       );
+      // todo: may need to decode entire promotionQueryDTO
+      // need to decode since request query will be encoded (e.g. spaces are %20)
+      if (promotionQuery.searchQuery) {
+        promotionQuery.searchQuery = querystring.unescape(
+          promotionQuery.searchQuery
+        );
+      }
       const promotions = await getCustomRepository(
         PromotionRepository
       ).getAllPromotions(promotionQuery);

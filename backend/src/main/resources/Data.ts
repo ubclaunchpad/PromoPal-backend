@@ -109,8 +109,10 @@ const promotion1 = new Promotion(
   'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.CARIBBEAN,
-  'promo1',
-  'description1',
+  'Fries for Good - November 10th - 30th',
+  `From November 10th to 30th a portion of the proceeds from every order of fries sold will be donated to Ronald McDonald House Charities Canada. All fries, whether bought alone, or in a meal will help! 
+  It’s never been easier to give back - all you have to do is eat your favourite fries (120-560 cals)! You can order them in-restaurant, at the drive thru, through McDelivery or you can order ahead on the McDonald’s app.
+  If you’re looking for more ways to help families with sick children you can always round up your order - even when Fries for Good is over. When you finish placing your order, simply ask to “Round Up for RMHC” at participating McDonald’s restaurants, and your order will be rounded to the nearest dollar. The difference will be donated to RMHC Canada.`,
   new Date(),
   new Date()
 );
@@ -121,8 +123,8 @@ const promotion2 = new Promotion(
   'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.VIETNAMESE,
-  'promo2',
-  'description2',
+  'Happy Hour At Pearl Castle Cafe',
+  'Just for a limited time happy hour deals starting at 7 pm. Drinks will be 15% off!',
   new Date(),
   new Date()
 );
@@ -133,8 +135,8 @@ const promotion3 = new Promotion(
   'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.KOREAN,
-  'promo3',
-  'description3',
+  'Thanksgiving Promotion Right Now!',
+  "Every item on the menu for Wendy's is cheaper than usual. This promotion runs every Friday",
   new Date(),
   new Date()
 );
@@ -145,8 +147,8 @@ const promotion4 = new Promotion(
   'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.JAPANESE,
-  'promo4',
-  'description4',
+  'Saffron Indian Cuisine: 10% off pickup orders over $20',
+  'Lifetime; 10% off pick up orders over $20.00; #5 - 4300 Kingsway, Burnaby',
   new Date(),
   new Date()
 );
@@ -157,8 +159,8 @@ const promotion5 = new Promotion(
   'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.OTHER,
-  'promo5',
-  'description5',
+  '54th Cafe Restaurant: Free items with pick-up orders',
+  'Pick-up only: Over $30 order - free spring rolls (2), over $45 order - free fried rice, over $65 order: free honey or dry garlic spareribs;; address is 7088 Kerr Street',
   new Date(),
   new Date()
 );
@@ -169,8 +171,8 @@ const promotion6 = new Promotion(
   'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.CARIBBEAN,
-  'promo6',
-  'description6',
+  'McDonalds $1.00 Coffee any size starting Monday Nov. 30th',
+  'Event starts Monday, November 30th and you can get any size McCafé premium roast coffee for $1.00.',
   new Date(),
   new Date()
 );
@@ -181,8 +183,8 @@ const promotion7 = new Promotion(
   'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.VIETNAMESE,
-  'promo7',
-  'description7',
+  'Starbucks Free drink when ordering through the app',
+  'Make a purchase using the Starbucks app from 11/23 to 11/29 at participating stores and get a coupon code loaded to your account for a free standard menu size handcrafted drink. Excludes purchases of alcohol, Starbucks Cards and Starbucks Card reloads.',
   new Date(),
   new Date()
 );
@@ -193,8 +195,8 @@ const promotion8 = new Promotion(
   'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.KOREAN,
-  'promo8',
-  'description8',
+  'A&W Free Coffee: One Per Day Per Person until November 30th',
+  'For us, great burgers come first. Since 2013 we’ve been serving beef raised without artificial hormones and steroids, and now all our beef is also grass-fed. Grass-fed beef is as simple as it sounds — cattle only graze on grass and other forage, like hay. We source our grass-fed beef from select ranches in Canada, the US, Australia and New Zealand, and are committed to offering Canadians burgers they can confidently enjoy.',
   new Date(),
   new Date()
 );
@@ -205,8 +207,8 @@ const promotion9 = new Promotion(
   'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.JAPANESE,
-  'promo9',
-  'description9',
+  "50% off Domino's on Mon, Tues, Wed",
+  '50% off all pizzas- Monday, Tuesday and Wednesday Only! Online Only (Code 8722).',
   new Date(),
   new Date()
 );
@@ -217,8 +219,8 @@ const promotion10 = new Promotion(
   'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.OTHER,
-  'promo10',
-  'description10',
+  'Quesada - 50% off 2nd large ground beef burrito until Nov 22',
+  'Extended until Nov 22. Buy One Large Ground Beef Burrito and get the second Large Ground Beef Burrito for 50% off when you order online at quesada.ca or through the Quesada App. Use your exclusive promo code “GROUNDBEEF” at checkout.',
   new Date(),
   new Date()
 );
@@ -229,8 +231,8 @@ const promotion11 = new Promotion(
   'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.CARIBBEAN,
-  'promo11',
-  'description11',
+  'Katsuya 30% off Takeout @ North York, Scarborough, Yorkdale, Downtown Toronto',
+  'Takeout 30% off at Katsuya. Applicable on all their Katsu menu. Cash Only. Only applicable at these following locations: North York, Downtown Toronto, Scarborough, Yorkdale',
   new Date(),
   new Date()
 );
@@ -241,8 +243,8 @@ const promotion12 = new Promotion(
   'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.VIETNAMESE,
-  'promo12',
-  'description12',
+  '7 Eleven $5 meal deal',
+  'Every Wednesday in November you can get an 8 inch sub, bag of 7 select chips, and a bottle of AHA water',
   new Date(),
   new Date()
 );
@@ -253,8 +255,8 @@ const promotion13 = new Promotion(
   'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.KOREAN,
-  'promo13',
-  'description13',
+  'Swiss Chalet festive special returns, now includes $10 Chalet Cash voucher. Also BOGO 591ml Pepsi products',
+  'Visit https://www.swisschalet.com/en.html to get more details',
   new Date(),
   new Date()
 );
@@ -265,8 +267,8 @@ const promotion14 = new Promotion(
   'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.JAPANESE,
-  'promo14',
-  'description14',
+  'Tea18 $2 Bubble Tea',
+  'The store is located at 495 Bloor St West.',
   new Date(),
   new Date()
 );
@@ -277,8 +279,8 @@ const promotion15 = new Promotion(
   'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.OTHER,
-  'promo15',
-  'description15',
+  'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card',
+  "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.",
   new Date(),
   new Date()
 );
@@ -289,8 +291,8 @@ const promotion16 = new Promotion(
   'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.CARIBBEAN,
-  'promo16',
-  'description16',
+  'Starbucks Happy Hour – Thursdays are twice as nice',
+  'Get two of your favourites for the price of one during Starbucks Happy Hour on select Thursdays each month, from 2 p.m. to 7 p.m. at participating stores. Our app is the best place for Happy Hour alerts and offer redemptions. Happy Hour happens every few weeks. But it’s always a Thursday from 2 p.m. to 7 p.m. and it’s always BOGO. And don’t worry, we’ll let you know when it’s happening and add the coupons to your home screen within the app. Make sure to enable push notifications for the Starbucks app on your phone to receive Happy Hour alerts.',
   new Date(),
   new Date()
 );
