@@ -8,7 +8,7 @@ export class UserFactory {
     email?: string,
     username?: string,
     password?: string
-  ) {
+  ): User {
     return new User(
       firstName ?? randomString(10),
       lastName ?? randomString(10),

@@ -7,7 +7,7 @@ export class ScheduleFactory {
     endTime?: string,
     dayOfWeek?: Day,
     isRecurring?: boolean
-  ) {
+  ): Schedule {
     return new Schedule(
       startTime ?? '10:00',
       endTime ?? '23:59',

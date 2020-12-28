@@ -18,7 +18,7 @@ export class PromotionFactory {
     description?: string,
     startDate?: Date,
     expirationDate?: Date
-  ) {
+  ): Promotion {
     return new Promotion(
       user,
       discount,
