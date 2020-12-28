@@ -4,7 +4,6 @@ import { CuisineType } from '../../main/data/CuisineType';
 import { PromotionType } from '../../main/data/PromotionType';
 
 describe('Unit tests for PromotionQueryValidation', function () {
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   // mark these types as any so that we can make them improper
   let promotionQueryDTO: any;
 
@@ -49,9 +48,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
-      );
+      expect(e.details[0].message).toContain('"promotionType" must be one of');
     }
   });
 
@@ -64,9 +61,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'
-      );
+      expect(e.details[0].message).toContain('"cuisine" must be one of');
     }
   });
 
@@ -120,13 +115,9 @@ describe('Unit tests for PromotionQueryValidation', function () {
         '"discountType" must be one of [%, $, Other]'
       );
       expect(e.details[2].message).toEqual('"discountType" must be a string');
-      expect(e.details[3].message).toEqual(
-        '"promotionType" must be one of [Bogo, Happy Hour, Other]'
-      );
+      expect(e.details[3].message).toContain('"promotionType" must be one of');
       expect(e.details[4].message).toEqual('"promotionType" must be a string');
-      expect(e.details[5].message).toEqual(
-        '"cuisine" must be one of [Caribbean, Vietnamese, Korean, Japanese, Other]'
-      );
+      expect(e.details[5].message).toContain('"cuisine" must be one of');
       expect(e.details[6].message).toEqual(
         '"expirationDate" must be a valid date'
       );
