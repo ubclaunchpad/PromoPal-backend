@@ -24,7 +24,7 @@ describe('Unit tests for DiscountRepository', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.message).toBe(
-        'null value in column "promotionId" of relation "discount" violates not-null constraint'
+        'null value in column "promotionId" violates not-null constraint'
       );
     }
   });

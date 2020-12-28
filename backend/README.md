@@ -7,7 +7,7 @@
    - for macOS users, suggested installation is through homebrew
 2. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
-3. Redis    
+3. Redis
 
 ## Before starting
 
@@ -25,7 +25,7 @@ Fill out the environment variables respectively
 You will need two databases, `foodies` and `foodies_test`.
 
 **Ensure you have a `postgres` user setup, and it is your current username**. <br />
-*If you do not have this setup, please execute the following command. Otherwise, go to Step 1*.
+_If you do not have this setup, please execute the following command. Otherwise, go to Step 1_.
 
 ```
 CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres'
@@ -120,7 +120,7 @@ await loadSampleData();
 ## Local development with Docker
 
 Follow the docker instructions on the global `README.md`.
-Please note that you must shut down the Docker containers if you intend on 
+Please note that you must shut down the Docker containers if you intend on
 testing locally without Docker afterwards.
 
 ## If you modify any of the entities
@@ -132,11 +132,11 @@ testing locally without Docker afterwards.
      ![image](https://user-images.githubusercontent.com/49849754/98633000-6f8fb700-22d5-11eb-8a02-9726213ebad4.png)
   3. Make note of the location you save these files to and click `Export to File`  
      ![image](https://user-images.githubusercontent.com/49849754/98633026-79191f00-22d5-11eb-833b-da2372a51da8.png)
-  4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions). This is critical as new IDs are created each time.   
+  4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions). This is critical as new IDs are created each time.  
      ![image](https://user-images.githubusercontent.com/49849754/98633056-8504e100-22d5-11eb-9b24-54af8d87f1b1.png)
   5. Delete the generated files.
 
-
 ## Connecting to Redis
-If you are interested in using a local Redis server, go to `CachingService.ts` and modify the host field in createClient to `localhost`. <br /> <br />
-If you would like to connect to the Redis server associated with Docker, modify host to `redis-server`.
+
+If you are interested in using a local Redis server, go to `App.ts` and modify the host field in the createRedisClient function to `localhost`. <br /> <br />
+If you would like to connect to the Redis server associated with Docker, modify the host to `redis-server`.

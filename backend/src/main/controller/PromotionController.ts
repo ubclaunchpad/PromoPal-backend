@@ -17,7 +17,11 @@ import { CachingService } from '../service/CachingService';
 import { CachingObject } from '../data/CachingObject';
 
 export class PromotionController {
-  private cachingService = new CachingService();
+  private cachingService: CachingService;
+
+  constructor(cachingService: CachingService) {
+    this.cachingService = cachingService;
+  }
 
   /**
    * Retrieves all promotions and their discounts
@@ -44,15 +48,7 @@ export class PromotionController {
         PromotionRepository
       ).getAllPromotions(promotionQuery);
 
-      for (const promotion of promotions) {
-        const currPlaceID = promotion.placeId;
-        const locationDetails: CachingObject = await this.cachingService.getLatLonValue(
-          currPlaceID
-        );
-        promotion.lat = locationDetails.lat;
-        promotion.lon = locationDetails.lon;
-      }
-
+      await this.cachingService.setLatLonForPromotions(promotions);
       return response.send(promotions);
     } catch (e) {
       return next(e);

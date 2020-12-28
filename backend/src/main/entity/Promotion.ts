@@ -154,6 +154,9 @@ export class Promotion {
   @Column()
   restaurantName: string;
 
+  /*
+   * These are just temporary values due to caching restrictions for lat/lon
+   */
   lon?: number;
   lat?: number;
 }

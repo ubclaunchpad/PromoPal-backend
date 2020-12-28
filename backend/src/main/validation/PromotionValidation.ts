@@ -21,7 +21,7 @@ export class PromotionValidation {
     name: Joi.string().required(),
     description: Joi.string().required(),
     expirationDate: Joi.date().required(), // note incoming format is a string, and Joi will automatically convert to type Date
-    lat: Joi.number().required(),
+    lat: Joi.number().required(), // note incoming format is a string, and Joi will automatically convert to type Number (both lat/lon)
     lon: Joi.number().required(),
     restaurantName: Joi.string().required(),
   }).required();

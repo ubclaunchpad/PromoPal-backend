@@ -1,13 +1,13 @@
-import redis from 'redis';
+import { RedisClient } from 'redis';
 import { CachingObject } from '../data/CachingObject';
+import { Promotion } from '../entity/Promotion';
 
 export class CachingService {
-  // todo: change to env later
-  private client = redis.createClient({
-    // host: 'redis-server',
-    host: 'localhost',
-    port: 6379,
-  });
+  private client: RedisClient;
+
+  constructor(client: RedisClient) {
+    this.client = client;
+  }
 
   async cacheLatLonValues(
     placeId: string,
@@ -34,6 +34,7 @@ export class CachingService {
     return new Promise((resolve, reject) => {
       this.client.get(placeId, (err: Error | null, data: string | null) => {
         if (err) {
+          // todo: https://github.com/ubclaunchpad/foodies/issues/89
           reject(err);
         }
 
@@ -48,5 +49,24 @@ export class CachingService {
 
   getClient() {
     return this.client;
+  }
+
+  async setLatLonForPromotions(promotions: Promotion[]) {
+    const promises = promotions.map((promotion: Promotion) =>
+      this.setLatLonForPromotion(promotion)
+    );
+    return Promise.all(promises);
+  }
+
+  async setLatLonForPromotion(promotion: Promotion) {
+    return this.getLatLonValue(promotion.placeId)
+      .then((locationDetails: CachingObject) => {
+        promotion.lat = locationDetails.lat;
+        promotion.lon = locationDetails.lon;
+        // no return value since modifying object
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 }

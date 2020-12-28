@@ -1,12 +1,19 @@
 import { CachingService } from '../../main/service/CachingService';
 import { CachingObject } from '../../main/data/CachingObject';
+import redis from 'redis';
 
+// NOTE: RUNNING THESE TESTS WILL MODIFY THE ASSOCIATED REDIS SERVER!
 describe('simple add/get for redis cache', function () {
-  // NOTE: RUNNING THESE TESTS WILL MODIFY THE REDIS SERVER!
   let cachingService: CachingService;
 
+  // this runs local redis server
+  const redisClient = redis.createClient({
+    host: 'redis-server',
+    port: 6379,
+  });
+
   beforeEach(() => {
-    cachingService = new CachingService();
+    cachingService = new CachingService(redisClient);
   });
 
   afterEach(() => {

@@ -21,6 +21,8 @@ import { errorHandler } from './middleware/ErrorHandler';
 import { PromotionController } from './controller/PromotionController';
 import { EnumController } from './controller/EnumController';
 import { EnumRouter } from './route/EnumRouter';
+import redis, { RedisClient } from 'redis';
+import { CachingService } from './service/CachingService';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -33,7 +35,7 @@ createConnection()
 
     // await loadSampleData();
 
-    registerRouters(app);
+    await registerRouters(app);
     app.use(errorHandler);
 
     app.listen(PORT, () => {
@@ -44,10 +46,24 @@ createConnection()
     console.log(error);
   });
 
-function registerRouters(app: Express) {
+function handleRedisConnection(redisClient: RedisClient) {
+  redisClient.on('connect', function () {
+    console.log('Connected to Redis');
+  });
+  redisClient.on('error', function (err) {
+    console.log('Redis error: ' + err);
+  });
+}
+
+async function registerRouters(app: Express) {
   app.get('/', (req, res) => res.send('Hello World'));
 
-  const promotionController = new PromotionController();
+  const redisClient = await createRedisClient();
+  handleRedisConnection(redisClient);
+
+  const cachingService = new CachingService(redisClient);
+
+  const promotionController = new PromotionController(cachingService);
   const promotionRouter = new PromotionRouter(promotionController);
   app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 
@@ -110,5 +126,13 @@ async function loadSampleData() {
   });
   const discountsLazy: Discount[] = await discountRepository.find({
     loadRelationIds: true,
+  });
+}
+
+async function createRedisClient() {
+  // todo: change to env later
+  return redis.createClient({
+    host: 'redis-server',
+    port: 6379,
   });
 }
