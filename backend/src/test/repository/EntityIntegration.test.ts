@@ -362,7 +362,7 @@ describe('Integration tests for all entities', function () {
     promotion.name =
       'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card';
     promotion.description =
-      "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.";
+      'From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click \'ORDER NOW\', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.';
 
     const promotionQueryDTO: PromotionQueryDTO = {
       searchQuery: 'spaghetti card',

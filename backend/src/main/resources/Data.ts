@@ -136,7 +136,7 @@ const promotion3 = new Promotion(
   PromotionType.OTHER,
   CuisineType.KOREAN,
   'Thanksgiving Promotion Right Now!',
-  "Every item on the menu for Wendy's is cheaper than usual. This promotion runs every Friday",
+  'Every item on the menu for Wendy\'s is cheaper than usual. This promotion runs every Friday',
   new Date(),
   new Date()
 );
@@ -207,7 +207,7 @@ const promotion9 = new Promotion(
   'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.JAPANESE,
-  "50% off Domino's on Mon, Tues, Wed",
+  '50% off Domino\'s on Mon, Tues, Wed',
   '50% off all pizzas- Monday, Tuesday and Wednesday Only! Online Only (Code 8722).',
   new Date(),
   new Date()
@@ -280,7 +280,7 @@ const promotion15 = new Promotion(
   PromotionType.OTHER,
   CuisineType.OTHER,
   'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card',
-  "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.",
+  'From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click \'ORDER NOW\', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.',
   new Date(),
   new Date()
 );

@@ -224,7 +224,7 @@ describe('Unit tests for ScheduleValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(2);
       expect(e.details[0].message).toEqual(
-        "Start time '8:00' must be less than end time '1:72'"
+        'Start time \'8:00\' must be less than end time \'1:72\''
       );
       expect(e.details[1].message).toEqual(
         'Invalid 24 hour format for end time'
