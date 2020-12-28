@@ -57,9 +57,7 @@ describe('Integration tests for all entities', function () {
       await promotionRepository.save(promotion);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toContain(
-        'violates not-null constraint'
-      );
+      expect(e.message).toContain('violates not-null constraint');
     }
   });
 
@@ -107,7 +105,7 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test('Cascade delete - deleting a user should not delete saved promotions that aren\'t uploaded by the user', async () => {
+  test("Cascade delete - deleting a user should not delete saved promotions that aren't uploaded by the user", async () => {
     const user1 = users_sample[0];
     const user2 = users_sample[1];
     const promotion1 = promotions_sample[0];
@@ -180,7 +178,7 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test('Should be able to remove a user\'s saved promotion without deleting the promotion and user', async () => {
+  test("Should be able to remove a user's saved promotion without deleting the promotion and user", async () => {
     const user = users_sample[0];
     const promotion1 = promotions_sample[0];
     const promotion2 = promotions_sample[1];
@@ -362,7 +360,7 @@ describe('Integration tests for all entities', function () {
     promotion.name =
       'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card';
     promotion.description =
-      'From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click \'ORDER NOW\', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.';
+      "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.";
 
     const promotionQueryDTO: PromotionQueryDTO = {
       searchQuery: 'spaghetti card',

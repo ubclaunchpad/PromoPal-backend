@@ -25,9 +25,7 @@ describe('Unit tests for DiscountRepository', function () {
       await scheduleRepository.save(schedule);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toContain(
-          'violates not-null constraint'
-      );
+      expect(e.message).toContain('violates not-null constraint');
     }
   });
 });
