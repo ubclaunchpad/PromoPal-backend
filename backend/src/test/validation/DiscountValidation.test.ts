@@ -2,7 +2,6 @@ import { DiscountType } from '../../main/data/DiscountType';
 import { DiscountValidation } from '../../main/validation/DiscountValidation';
 
 describe('Unit tests for DiscountValidation', function () {
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   // mark these types as any so that we can make them improper
   let discountDTO: any;
 

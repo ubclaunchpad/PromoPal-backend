@@ -17,7 +17,8 @@ export class PromotionQueryValidation {
     discountValue: Joi.number().positive().precision(2),
     promotionType: Joi.string().valid(...Object.values(PromotionType)),
     cuisine: Joi.string().valid(...Object.values(CuisineType)),
-    expirationDate: Joi.date(), // note incoming format is a string, and Joi will automatically convert to type Date
+    /** note incoming format is a string, and Joi will automatically convert to type Date */
+    expirationDate: Joi.date(),
   })
     .required()
     /**
