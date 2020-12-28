@@ -13,6 +13,9 @@ import {
   PromotionQueryDTO,
   PromotionQueryValidation,
 } from '../validation/PromotionQueryValidation';
+import { ScheduleDTO } from '../validation/ScheduleValidation';
+import { Schedule } from '../entity/Schedule';
+import * as querystring from 'querystring';
 
 export class PromotionController {
   /**
@@ -37,6 +40,13 @@ export class PromotionController {
             abortEarly: false,
           }
         );
+        // todo: may need to decode entire promotionQueryDTO
+        // need to decode since request query will be encoded (e.g. spaces are %20)
+        if (promotionQuery.searchQuery) {
+          promotionQuery.searchQuery = querystring.unescape(
+            promotionQuery.searchQuery
+          );
+        }
         const promotions = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .getAllPromotions(promotionQuery);
@@ -62,7 +72,10 @@ export class PromotionController {
         });
         const promotion = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .findOneOrFail(id, { relations: ['discount'], cache: true });
+          .findOneOrFail(id, {
+            relations: ['discount', 'schedules'],
+            cache: true,
+          });
         return response.send(promotion);
       });
     } catch (e) {
@@ -94,14 +107,27 @@ export class PromotionController {
           promotionDTO.discount.discountType,
           promotionDTO.discount.discountValue
         );
+        const schedules = promotionDTO.schedules.map(
+          (scheduleDTO: ScheduleDTO) => {
+            return new Schedule(
+              scheduleDTO.startTime,
+              scheduleDTO.endTime,
+              scheduleDTO.dayOfWeek,
+              scheduleDTO.isRecurring
+            );
+          }
+        );
+
         const promotion = new Promotion(
           user,
           discount,
+          schedules,
           promotionDTO.placeId,
           promotionDTO.promotionType,
           promotionDTO.cuisine,
           promotionDTO.name,
           promotionDTO.description,
+          promotionDTO.startDate,
           promotionDTO.expirationDate
         );
 
