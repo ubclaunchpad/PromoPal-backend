@@ -1,4 +1,4 @@
-import { getConnection, getCustomRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { schedules_sample } from '../../main/resources/Data';
 import connection from './BaseRepositoryTest';
 import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
