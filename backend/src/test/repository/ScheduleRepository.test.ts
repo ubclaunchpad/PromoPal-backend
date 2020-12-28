@@ -1,4 +1,4 @@
-import { getConnection, getCustomRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { schedules_sample } from '../../main/resources/Data';
 import connection from './BaseRepositoryTest';
 import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
@@ -25,9 +25,7 @@ describe('Unit tests for DiscountRepository', function () {
       await scheduleRepository.save(schedule);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toBe(
-        'null value in column "promotionId" violates not-null constraint'
-      );
+      expect(e.message).toContain('violates not-null constraint');
     }
   });
 });
