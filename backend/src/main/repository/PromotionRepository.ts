@@ -3,7 +3,6 @@ import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
-/* eslint-disable  quotes */
 @EntityRepository(Promotion)
 export class PromotionRepository extends Repository<Promotion> {
   /**
