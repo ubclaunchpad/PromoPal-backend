@@ -24,7 +24,7 @@ const discount14 = new Discount(DiscountType.PERCENTAGE, 14);
 const discount15 = new Discount(DiscountType.AMOUNT, 15);
 const discount16 = new Discount(DiscountType.AMOUNT, 16);
 
-const schedule1 = new Schedule('8:00', '11:15', Day.FRIDAY, false);
+const schedule1 = new Schedule('8:00', '11:00', Day.MONDAY, false);
 const schedule2 = new Schedule('9:00', '12:00', Day.TUESDAY, false);
 const schedule3 = new Schedule('10:00', '13:00', Day.WEDNESDAY, false);
 const schedule4 = new Schedule('11:00', '14:00', Day.THURSDAY, false);
