@@ -13,6 +13,8 @@ import {
   PromotionQueryDTO,
   PromotionQueryValidation,
 } from '../validation/PromotionQueryValidation';
+import { ScheduleDTO } from '../validation/ScheduleValidation';
+import { Schedule } from '../entity/Schedule';
 import * as querystring from 'querystring';
 
 export class PromotionController {
@@ -67,7 +69,10 @@ export class PromotionController {
       });
       const promotion = await getCustomRepository(
         PromotionRepository
-      ).findOneOrFail(id, { relations: ['discount'], cache: true });
+      ).findOneOrFail(id, {
+        relations: ['discount', 'schedules'],
+        cache: true,
+      });
       return response.send(promotion);
     } catch (e) {
       return next(e);
@@ -97,14 +102,27 @@ export class PromotionController {
         promotionDTO.discount.discountType,
         promotionDTO.discount.discountValue
       );
+      const schedules = promotionDTO.schedules.map(
+        (scheduleDTO: ScheduleDTO) => {
+          return new Schedule(
+            scheduleDTO.startTime,
+            scheduleDTO.endTime,
+            scheduleDTO.dayOfWeek,
+            scheduleDTO.isRecurring
+          );
+        }
+      );
+
       const promotion = new Promotion(
         user,
         discount,
+        schedules,
         promotionDTO.placeId,
         promotionDTO.promotionType,
         promotionDTO.cuisine,
         promotionDTO.name,
         promotionDTO.description,
+        promotionDTO.startDate,
         promotionDTO.expirationDate
       );
 

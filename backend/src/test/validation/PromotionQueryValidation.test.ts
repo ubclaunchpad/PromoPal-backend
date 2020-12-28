@@ -4,7 +4,6 @@ import { CuisineType } from '../../main/data/CuisineType';
 import { PromotionType } from '../../main/data/PromotionType';
 
 describe('Unit tests for PromotionQueryValidation', function () {
-  /* eslint-disable  @typescript-eslint/no-explicit-any */
   // mark these types as any so that we can make them improper
   let promotionQueryDTO: any;
 

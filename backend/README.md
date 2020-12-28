@@ -103,11 +103,23 @@ You should now be able to see all the databases and tables.
 To import data from `init_data.sql`, run this command inside a command prompt. **Make sure the schema is synced, the migrations are ran, and that the tables are empty**.
 `psql` should prompt you to enter your password.
 
+E.g.
+
+```
+yarn run dropSchema
+yarn run syncSchema
+yarn run run_migration
+yarn run loadSqlData
+
+```
+
 If this command does not work, clear everything inside the tables (delete all tuples in `user_profile` table and cascade delete should remove everything else).
 Then open `init_data.sql` inside Intellij, select all the lines, and execute (Ctrl + Enter or Command + Enter).
 
 ```
 psql -d foodies -f src/main/resources/init_data.sql --username=postgres
+or
+yarn run loadSqlData
 ```
 
 ### Loading data through typeORM

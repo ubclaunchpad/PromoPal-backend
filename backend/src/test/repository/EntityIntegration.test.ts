@@ -1,5 +1,9 @@
 import { getCustomRepository } from 'typeorm';
-import { promotions_sample, users_sample } from '../../main/resources/Data';
+import {
+  promotions_sample,
+  schedules_sample,
+  users_sample,
+} from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from './BaseRepositoryTest';
 import {
@@ -14,6 +18,7 @@ import { Promotion } from '../../main/entity/Promotion';
 import { PromotionQueryDTO } from '../../main/validation/PromotionQueryValidation';
 import { PromotionType } from '../../main/data/PromotionType';
 import { DiscountType } from '../../main/data/DiscountType';
+import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
 
 describe('Integration tests for all entities', function () {
   const SAMPLE_SEARCH_QUERY = 'beef cafe';
@@ -22,6 +27,7 @@ describe('Integration tests for all entities', function () {
   let promotionRepository: PromotionRepository;
   let discountRepository: DiscountRepository;
   let savedPromotionRepository: SavedPromotionRepository;
+  let scheduleRepository: ScheduleRepository;
 
   beforeAll(async () => {
     await connection.create();
@@ -37,6 +43,7 @@ describe('Integration tests for all entities', function () {
     promotionRepository = getCustomRepository(PromotionRepository);
     discountRepository = getCustomRepository(DiscountRepository);
     savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
+    scheduleRepository = getCustomRepository(ScheduleRepository);
   });
 
   test('Should not be able to save a promotion if user is not saved', async () => {
@@ -65,6 +72,11 @@ describe('Integration tests for all entities', function () {
     await promotionRepository.save(promotion);
 
     try {
+      const discounts = await discountRepository.find();
+      expect(discounts).toBeDefined();
+      expect(discounts[0].discountType).toEqual(
+        promotion.discount.discountType
+      );
       await promotionRepository.delete(promotion.id);
       expect(await promotionRepository.find()).toEqual([]);
       expect(await discountRepository.find()).toEqual([]);
@@ -370,6 +382,45 @@ describe('Integration tests for all entities', function () {
       expect(promotions[0].boldDescription).toContain('<b>Cards</b>');
     } catch (e) {
       fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Cascade delete - deleting a promotion will delete its schedules', async () => {
+    const promotion = promotions_sample[0];
+    assert(promotion.discount !== null);
+
+    // persist into db
+    await userRepository.save(promotion.user);
+    await promotionRepository.save(promotion);
+
+    try {
+      const schedules = await scheduleRepository.find();
+      expect(schedules).toBeDefined();
+      expect(schedules.length).toEqual(promotion.schedules.length);
+      await promotionRepository.delete(promotion.id);
+      expect(await promotionRepository.find()).toEqual([]);
+      expect(await scheduleRepository.find()).toEqual([]);
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Unique constraint - should not be able to save schedules with the same day', async () => {
+    const user = users_sample[0];
+    const promotion = promotions_sample[0];
+
+    // configure schedules of promotion to have same day of week
+    promotion.schedules = [schedules_sample[0], schedules_sample[1]];
+    promotion.schedules[0].dayOfWeek = promotion.schedules[1].dayOfWeek;
+
+    try {
+      await userRepository.save(user);
+      await promotionRepository.save(promotion);
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.message).toContain(
+        'duplicate key value violates unique constraint'
+      );
     }
   });
 });
