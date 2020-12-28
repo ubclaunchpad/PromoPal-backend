@@ -104,6 +104,7 @@ To import data from `init_data.sql`, run this command inside a command prompt. *
 `psql` should prompt you to enter your password.
 
 E.g.
+
 ```
 yarn run dropSchema
 yarn run syncSchema
@@ -117,7 +118,7 @@ Then open `init_data.sql` inside Intellij, select all the lines, and execute (Ct
 
 ```
 psql -d foodies -f src/main/resources/init_data.sql --username=postgres
-or 
+or
 yarn run loadSqlData
 ```
 
