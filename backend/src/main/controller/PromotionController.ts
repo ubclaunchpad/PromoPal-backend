@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { PromotionRepository } from '../repository/PromotionRepository';
-import { getCustomRepository } from 'typeorm';
+import { getManager } from 'typeorm';
 import { Promotion } from '../entity/Promotion';
 import { UserRepository } from '../repository/UserRepository';
 import { Discount } from '../entity/Discount';
@@ -33,23 +33,25 @@ export class PromotionController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const promotionQuery: PromotionQueryDTO = await PromotionQueryValidation.schema.validateAsync(
-        request.query,
-        {
-          abortEarly: false,
-        }
-      );
-      // todo: may need to decode entire promotionQueryDTO
-      // need to decode since request query will be encoded (e.g. spaces are %20)
-      if (promotionQuery.searchQuery) {
-        promotionQuery.searchQuery = querystring.unescape(
-          promotionQuery.searchQuery
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const promotionQuery: PromotionQueryDTO = await PromotionQueryValidation.schema.validateAsync(
+          request.query,
+          {
+            abortEarly: false,
+          }
         );
-      }
-      const promotions = await getCustomRepository(
-        PromotionRepository
-      ).getAllPromotions(promotionQuery);
-      return response.send(promotions);
+        // todo: may need to decode entire promotionQueryDTO
+        // need to decode since request query will be encoded (e.g. spaces are %20)
+        if (promotionQuery.searchQuery) {
+          promotionQuery.searchQuery = querystring.unescape(
+            promotionQuery.searchQuery
+          );
+        }
+        const promotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .getAllPromotions(promotionQuery);
+        return response.send(promotions);
+      });
     } catch (e) {
       return next(e);
     }
@@ -64,16 +66,18 @@ export class PromotionController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = await IdValidation.schema.validateAsync(request.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        const promotion = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .findOneOrFail(id, {
+            relations: ['discount', 'schedules'],
+            cache: true,
+          });
+        return response.send(promotion);
       });
-      const promotion = await getCustomRepository(
-        PromotionRepository
-      ).findOneOrFail(id, {
-        relations: ['discount', 'schedules'],
-        cache: true,
-      });
-      return response.send(promotion);
     } catch (e) {
       return next(e);
     }
@@ -90,46 +94,49 @@ export class PromotionController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const promotionDTO: PromotionDTO = await PromotionValidation.schema.validateAsync(
-        request.body,
-        { abortEarly: false }
-      );
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const promotionDTO: PromotionDTO = await PromotionValidation.schema.validateAsync(
+          request.body,
+          { abortEarly: false }
+        );
 
-      const user = await getCustomRepository(UserRepository).findOneOrFail(
-        promotionDTO.userId
-      );
-      const discount = new Discount(
-        promotionDTO.discount.discountType,
-        promotionDTO.discount.discountValue
-      );
-      const schedules = promotionDTO.schedules.map(
-        (scheduleDTO: ScheduleDTO) => {
-          return new Schedule(
-            scheduleDTO.startTime,
-            scheduleDTO.endTime,
-            scheduleDTO.dayOfWeek,
-            scheduleDTO.isRecurring
-          );
-        }
-      );
+        const user = await transactionalEntityManager
+          .getCustomRepository(UserRepository)
+          .findOneOrFail(promotionDTO.userId);
+        const discount = new Discount(
+          promotionDTO.discount.discountType,
+          promotionDTO.discount.discountValue
+        );
+        const schedules = promotionDTO.schedules.map(
+          (scheduleDTO: ScheduleDTO) => {
+            return new Schedule(
+              scheduleDTO.startTime,
+              scheduleDTO.endTime,
+              scheduleDTO.dayOfWeek,
+              scheduleDTO.isRecurring
+            );
+          }
+        );
 
-      const promotion = new Promotion(
-        user,
-        discount,
-        schedules,
-        promotionDTO.placeId,
-        promotionDTO.promotionType,
-        promotionDTO.cuisine,
-        promotionDTO.name,
-        promotionDTO.description,
-        promotionDTO.startDate,
-        promotionDTO.expirationDate
-      );
+        const promotion = new Promotion(
+          user,
+          discount,
+          schedules,
+          promotionDTO.placeId,
+          promotionDTO.promotionType,
+          promotionDTO.cuisine,
+          promotionDTO.name,
+          promotionDTO.description,
+          promotionDTO.startDate,
+          promotionDTO.expirationDate
+        );
 
-      const result = await getCustomRepository(PromotionRepository).save(
-        promotion
-      );
-      return response.status(201).send(result);
+        const result = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .save(promotion);
+
+        return response.status(201).send(result);
+      });
     } catch (e) {
       return next(e);
     }
@@ -144,13 +151,15 @@ export class PromotionController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = await IdValidation.schema.validateAsync(request.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        const promotion = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .delete(id);
+        return response.status(204).send(promotion);
       });
-      const promotion = await getCustomRepository(PromotionRepository).delete(
-        id
-      );
-      return response.status(204).send(promotion);
     } catch (e) {
       return next(e);
     }
