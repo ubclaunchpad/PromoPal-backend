@@ -6,6 +6,7 @@ import { UserRepository } from '../../main/repository/UserRepository';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { User } from '../..//main/entity/User';
 import { Promotion } from '../../main/entity/Promotion';
+
 describe('Unit tests for SavedPromotionRepository', function () {
   let savedPromotionRepository: SavedPromotionRepository;
   let userRepository: UserRepository;
@@ -26,8 +27,8 @@ describe('Unit tests for SavedPromotionRepository', function () {
   });
 
   test('Should be able to store a savedpromotion and successfully retrieve the saved promotion', async () => {
-    const user: User = users_sample[2];
-    const promotion: Promotion = promotions_sample[3];
+    const user: User = users_sample[0];
+    const promotion: Promotion = promotions_sample[0];
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
@@ -42,8 +43,8 @@ describe('Unit tests for SavedPromotionRepository', function () {
   });
 
   test('Should not able to store two same promotion for one user', async () => {
-    const user: User = users_sample[2];
-    const promotion: Promotion = promotions_sample[3];
+    const user: User = users_sample[0];
+    const promotion: Promotion = promotions_sample[0];
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     await savedPromotionRepository.addSavedPromotion(user, promotion);
@@ -52,33 +53,29 @@ describe('Unit tests for SavedPromotionRepository', function () {
       fail('Should have failed');
     } catch (e) {
       expect(e.detail).toEqual(
-        'duplicate key value violates unique constraint "pg_type_typname_nsp_index"'
+        `Key (\"userId\", \"promotionId\")=(${user.id}, ${promotion.id}) already exists.`
       );
     }
   });
 
   test('Should be able to store a savedpromotion and successfully delete the saved promotion', async () => {
-    const user: User = users_sample[2];
-    const promotion: Promotion = promotions_sample[3];
+    const user: User = users_sample[0];
+    const promotion: Promotion = promotions_sample[0];
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     await savedPromotionRepository.addSavedPromotion(user, promotion);
     try {
-      await savedPromotionRepository.delete({
-        user: user,
-        promotion: promotion,
-      });
+      await savedPromotionRepository.deleteSavedPromotion(user, promotion);
     } catch (e) {
       fail('Should have succeeded to delete');
     }
     try {
-      await savedPromotionRepository.findOne({
+      expect(await savedPromotionRepository.find({
         user: user,
         promotion: promotion,
-      });
-      fail('Should have failed');
+      })).toEqual([]);
     } catch (e) {
-      expect(e.detail).toEqual('primaary key does not exist.');
+      fail('Should not have failed');
     }
   });
 });
