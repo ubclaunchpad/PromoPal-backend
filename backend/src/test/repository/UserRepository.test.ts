@@ -1,8 +1,8 @@
 import { getCustomRepository } from 'typeorm';
 import { User } from '../../main/entity/User';
-import { users_sample } from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from './BaseRepositoryTest';
+import { UserFactory } from '../factory/UserFactory';
 
 describe('Unit tests for UserRepository', function () {
   let userRepository: UserRepository;
@@ -21,7 +21,7 @@ describe('Unit tests for UserRepository', function () {
   });
 
   test('Should be able to store a user and successfully retrieve the same user', async () => {
-    const expectedUser: User = users_sample[0];
+    const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
     const user = await userRepository.findOne(expectedUser.id);
     expect(user).toBeDefined();
@@ -29,35 +29,39 @@ describe('Unit tests for UserRepository', function () {
   });
 
   test('Should not be able to add two users with the same username', async () => {
-    users_sample[1].username = users_sample[0].username;
-    await userRepository.save(users_sample[0]);
+    const userName = 'userName';
+    const user1 = new UserFactory().generate();
+    const user2 = new UserFactory().generate();
+    user1.username = userName;
+    user2.username = userName;
+    await userRepository.save(user1);
     try {
-      await userRepository.save(users_sample[1]);
+      await userRepository.save(user2);
       fail('Should  have failed');
     } catch (e) {
-      expect(e.detail).toEqual(
-        `Key (username)=(${users_sample[0].username}) already exists.`
-      );
+      expect(e.detail).toEqual(`Key (username)=(${userName}) already exists.`);
     }
   });
 
   test('Should not be able to add two users with the same email', async () => {
-    users_sample[1].email = users_sample[0].email;
-    await userRepository.save(users_sample[0]);
+    const email = 'test@gmail.com';
+    const user1 = new UserFactory().generate();
+    const user2 = new UserFactory().generate();
+    user1.email = email;
+    user2.email = email;
+    await userRepository.save(user1);
     try {
-      await userRepository.save(users_sample[1]);
+      await userRepository.save(user2);
       fail('Should  have failed');
     } catch (e) {
-      expect(e.detail).toEqual(
-        `Key (email)=(${users_sample[0].email}) already exists.`
-      );
+      expect(e.detail).toEqual(`Key (email)=(${email}) already exists.`);
     }
   });
 
   test('Should not be able to retrieve users password', async () => {
     // this is because we do not want to get the password when we retrieve a user
     // todo: remove this once we implement firebase
-    const expectedUser: User = users_sample[0];
+    const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
     const user = await userRepository.findOne(expectedUser.id);
     expect(user).toBeDefined();

@@ -49,6 +49,16 @@ export class PromotionRepository extends Repository<Promotion> {
       queryBuilder.andWhere('discount.discountType = :discountType', {
         discountType: promotionQuery.discountType,
       });
+
+      /**
+       * We only want to filter for discountValue if we know the user requested a discountType.
+       * Although this is already validated by the validation schema for PromotionQueryDTO, we just want to be extra sure
+       * */
+      if (promotionQuery?.discountValue) {
+        queryBuilder.andWhere('discount.discountValue >= :discountValue', {
+          discountValue: promotionQuery.discountValue,
+        });
+      }
     }
 
     // see https://github.com/ubclaunchpad/foodies/issues/54
