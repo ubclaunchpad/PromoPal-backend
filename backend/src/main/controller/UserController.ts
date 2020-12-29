@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getCustomRepository } from 'typeorm';
+import { EntityManager, getManager } from 'typeorm';
 import { User } from '../entity/User';
 import { UserRepository } from '../repository/UserRepository';
 import { IdValidation } from '../validation/IdValidation';
@@ -26,12 +26,16 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get users from database
-      const userRepository = getCustomRepository(UserRepository);
-      const users = await userRepository.find({ cache: true });
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get users from database
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const users = await userRepository.find({ cache: true });
 
-      // send the users object
-      return res.status(200).send(users);
+        // send the users object
+        return res.status(200).send(users);
+      });
     } catch (e) {
       return next(e);
     }
@@ -44,12 +48,16 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
+        });
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const user = await userRepository.findOneOrFail(id, { cache: true });
+        return res.send(user);
       });
-      const userRepository = getCustomRepository(UserRepository);
-      const user = await userRepository.findOneOrFail(id, { cache: true });
-      return res.send(user);
     } catch (e) {
       return next(e);
     }
@@ -62,23 +70,27 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get parameters from the body
-      const userDTO: UserDTO = await UserValidation.schema.validateAsync(
-        req.body,
-        { abortEarly: false }
-      );
-      const user = new User(
-        userDTO.firstName,
-        userDTO.lastName,
-        userDTO.email,
-        userDTO.username,
-        userDTO.password
-      );
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get parameters from the body
+        const userDTO: UserDTO = await UserValidation.schema.validateAsync(
+          req.body,
+          { abortEarly: false }
+        );
+        const user = new User(
+          userDTO.firstName,
+          userDTO.lastName,
+          userDTO.email,
+          userDTO.username,
+          userDTO.password
+        );
 
-      // try to save, if fails, the username is already in use
-      const userRepository = getCustomRepository(UserRepository);
-      const result = await userRepository.save(user);
-      return res.status(201).send(result);
+        // try to save, if fails, the username is already in use
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const result = await userRepository.save(user);
+        return res.status(201).send(result);
+      });
     } catch (e) {
       return next(e);
     }
@@ -91,21 +103,25 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get the ID from the url
-      const id = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get the ID from the url
+        const id = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
+        });
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        // get parameters from the body
+        const userUpdateDTO: UserUpdateDTO = await UserUpdateValidation.schema.validateAsync(
+          req.body,
+          { abortEarly: false }
+        );
+        if (userUpdateDTO.password) {
+          userUpdateDTO.password = bcrypt.hashSync(userUpdateDTO.password, 8);
+        }
+        const result = await userRepository.update(id, userUpdateDTO);
+        res.status(204).send(result);
       });
-      const userRepository = getCustomRepository(UserRepository);
-      // get parameters from the body
-      const userUpdateDTO: UserUpdateDTO = await UserUpdateValidation.schema.validateAsync(
-        req.body,
-        { abortEarly: false }
-      );
-      if (userUpdateDTO.password) {
-        userUpdateDTO.password = bcrypt.hashSync(userUpdateDTO.password, 8);
-      }
-      const result = await userRepository.update(id, userUpdateDTO);
-      res.status(204).send(result);
     } catch (e) {
       next(e);
     }
@@ -118,13 +134,17 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get the ID from the url
-      const id = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get the ID from the url
+        const id = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
+        });
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const result = await userRepository.delete(id);
+        return res.status(204).send(result);
       });
-      const userRepository = getCustomRepository(UserRepository);
-      const result = await userRepository.delete(id);
-      return res.status(204).send(result);
     } catch (e) {
       next(e);
     }
@@ -137,21 +157,26 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get the id of user from the url
-      const id = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
-      });
-      const userRepository = getCustomRepository(UserRepository);
-      const savedpromotions = await userRepository.findOneOrFail(id, {
-        relations: ['savedPromotions', 'savedPromotions.promotion'],
-        cache: true,
-      });
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get the id of user from the url
+        const id = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
+        });
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const savedPromotions = await userRepository.findOneOrFail(id, {
+          relations: ['savedPromotions', 'savedPromotions.promotion'],
+          cache: true,
+        });
 
-      res.status(200).send(savedpromotions);
+        res.status(200).send(savedPromotions);
+      });
     } catch (e) {
       next(e);
     }
   };
+
   // saved new promotion
   newSaved = async (
     req: Request,
@@ -159,30 +184,31 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get the id of user and promotion from the url
-      const uid = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
-      });
-      const pid = await IdValidation.schema.validateAsync(req.params.pid, {
-        abortEarly: false,
-      });
-      // create new saved promotion for the user based on promotion id
-      const promotion = await getCustomRepository(PromotionRepository).hasId(
-        pid
-      );
-      const user = await getCustomRepository(UserRepository).hasId(uid);
-      let result;
-      if (promotion && user) {
-        const savedPromotion = getCustomRepository(
-          SavedPromotionRepository
-        ).create({ userId: uid, promotionId: pid });
-        result = await getCustomRepository(SavedPromotionRepository).save(
-          savedPromotion
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get the id of user and promotion from the url
+        const uid = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
+        });
+        const pid = await IdValidation.schema.validateAsync(req.params.pid, {
+          abortEarly: false,
+        });
+
+        await this.checkIfUserAndPromotionExist(
+          transactionalEntityManager,
+          pid,
+          uid
         );
-      } else {
-        throw new Error('Invalid user Id or promotion Id');
-      }
-      return res.status(201).send(result);
+
+        // create new saved promotion for the user based on promotion id
+        const savedPromotion = transactionalEntityManager
+          .getCustomRepository(SavedPromotionRepository)
+          .create({ userId: uid, promotionId: pid });
+
+        const result = await transactionalEntityManager
+          .getCustomRepository(SavedPromotionRepository)
+          .save(savedPromotion);
+        return res.status(201).send(result);
+      });
     } catch (e) {
       next(e);
     }
@@ -195,29 +221,30 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get the id of user and promotion from the url
-      const uid = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
-      });
-      const pid = await IdValidation.schema.validateAsync(req.params.pid, {
-        abortEarly: false,
-      });
-      // get saved promotion and user
-      const promotion = await getCustomRepository(PromotionRepository).hasId(
-        pid
-      );
-      const user = await getCustomRepository(UserRepository).hasId(uid);
-      // remove the promotion from user's list of saved promotions
-      let result;
-      if (user && promotion) {
-        result = await getCustomRepository(SavedPromotionRepository).delete({
-          userId: uid,
-          promotionId: pid,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get the id of user and promotion from the url
+        const uid = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
         });
-      } else {
-        throw new Error('Invalid user Id or promotion Id');
-      }
-      return res.status(204).send(result);
+        const pid = await IdValidation.schema.validateAsync(req.params.pid, {
+          abortEarly: false,
+        });
+
+        await this.checkIfUserAndPromotionExist(
+          transactionalEntityManager,
+          pid,
+          uid
+        );
+
+        // remove the promotion from user's list of saved promotions
+        const result = await transactionalEntityManager
+          .getCustomRepository(SavedPromotionRepository)
+          .delete({
+            userId: uid,
+            promotionId: pid,
+          });
+        return res.status(204).send(result);
+      });
     } catch (e) {
       next(e);
     }
@@ -230,19 +257,39 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      // get the id of user from the url
-      const id = await IdValidation.schema.validateAsync(req.params.id, {
-        abortEarly: false,
-      });
-      const userRepository = getCustomRepository(UserRepository);
-      const uploadedpromotions = await userRepository.findOneOrFail(id, {
-        relations: ['uploadedPromotions', 'uploadedPromotions.promotion'],
-        cache: true,
-      });
+      await getManager().transaction(async (transactionalEntityManager) => {
+        // get the id of user from the url
+        const id = await IdValidation.schema.validateAsync(req.params.id, {
+          abortEarly: false,
+        });
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const uploadedPromotions = await userRepository.findOneOrFail(id, {
+          relations: ['uploadedPromotions', 'uploadedPromotions.promotion'],
+          cache: true,
+        });
 
-      return res.status(200).send(uploadedpromotions);
+        return res.status(200).send(uploadedPromotions);
+      });
     } catch (e) {
       next(e);
     }
   };
+
+  /**
+   * Checks if repositories contain entity with respective IDs
+   * */
+  private async checkIfUserAndPromotionExist(
+    transactionalEntityManager: EntityManager,
+    pid: string,
+    uid: string
+  ) {
+    await transactionalEntityManager
+      .getCustomRepository(PromotionRepository)
+      .findOneOrFail(pid);
+    await transactionalEntityManager
+      .getCustomRepository(UserRepository)
+      .findOneOrFail(uid);
+  }
 }
