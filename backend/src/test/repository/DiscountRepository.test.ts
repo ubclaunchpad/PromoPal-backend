@@ -1,8 +1,8 @@
 import { getCustomRepository } from 'typeorm';
-import { discounts_sample } from '../../main/resources/Data';
 import connection from './BaseRepositoryTest';
 import { Discount } from '../../main/entity/Discount';
 import { DiscountRepository } from '../../main/repository/DiscountRepository';
+import { DiscountFactory } from '../factory/DiscountFactory';
 
 describe('Unit tests for DiscountRepository', function () {
   let discountRepository: DiscountRepository;
@@ -21,7 +21,7 @@ describe('Unit tests for DiscountRepository', function () {
   });
 
   test('Should not be able to create discount without promotion', async () => {
-    const discount: Discount = discounts_sample[0];
+    const discount: Discount = new DiscountFactory().generate();
     try {
       await discountRepository.save(discount);
       fail('Should have failed');
