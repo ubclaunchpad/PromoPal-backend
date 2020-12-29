@@ -168,46 +168,44 @@ export class PromotionController {
   /**
    * Upvotes a promotion
    */
-  // todo: add transaction
   upVotePromotion = async (
     request: Request,
     response: Response,
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = await IdValidation.schema.validateAsync(request.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .increment({ id: id }, 'votes', 1);
+        return response.status(204).send();
       });
-      await getCustomRepository(PromotionRepository).increment(
-        { id: id },
-        'votes',
-        1
-      );
-      return response.status(204).send();
     } catch (e) {
       return next(e);
     }
   };
 
   /**
-   * DownVotes a promotion
+   * Downvotes a promotion
    */
-  // todo: add transaction
   downVotePromotion = async (
     request: Request,
     response: Response,
     next: NextFunction
   ): Promise<any> => {
     try {
-      const id = await IdValidation.schema.validateAsync(request.params.id, {
-        abortEarly: false,
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .decrement({ id: id }, 'votes', 1);
+        return response.status(204).send();
       });
-      await getCustomRepository(PromotionRepository).decrement(
-        { id: id },
-        'votes',
-        1
-      );
-      return response.status(204).send();
     } catch (e) {
       return next(e);
     }
