@@ -89,7 +89,7 @@ export class UserController {
           UserRepository
         );
         const result = await userRepository.save(user);
-        return res.status(201).send(result);
+        return res.status(201).send({ ...result, password: undefined });
       });
     } catch (e) {
       return next(e);
@@ -214,7 +214,7 @@ export class UserController {
     }
   };
 
-  // delete promotion
+  // delete saved promotion
   deleteSaved = async (
     req: Request,
     res: Response,
@@ -266,7 +266,7 @@ export class UserController {
           UserRepository
         );
         const uploadedPromotions = await userRepository.findOneOrFail(id, {
-          relations: ['uploadedPromotions', 'uploadedPromotions.promotion'],
+          relations: ['uploadedPromotions'],
           cache: true,
         });
 
