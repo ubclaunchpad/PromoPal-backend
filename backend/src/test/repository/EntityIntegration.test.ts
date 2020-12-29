@@ -1,10 +1,14 @@
 import { getCustomRepository } from 'typeorm';
-import { promotions_sample, users_sample } from '../../main/resources/Data';
+import {
+  promotions_sample,
+  schedules_sample,
+  users_sample,
+} from '../../main/resources/Data';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from './BaseRepositoryTest';
 import {
   PromotionRepository,
-  PromotionWithRank,
+  PromotionFullTextSearch,
 } from '../../main/repository/PromotionRepository';
 import assert from 'assert';
 import { DiscountRepository } from '../../main/repository/DiscountRepository';
@@ -14,12 +18,16 @@ import { Promotion } from '../../main/entity/Promotion';
 import { PromotionQueryDTO } from '../../main/validation/PromotionQueryValidation';
 import { PromotionType } from '../../main/data/PromotionType';
 import { DiscountType } from '../../main/data/DiscountType';
+import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
 
 describe('Integration tests for all entities', function () {
+  const SAMPLE_SEARCH_QUERY = 'beef cafe';
+
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let discountRepository: DiscountRepository;
   let savedPromotionRepository: SavedPromotionRepository;
+  let scheduleRepository: ScheduleRepository;
 
   beforeAll(async () => {
     await connection.create();
@@ -35,6 +43,7 @@ describe('Integration tests for all entities', function () {
     promotionRepository = getCustomRepository(PromotionRepository);
     discountRepository = getCustomRepository(DiscountRepository);
     savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
+    scheduleRepository = getCustomRepository(ScheduleRepository);
   });
 
   test('Should not be able to save a promotion if user is not saved', async () => {
@@ -48,9 +57,7 @@ describe('Integration tests for all entities', function () {
       await promotionRepository.save(promotion);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toBe(
-        'null value in column "userId" violates not-null constraint'
-      );
+      expect(e.message).toContain('violates not-null constraint');
     }
   });
 
@@ -63,6 +70,11 @@ describe('Integration tests for all entities', function () {
     await promotionRepository.save(promotion);
 
     try {
+      const discounts = await discountRepository.find();
+      expect(discounts).toBeDefined();
+      expect(discounts[0].discountType).toEqual(
+        promotion.discount.discountType
+      );
       await promotionRepository.delete(promotion.id);
       expect(await promotionRepository.find()).toEqual([]);
       expect(await discountRepository.find()).toEqual([]);
@@ -93,7 +105,7 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test('Cascade delete - deleting a user should not delete saved promotions that aren\'t uploaded by the user', async () => {
+  test("Cascade delete - deleting a user should not delete saved promotions that aren't uploaded by the user", async () => {
     const user1 = users_sample[0];
     const user2 = users_sample[1];
     const promotion1 = promotions_sample[0];
@@ -166,7 +178,7 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test('Should be able to remove a user\'s saved promotion without deleting the promotion and user', async () => {
+  test("Should be able to remove a user's saved promotion without deleting the promotion and user", async () => {
     const user = users_sample[0];
     const promotion1 = promotions_sample[0];
     const promotion2 = promotions_sample[1];
@@ -196,11 +208,9 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test('Should see discounts loaded when getting promotions (not lazy loaded) regardless of having query or not', async () => {
+  test('Should see discounts loaded when getting promotions (not lazy loaded) regardless of having search query or not', async () => {
     const promotionQueryDTOWithSearchQuery: PromotionQueryDTO = {
-      promotionType: PromotionType.BOGO,
-      discountType: DiscountType.PERCENTAGE,
-      searchQuery: 'promo2 description1 promo1 description13',
+      searchQuery: SAMPLE_SEARCH_QUERY,
     };
 
     const promotionQueryDTOWithoutSearchQuery: PromotionQueryDTO = {
@@ -248,11 +258,10 @@ describe('Integration tests for all entities', function () {
     }
   });
 
-  test('Should be able to apply query options when getting promotions', async () => {
+  test('When apply filter options, results should only contain values that match all filters', async () => {
     const promotionQueryDTO: PromotionQueryDTO = {
       promotionType: PromotionType.BOGO,
       discountType: DiscountType.PERCENTAGE,
-      searchQuery: 'promo2 description1 promo1 description13',
     };
 
     for (const user of users_sample) {
@@ -264,22 +273,9 @@ describe('Integration tests for all entities', function () {
     }
 
     try {
-      const promotions: PromotionWithRank[] = await promotionRepository.getAllPromotions(
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
         promotionQueryDTO
       );
-      // expecting 2 promotions
-      expect(promotions?.length).toEqual(2);
-
-      // check that rank exists on the promotion and is decreasing
-      let currRank = 1;
-      for (const promotion of promotions) {
-        if (promotion.rank) {
-          expect(promotion.rank).toBeLessThanOrEqual(currRank);
-          currRank = promotion.rank;
-        } else {
-          fail('promotion rank should be defined');
-        }
-      }
 
       // assert values of promotionQueryDTO are found in promotions
       for (const promotion of promotions) {
@@ -292,6 +288,137 @@ describe('Integration tests for all entities', function () {
       }
     } catch (e) {
       fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('When apply filter options without search query, results should not contain rank, boldDescription, and boldName', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      promotionType: PromotionType.BOGO,
+      discountType: DiscountType.PERCENTAGE,
+    };
+
+    for (const user of users_sample) {
+      await userRepository.save(user);
+    }
+
+    for (const promotion of promotions_sample) {
+      await promotionRepository.save(promotion);
+    }
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      for (const promotion of promotions) {
+        expect(promotion.rank).not.toBeDefined();
+        expect(promotion.boldDescription).not.toBeDefined();
+        expect(promotion.boldName).not.toBeDefined();
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('When apply search query, results should contain rank and is ordered by rank', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      searchQuery: SAMPLE_SEARCH_QUERY,
+    };
+
+    for (const user of users_sample) {
+      await userRepository.save(user);
+    }
+
+    for (const promotion of promotions_sample) {
+      await promotionRepository.save(promotion);
+    }
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      // check that rank exists on the promotion and is decreasing
+      let currRank = 1;
+      for (const promotion of promotions) {
+        if (promotion.rank) {
+          expect(promotion.rank).toBeLessThanOrEqual(currRank);
+          currRank = promotion.rank;
+        } else {
+          fail('promotion rank should be defined');
+        }
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('When apply search query, should return the promotion with bolded names and descriptions for relevant areas that match the search query', async () => {
+    const promotion = promotions_sample[0];
+    const user = users_sample[0];
+    promotion.user = user;
+    promotion.name =
+      'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card';
+    promotion.description =
+      "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.";
+
+    const promotionQueryDTO: PromotionQueryDTO = {
+      searchQuery: 'spaghetti card',
+    };
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions?.length).toEqual(1);
+      expect(promotions[0].boldName).toContain('<b>Spaghetti</b>');
+      expect(promotions[0].boldDescription).toContain('<b>Card</b>');
+      expect(promotions[0].boldDescription).toContain('<b>Cards</b>');
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Cascade delete - deleting a promotion will delete its schedules', async () => {
+    const promotion = promotions_sample[0];
+    assert(promotion.discount !== null);
+
+    // persist into db
+    await userRepository.save(promotion.user);
+    await promotionRepository.save(promotion);
+
+    try {
+      const schedules = await scheduleRepository.find();
+      expect(schedules).toBeDefined();
+      expect(schedules.length).toEqual(promotion.schedules.length);
+      await promotionRepository.delete(promotion.id);
+      expect(await promotionRepository.find()).toEqual([]);
+      expect(await scheduleRepository.find()).toEqual([]);
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Unique constraint - should not be able to save schedules with the same day', async () => {
+    const user = users_sample[0];
+    const promotion = promotions_sample[0];
+
+    // configure schedules of promotion to have same day of week
+    promotion.schedules = [schedules_sample[0], schedules_sample[1]];
+    promotion.schedules[0].dayOfWeek = promotion.schedules[1].dayOfWeek;
+
+    try {
+      await userRepository.save(user);
+      await promotionRepository.save(promotion);
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.message).toContain(
+        'duplicate key value violates unique constraint'
+      );
     }
   });
 });

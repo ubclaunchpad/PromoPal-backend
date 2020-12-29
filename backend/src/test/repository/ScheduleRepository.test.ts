@@ -1,12 +1,11 @@
 import { getCustomRepository } from 'typeorm';
-import { discounts_sample } from '../../main/resources/Data';
+import { schedules_sample } from '../../main/resources/Data';
 import connection from './BaseRepositoryTest';
-import { Discount } from '../../main/entity/Discount';
-import { DiscountRepository } from '../../main/repository/DiscountRepository';
+import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
+import { Schedule } from '../../main/entity/Schedule';
 
 describe('Unit tests for DiscountRepository', function () {
-  let discountRepository: DiscountRepository;
-
+  let scheduleRepository: ScheduleRepository;
   beforeAll(async () => {
     await connection.create();
   });
@@ -17,13 +16,13 @@ describe('Unit tests for DiscountRepository', function () {
 
   beforeEach(async () => {
     await connection.clear();
-    discountRepository = getCustomRepository(DiscountRepository);
+    scheduleRepository = getCustomRepository(ScheduleRepository);
   });
 
-  test('Should not be able to create discount without promotion', async () => {
-    const discount: Discount = discounts_sample[0];
+  test('Should not be able to save schedule without promotion', async () => {
+    const schedule: Schedule = schedules_sample[0];
     try {
-      await discountRepository.save(discount);
+      await scheduleRepository.save(schedule);
       fail('Should have failed');
     } catch (e) {
       expect(e.message).toContain('violates not-null constraint');
