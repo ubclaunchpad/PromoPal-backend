@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 // todo: remove eslint-disable once we add assertions
-describe('Unit tests for GooglePlacesService', function () {
+describe.skip('Unit tests for GooglePlacesService', function () {
   const googlePlacesAPI = new GooglePlacesService();
 
   beforeEach(function () {

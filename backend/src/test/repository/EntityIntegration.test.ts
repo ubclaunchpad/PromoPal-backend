@@ -57,9 +57,7 @@ describe('Integration tests for all entities', function () {
       await promotionRepository.save(promotion);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toBe(
-        'null value in column "userId" violates not-null constraint'
-      );
+      expect(e.message).toContain('violates not-null constraint');
     }
   });
 
