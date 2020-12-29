@@ -7,7 +7,7 @@
     "build": "tsc --project ./",
     "prestart": "yarn run build",
     "start": "nodemon src/main/Index.ts",
-    "test": "jest",
+    "test": "jest --verbose",
     "lint": "eslint . --ext .ts,.tsx",
     "lintFix": "eslint . --ext .ts,.tsx --fix",
     "prettier": "prettier --write .",
