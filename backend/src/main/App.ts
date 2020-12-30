@@ -58,7 +58,7 @@ function handleRedisConnection(redisClient: RedisClient) {
   });
 }
 
-function registerRouters(app: Express) {
+async function registerRouters(app: Express) {
   app.get('/', (req, res) => res.send('Hello World'));
 
   const redisClient = await createRedisClient();
