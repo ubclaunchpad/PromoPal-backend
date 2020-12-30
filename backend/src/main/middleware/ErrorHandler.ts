@@ -26,6 +26,6 @@ export function errorHandler(
       )
     );
   return res
-    .status(500)
+    .status(400)
     .send(new FrontEndErrorObject(error.name, [error.message]));
 }
