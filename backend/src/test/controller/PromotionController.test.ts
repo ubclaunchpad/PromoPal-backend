@@ -217,6 +217,36 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
+  test('POST /promotions/ - should not be able to add promotion if user does not exist', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    await userRepository.delete(user.id);
+
+    request(app)
+      .post('/promotions')
+      .send({
+        ...promotion,
+        user: undefined,
+        userId: user.id,
+      })
+      .expect(400)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('EntityNotFound');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toContain(
+          'Could not find any entity of type "User"'
+        );
+        done();
+      });
+  });
+
   test('DELETE /promotions/:id', async () => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
@@ -227,6 +257,27 @@ describe('Unit tests for PromotionController', function () {
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
+    await request(app).delete(`/promotions/${promotion.id}`).expect(204);
+
+    // check that user no longer exists
+    await expect(
+      promotionRepository.findOneOrFail({ id: promotion.id })
+    ).rejects.toThrowError();
+  });
+
+  test('DELETE /promotions/:id - deleting non-existent promotion should not fail', async () => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    // delete the promotion
+    await promotionRepository.delete(promotion.id);
     await request(app).delete(`/promotions/${promotion.id}`).expect(204);
 
     // check that user no longer exists

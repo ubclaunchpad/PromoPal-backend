@@ -230,12 +230,6 @@ export class UserController {
           abortEarly: false,
         });
 
-        await this.checkIfUserAndPromotionExist(
-          transactionalEntityManager,
-          pid,
-          uid
-        );
-
         // remove the promotion from user's list of saved promotions
         const result = await transactionalEntityManager
           .getCustomRepository(SavedPromotionRepository)

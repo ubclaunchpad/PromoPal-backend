@@ -153,6 +153,18 @@ describe('Unit tests for UserController', function () {
     ).rejects.toThrowError();
   });
 
+  test('DELETE /users/:id - delete non-existent user should not fail', async () => {
+    const expectedUser: User = new UserFactory().generate();
+    await userRepository.save(expectedUser);
+    await userRepository.delete(expectedUser.id);
+    await request(app).delete(`/users/${expectedUser.id}`).expect(204);
+
+    // check that user no longer exists
+    await expect(
+      userRepository.findOneOrFail({ id: expectedUser.id })
+    ).rejects.toThrowError();
+  });
+
   test('GET /users/:id/savedPromotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     const promotion1 = new PromotionFactory().generate(
@@ -201,6 +213,23 @@ describe('Unit tests for UserController', function () {
           promotionId: promotion1.id,
           promotion: { id: promotion1.id, name: promotion1.name },
         });
+        done();
+      });
+  });
+
+  test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    await userRepository.save(expectedUser);
+
+    request(app)
+      .get(`/users/${expectedUser.id}/savedPromotions`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const user = res.body;
+        expect(user).toHaveProperty('savedPromotions');
+        compareUsers(user, expectedUser);
+        expect(user.savedPromotions).toHaveLength(0);
         done();
       });
   });
@@ -259,6 +288,56 @@ describe('Unit tests for UserController', function () {
     ).rejects.toThrowError();
   });
 
+  test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion was never saved by user', async () => {
+    const expectedUser: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      expectedUser,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(expectedUser);
+    await promotionRepository.save(promotion);
+
+    await request(app)
+      .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
+      .expect(204);
+
+    // check that saved promotion no longer exists
+    await expect(
+      savedPromotionRepository.findOneOrFail({
+        userId: expectedUser.id,
+        promotionId: promotion.id,
+      })
+    ).rejects.toThrowError();
+  });
+
+  test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async () => {
+    const expectedUser: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      expectedUser,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(expectedUser);
+    await promotionRepository.save(promotion);
+    await userRepository.delete(expectedUser.id);
+    await promotionRepository.delete(promotion.id);
+
+    await request(app)
+      .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
+      .expect(204);
+
+    // check that saved promotion no longer exists
+    await expect(
+      savedPromotionRepository.findOneOrFail({
+        userId: expectedUser.id,
+        promotionId: promotion.id,
+      })
+    ).rejects.toThrowError();
+  });
+
   test('GET /users/:id/uploadedPromotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     const promotion1 = new PromotionFactory().generate(
@@ -290,6 +369,23 @@ describe('Unit tests for UserController', function () {
           name: promotion1.name,
           description: promotion1.description,
         });
+        done();
+      });
+  });
+
+  test('GET /users/:id/uploadedPromotions - should return empty list if user has no uploaded promotions', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    await userRepository.save(expectedUser);
+
+    request(app)
+      .get(`/users/${expectedUser.id}/uploadedPromotions`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const user = res.body;
+        expect(user).toHaveProperty('uploadedPromotions');
+        compareUsers(user, expectedUser);
+        expect(user.uploadedPromotions).toHaveLength(0);
         done();
       });
   });
