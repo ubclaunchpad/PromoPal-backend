@@ -1,14 +1,26 @@
-import { SortBy, FilterBy, Category, CuisineType, DaysOfWeek, DiscountType, ServiceOptions, Sort } from "../types/promotion";
+import {
+  SortBy,
+  FilterBy,
+  Category,
+  CuisineType,
+  DaysOfWeek,
+  DiscountType,
+  ServiceOptions,
+  Sort,
+} from "../types/promotion";
 import { Promotion } from "../types/promotion";
 import { enumContainsValue } from "../utils/enum";
 
 export async function get(): Promise<Promotion[]> {
-  return fetch("/promotion")
+  return fetch("/promotions")
     .then((res: Response) => res.json())
     .catch(() => []);
 }
 
-export function sortPromotions(promotions: Promotion[], sort: SortBy): Promotion[] {
+export function sortPromotions(
+  promotions: Promotion[],
+  sort: SortBy
+): Promotion[] {
   switch (sort) {
     case Sort.Distance:
       return sortDistance(promotions);
@@ -36,7 +48,10 @@ function sortRating(promotions: Promotion[]) {
   return promotions;
 }
 
-export function filterPromotions(promotions: Promotion[], filter: FilterBy): Promotion[] {
+export function filterPromotions(
+  promotions: Promotion[],
+  filter: FilterBy
+): Promotion[] {
   if (enumContainsValue(Category, filter)) {
     return filterCategory(promotions, filter as Category);
   } else if (enumContainsValue(CuisineType, filter)) {
@@ -52,11 +67,15 @@ export function filterPromotions(promotions: Promotion[], filter: FilterBy): Pro
 }
 
 function filterCategory(promotions: Promotion[], filter: Category) {
-  return promotions.filter(({ category }) => category.replace("\\s", "_").toUpperCase() === filter);
+  return promotions.filter(
+    ({ category }) => category.replace("\\s", "_").toUpperCase() === filter
+  );
 }
 
 function filterCuisineType(promotions: Promotion[], filter: CuisineType) {
-  return promotions.filter(({ cuisine }) => cuisine.replace("\\s", "_").toUpperCase() === filter);
+  return promotions.filter(
+    ({ cuisine }) => cuisine.replace("\\s", "_").toUpperCase() === filter
+  );
 }
 
 function filterDaysOfWeek(promotions: Promotion[], filter: DaysOfWeek) {

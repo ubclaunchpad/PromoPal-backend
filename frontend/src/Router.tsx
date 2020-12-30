@@ -4,7 +4,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import NavigationBar from "./components/navigation/NavigationBar";
 import { PromotionsListProvider } from "./contexts/PromotionsListContext";
 import Home from "./screens/Home";
-import MyPromotions from "./screens/MyPromotions"
+import MyPromotions from "./screens/MyPromotions";
 
 export default function Router(): ReactElement {
   return (

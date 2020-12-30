@@ -5,6 +5,7 @@ import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
 import { usePromotionsList } from "../contexts/PromotionsListContext";
 import * as Promotion from "../types/promotion";
+import { Dropdown, DropdownType } from "../types/dropdown";
 
 const mapWidth = 60;
 
@@ -13,26 +14,31 @@ export default function Home(): ReactElement {
 
   const { dispatch } = usePromotionsList();
 
-  const dropdowns = [
+  const dropdowns: Dropdown[] = [
     {
       text: "Sort",
+      type: DropdownType.Radio,
       options: [
         {
           action: () => dispatch({ sort: Promotion.Sort.Distance }),
           text: "Distance",
+          description: "Closest deals to you.",
         },
         {
           action: () => dispatch({ sort: Promotion.Sort.MostPopular }),
           text: "Most Popular",
+          description: "Deals with the most number of saves from other users.",
         },
         {
           action: () => dispatch({ sort: Promotion.Sort.Rating }),
           text: "Rating",
+          description: "Newest uploaded deals will be shown first.",
         },
       ],
     },
     {
       text: "Discount Type",
+      type: DropdownType.MultiSelect,
       options: [
         {
           action: () => dispatch({ filter: Promotion.DiscountType.DollarsOff }),
@@ -46,6 +52,7 @@ export default function Home(): ReactElement {
     },
     {
       text: "Cuisine",
+      type: DropdownType.MultiSelect,
       options: [
         {
           action: () => dispatch({ filter: Promotion.CuisineType.American }),
@@ -86,32 +93,8 @@ export default function Home(): ReactElement {
       ],
     },
     {
-      text: "Category",
-      options: [
-        {
-          action: () => dispatch({ filter: Promotion.Category.Bakery }),
-          text: "Bakery",
-        },
-        {
-          action: () => dispatch({ filter: Promotion.Category.BubbleTea }),
-          text: "Bubble Tea",
-        },
-        {
-          action: () => dispatch({ filter: Promotion.Category.Coffee }),
-          text: "Coffee",
-        },
-        {
-          action: () => dispatch({ filter: Promotion.Category.Dessert }),
-          text: "Dessert",
-        },
-        {
-          action: () => dispatch({ filter: Promotion.Category.FastFood }),
-          text: "Fast Food",
-        },
-      ],
-    },
-    {
       text: "Day of the Week",
+      type: DropdownType.MultiSelect,
       options: [
         {
           action: () => dispatch({ filter: Promotion.DaysOfWeek.Sunday }),
@@ -145,6 +128,7 @@ export default function Home(): ReactElement {
     },
     {
       text: "Service Options",
+      type: DropdownType.MultiSelect,
       options: [
         {
           action: () => dispatch({ filter: Promotion.ServiceOptions.DineIn }),
@@ -157,7 +141,7 @@ export default function Home(): ReactElement {
       ],
     },
   ];
-  
+
   useEffect(() => {
     // Note: the following is not considered best practice, but it is used to calculate the height
     // of the header + dropdown so that we can use it as an offset
@@ -170,7 +154,7 @@ export default function Home(): ReactElement {
 
   return (
     <>
-      <DropdownMenu dropdowns={dropdowns} />
+      <DropdownMenu dropdowns={dropdowns} shadow />
       <div id="content-container" style={{ display: "inline-flex", height }}>
         <MapContainer dimensions={{ width: `${mapWidth}vw`, height }} />
         <PromotionList dimensions={{ width: `${100 - mapWidth}vw`, height }} />

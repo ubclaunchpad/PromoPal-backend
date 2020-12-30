@@ -1,36 +1,64 @@
 import React, { CSSProperties, ReactElement } from "react";
-import { Checkbox, Row, Col } from 'antd';
+import { Checkbox, Row, Col } from "antd";
 
 import DropdownMenu from "../components/DropdownMenu";
 import PromotionCard from "../components/promotion/PromotionCard";
 import UploadPromoButton from "../components/button/UploadPromoButton";
 
-import { DropdownOption, Dropdown} from "../types/dropdown";
+import { Dropdown, DropdownType } from "../types/dropdown";
 import { Promotion, User } from "../types/promotion";
-
-const options: DropdownOption[] = [
-  {
-    action: () => {},
-    text: "Option 1",
-  },
-  {
-    action: () => {},
-    text: "Option 2",
-  },
-  {
-    action: () => {},
-    text: "Option 3",
-  },
-];
 
 const dropdowns: Dropdown[] = [
   {
     text: "Sort",
-    options,
+    type: DropdownType.Radio,
+    options: [
+      {
+        action: () => {
+          /* stub */
+        },
+        description: "Sort by Option 1",
+        text: "Option 1",
+      },
+      {
+        action: () => {
+          /* stub */
+        },
+        description: "Sort by Option 2",
+        text: "Option 2",
+      },
+      {
+        action: () => {
+          /* stub */
+        },
+        description: "Sort by Option 3",
+        text: "Option 3",
+      },
+    ],
   },
   {
     text: "Category",
-    options,
+    type: DropdownType.MultiSelect,
+    options: [
+      {
+        action: () => {
+          /* stub */
+        },
+        text: "Option 1",
+      },
+      {
+        action: () => {
+          /* stub */
+        },
+        text: "Option 2",
+      },
+      {
+        action: () => {
+          /* stub */
+        },
+        text: "Option 3",
+      },
+    ],
   },
 ];
 
@@ -41,7 +69,7 @@ const user: User = {
   lastName: "Lee",
   password: "123",
   username: "user",
-}
+};
 
 const promotions: Promotion[] = [
   {
@@ -75,7 +103,7 @@ const promotions: Promotion[] = [
     },
     expirationDate: "Nov 20, 2020",
     liked: false,
-    image: { "src": "" },
+    image: { src: "" },
     name: "$2 off Sandwiches",
     restaurantName: "Grandma Loves You",
     user,
@@ -94,7 +122,7 @@ const promotions: Promotion[] = [
     },
     expirationDate: "Jan 1, 2020",
     liked: false,
-    image: { "src": "" },
+    image: { src: "" },
     name: "10% off Breakfast",
     restaurantName: "Elephant Grind Coffee House",
     user,
@@ -127,25 +155,27 @@ const styles: { [identifier: string]: CSSProperties } = {
   uploadPromoButtonContainer: {
     position: "fixed",
     bottom: 50,
-    right: 50
-  }
+    right: 50,
+  },
 };
 
-function onChange() {
-  console.log("Check");
-}
+const onChange = () => {
+  /* stub */
+};
 
 export default function MyPromotions(): ReactElement {
   return (
     <>
       <div style={styles.body}>
         <h1>Uploaded by you</h1>
-        <div style={{ display: "inline-flex", width: "100%"}}>
+        <div style={{ display: "inline-flex", width: "100%" }}>
           <div style={styles.dropdownMenuContainer}>
-            <DropdownMenu dropdowns={dropdowns}/>
+            <DropdownMenu dropdowns={dropdowns} />
           </div>
           <div style={styles.checkBoxContainer}>
-            <Checkbox onChange={onChange} style={{ float: "right"}}>Show active deals only</Checkbox>
+            <Checkbox onChange={onChange} style={{ float: "right" }}>
+              Show active deals only
+            </Checkbox>
           </div>
         </div>
         <div style={styles.promotions}>

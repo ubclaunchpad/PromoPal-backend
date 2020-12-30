@@ -16,7 +16,7 @@ const styles: { [identifier: string]: CSSProperties } = {
 export default function PromotionList({
   dimensions,
 }: {
-  dimensions: { width: string; height: string },
+  dimensions: { width: string; height: string };
 }): ReactElement {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
 

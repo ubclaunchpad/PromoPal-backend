@@ -25,7 +25,6 @@ export default function PromotionDetails({
   expirationDate,
   restaurantName = "Restaurant",
 }: Promotion): ReactElement {
-
   return (
     <div style={styles.descriptionContainer}>
       <div style={styles.header}>
@@ -36,9 +35,7 @@ export default function PromotionDetails({
       <p>{description}</p>
       <p>
         Expires on
-        <strong>
-          {` ${new Date(expirationDate).toDateString()}`}
-        </strong>
+        <strong>{` ${new Date(expirationDate).toDateString()}`}</strong>
       </p>
     </div>
   );

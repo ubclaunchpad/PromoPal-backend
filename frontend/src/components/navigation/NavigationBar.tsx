@@ -13,7 +13,6 @@ enum Pages {
 const styles: { [identifier: string]: CSSProperties } = {
   header: {
     alignItems: "center",
-    backgroundColor: "#eee",
     display: "inline-flex",
     justifyContent: "space-between",
     padding: 10,
@@ -26,7 +25,8 @@ const styles: { [identifier: string]: CSSProperties } = {
     marginBottom: 0,
   },
   menu: {
-    backgroundColor: "#eee",
+    backgroundColor: "#fff",
+    borderBottom: 0,
   },
   menuItem: {
     borderBottom: 0,
