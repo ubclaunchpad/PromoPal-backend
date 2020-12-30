@@ -30,3 +30,5 @@ services:
           - db
         links: 
           - db
+    redis-server:
+      image: 'redis'
