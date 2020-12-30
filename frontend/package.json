@@ -7,7 +7,8 @@
     "build": "react-scripts build",
     "eject": "react-scripts eject",
     "lint": "eslint . --ext .ts,.tsx --fix",
-    "prettier": "prettier --write ."
+    "prettier": "prettier --write .",
+    "test": "jest"
   },
   "dependencies": {
     "@types/jest": "^26.0.15",
@@ -26,7 +27,7 @@
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
     "antd": "^4.8.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",

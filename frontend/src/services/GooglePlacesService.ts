@@ -33,7 +33,7 @@ class GooglePlacesService {
       )
       .then((response: AxiosResponse) => {
         if (response.data.candidates.length === 1) {
-          return Promise.resolve(response.data.candidates?.[0].place_id);
+          return Promise.resolve(response.data.candidates[0].place_id);
         }
         const promises: Array<Promise<boolean>> = [];
         responseData = response.data.candidates;
@@ -49,7 +49,7 @@ class GooglePlacesService {
 
         return Promise.all(promises);
       })
-      .then((result) => {
+      .then((result: Array<boolean>) => {
         if (!Array.isArray(result)) {
           return Promise.resolve(result);
         }
