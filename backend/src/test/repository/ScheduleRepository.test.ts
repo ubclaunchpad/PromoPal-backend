@@ -1,8 +1,8 @@
-import { getConnection, getCustomRepository } from 'typeorm';
-import { schedules_sample } from '../../main/resources/Data';
+import { getCustomRepository } from 'typeorm';
 import connection from './BaseRepositoryTest';
 import { ScheduleRepository } from '../../main/repository/ScheduleRepository';
 import { Schedule } from '../../main/entity/Schedule';
+import { ScheduleFactory } from '../factory/ScheduleFactory';
 
 describe('Unit tests for DiscountRepository', function () {
   let scheduleRepository: ScheduleRepository;
@@ -20,14 +20,12 @@ describe('Unit tests for DiscountRepository', function () {
   });
 
   test('Should not be able to save schedule without promotion', async () => {
-    const schedule: Schedule = schedules_sample[0];
+    const schedule: Schedule = new ScheduleFactory().generate();
     try {
       await scheduleRepository.save(schedule);
       fail('Should have failed');
     } catch (e) {
-      expect(e.message).toBe(
-        'null value in column "promotionId" violates not-null constraint'
-      );
+      expect(e.message).toContain('violates not-null constraint');
     }
   });
 });

@@ -3,7 +3,7 @@ import { CuisineType } from '../../main/data/CuisineType';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionValidation } from '../../main/validation/PromotionValidation';
 import { Day } from '../../main/data/Day';
-import { schedules_sample } from '../../main/resources/Data';
+import { ScheduleFactory } from '../factory/ScheduleFactory';
 
 describe('Unit tests for PromotionValidation', function () {
   // mark these types as any so that we can make them improper
@@ -357,8 +357,8 @@ describe('Unit tests for PromotionValidation', function () {
 
   test('Should fail if save promotion.schedules contains two schedules with the same dayOfWeek', async () => {
     try {
-      const schedule1 = schedules_sample[0];
-      const schedule2 = schedules_sample[1];
+      const schedule1 = new ScheduleFactory().generate();
+      const schedule2 = new ScheduleFactory().generate();
       schedule1.dayOfWeek = schedule2.dayOfWeek;
       promotionDTO.schedules = [schedule1, schedule2];
       await PromotionValidation.schema.validateAsync(promotionDTO, {
