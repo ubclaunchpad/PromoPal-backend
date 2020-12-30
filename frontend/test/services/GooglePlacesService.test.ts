@@ -1,11 +1,13 @@
 import { AxiosError } from "axios";
 import { GooglePlacesService } from "../../src/services/GooglePlacesService";
 import { RestaurantDetails } from "../../src/types/RestaurantDetails";
+import * as dotenv from "dotenv";
 
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 // todo: remove eslint-disable once we add assertions
 describe("Unit tests for GooglePlacesService", function () {
   const googlePlacesAPI = new GooglePlacesService();
+    dotenv.config();
 
   test("Search for a place using restaurant name and location, should be successful", () => {
     return googlePlacesAPI
@@ -64,7 +66,7 @@ describe("Unit tests for GooglePlacesService", function () {
         expect(result).toHaveProperty("name", "RIB & CHICKEN");
         expect(result).toHaveProperty("opening_hours");
         expect(result).toHaveProperty("photos");
-        expect(result).toHaveProperty("rating", 4.6);
+        expect(result).toHaveProperty("rating", 4.5);
         expect(result).toHaveProperty("reviews");
         expect(result).toHaveProperty(
           "map_url",
@@ -94,7 +96,7 @@ describe("Unit tests for GooglePlacesService", function () {
           "map_url",
           "https://maps.google.com/?cid=77286563717231905"
         );
-        expect(restaurant).toHaveProperty("total_rating", 67);
+        expect(restaurant).toHaveProperty("total_rating", 81);
         expect(restaurant).toHaveProperty(
           "website",
           "https://www.ribandchicken.ca/"
