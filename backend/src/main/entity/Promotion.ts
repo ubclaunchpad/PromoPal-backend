@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './User';
 import { Discount } from './Discount';
-import { PromotionCategory } from '../data/PromotionCategory';
+import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
 import { Schedule } from './Schedule';
@@ -24,25 +24,29 @@ export class Promotion {
   constructor(
     user: User,
     discount: Discount,
+    schedules: Schedule[],
     placeId: string,
-    category: PromotionCategory,
+    promotionType: PromotionType,
     cuisine: CuisineType,
     name: string,
     description: string,
+    startDate: Date,
     expirationDate: Date
   ) {
     this.user = user;
     this.discount = discount;
+    this.schedules = schedules;
     this.placeId = placeId;
-    this.category = category;
+    this.promotionType = promotionType;
     this.cuisine = cuisine;
     this.name = name;
     this.description = description;
+    this.startDate = startDate;
     this.expirationDate = expirationDate;
   }
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * Represents Google Places API place_id
@@ -91,7 +95,6 @@ export class Promotion {
    * OneToMany bidirectional relationship between Promotion and Schedule
    * Each promotion can have 0 or more schedules
    * */
-  // todo: Need to figure this out, then need to add to constructor and modify Data.ts
   @OneToMany(() => Schedule, (schedule) => schedule.promotion, {
     nullable: false,
     cascade: true,
@@ -100,10 +103,10 @@ export class Promotion {
 
   @Column({
     type: 'enum',
-    enum: PromotionCategory,
-    default: PromotionCategory.OTHER,
+    enum: PromotionType,
+    default: PromotionType.OTHER,
   })
-  category: PromotionCategory;
+  promotionType: PromotionType;
 
   @Column({
     type: 'enum',
@@ -125,10 +128,34 @@ export class Promotion {
   })
   dateAdded: Date;
 
+  /**
+   * Represents when a promotion starts.
+   * Note: See PromotionDTO.startDate for more details
+   * */
+  @Column({
+    name: 'start_date',
+    type: 'timestamptz',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  startDate: Date;
+
   @Column({
     name: 'expiration_date',
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
   expirationDate: Date;
+
+  /**
+   * Represents a Postgres tsvector used for Full Text Search. Elements of a tsvector are lexemes along with their positions
+   * * Not to be included in constructor since there is a trigger that sets this column automatically on update/insert
+   * * select: false since this information should be hidden from client
+   * */
+  @Column({
+    name: 'tsvector',
+    type: 'tsvector',
+    nullable: false,
+    select: false,
+  })
+  tsVector: string;
 }

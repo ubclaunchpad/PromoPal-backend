@@ -15,13 +15,13 @@ import { DiscountType } from '../data/DiscountType';
 @Entity()
 export class Discount {
   // don't want to create a promotion from a discount, only want to create discount if creating promotion
-  constructor(type: DiscountType, discountValue: number) {
-    this.type = type;
+  constructor(discountType: DiscountType, discountValue: number) {
+    this.discountType = discountType;
     this.discountValue = discountValue;
   }
 
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   /*
    * OneToOne bidirectional relationship between Discount and Promotion
@@ -41,7 +41,7 @@ export class Discount {
     enum: DiscountType,
     default: DiscountType.OTHER,
   })
-  type: DiscountType;
+  discountType: DiscountType;
 
   @Column('real')
   discountValue: number;

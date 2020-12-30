@@ -47,7 +47,7 @@ export default function NavigationBar(): ReactElement {
   });
 
   return (
-    <header style={styles.header}>
+    <header id="navigation-header" style={styles.header}>
       <div style={styles.navigation}>
         <h1 style={styles.logo}>Logo</h1>
         <Menu

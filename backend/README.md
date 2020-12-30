@@ -41,6 +41,10 @@ CREATE DATABASE foodies;
 GRANT ALL PRIVILEGES ON DATABASE foodies TO postgres;
 ```
 
+## Unit/Integration tests
+
+Currently, all tests drop the schema after each test. Therefore, do not design tests to be reliant on data from previous tests.
+
 ## Drop the database schema:
 
 ```
@@ -55,6 +59,26 @@ This will setup the schema, without any data.
 yarn run syncSchema
 ```
 
+## Run migrations
+
+This will run any migrations in the `/migrations` folder. Currently `ormconfig.json` is configured to run migrations when the application starts.
+
+```
+yarn run run_migration
+```
+
+## Running unit tests
+
+If you want to run all tests in IntelliJ, add this new configuration. It's very important you specify
+the working directory as specified because TypeORM config needs the correct directory to find all the entities, migrations, subcribers etc.
+![image](https://user-images.githubusercontent.com/49849754/99886688-66ff8080-2bf3-11eb-88b1-2cb9879988db.png)
+
+You can also run tests using this command
+
+```
+yarn run test
+```
+
 ## Local development (without docker)
 
 ### Change ormconfig.json
@@ -64,21 +88,38 @@ Find `ormconfig.json` and change the following line to `host: localhost`
 ### Using Intellij
 
 Make sure you created the databases first.
-Intellij can show you your databases and tables. Go to the `Database` tab and add a new data source.  
+IntelliJ can show you your databases and tables. Go to the `Database` tab and add a new data source.
+
 ![image](https://user-images.githubusercontent.com/49849754/98451666-bfffec80-20fc-11eb-9165-8100d3a3dd41.png)
 
 Fill out with the username and password respectively
+
 ![image](https://user-images.githubusercontent.com/49849754/98451683-e4f45f80-20fc-11eb-8866-9dc21f3624d0.png)
 
 You should now be able to see all the databases and tables.
 
 ### Loading sample data
 
-To import data from `init_data.sql`, run this command inside a command prompt. Make sure the schema is setup, and it is currently empty.
+To import data from `init_data.sql`, run this command inside a command prompt. **Make sure the schema is synced, the migrations are ran, and that the tables are empty**.
 `psql` should prompt you to enter your password.
+
+E.g.
+
+```
+yarn run dropSchema
+yarn run syncSchema
+yarn run run_migration
+yarn run loadSqlData
+
+```
+
+If this command does not work, clear everything inside the tables (delete all tuples in `user_profile` table and cascade delete should remove everything else).
+Then open `init_data.sql` inside Intellij, select all the lines, and execute (Ctrl + Enter or Command + Enter).
 
 ```
 psql -d foodies -f src/main/resources/init_data.sql --username=postgres
+or
+yarn run loadSqlData
 ```
 
 ### Loading data through typeORM
@@ -91,26 +132,11 @@ dropSchema: true
 ```
 
 Then TypeORM will automatically create the schema drop the schema on every application launch
-Make sure these lines are uncommented for TypeORM to save the data in `App.ts`
+Make sure these lines are uncommented in `App.ts` for TypeORM to save the data when the application starts. After data is loaded,
+it is recommended to set `dropSchema: false`.
 
 ```
-// persist entities into database
-for (const user of users_sample) {
-  await userRepository.save(user);
-}
-
-for (const promotion of promotions_sample) {
-  await promotionRepository.save(promotion);
-}
-
-for (const [user, promotions] of saved_promotions_mapping) {
-  const savedPromotions: SavedPromotion[] = [];
-  for (const promotion of promotions) {
-    savedPromotions.push(new SavedPromotion(user, promotion));
-  }
-  user.savedPromotions = savedPromotions;
-  await userRepository.save(user);
-}
+await loadSampleData();
 ```
 
 ## Local development with Docker

@@ -23,6 +23,8 @@
   },
   "devDependencies": {
     "@ant-design/icons": "^4.2.2",
+    "@types/google-maps-react": "^2.0.5",
+    "@types/googlemaps": "^3.40.3",
     "@types/react-router-dom": "^5.1.6",
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
@@ -31,6 +33,7 @@
     "dotenv": "^8.2.0",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "google-maps-react": "^2.0.6",
     "husky": "^4.3.0",
     "lint-staged": "^10.5.0",
     "prettier": "^2.1.2",

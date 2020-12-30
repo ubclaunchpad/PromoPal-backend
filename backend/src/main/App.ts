@@ -1,5 +1,5 @@
-import express from 'express';
-import { createConnection, getCustomRepository, getRepository } from 'typeorm';
+import express, { Express } from 'express';
+import { createConnection, getCustomRepository } from 'typeorm';
 import bodyParser from 'body-parser';
 import { User } from './entity/User';
 import { Promotion } from './entity/Promotion';
@@ -13,6 +13,17 @@ import { UserRepository } from './repository/UserRepository';
 import { PromotionRepository } from './repository/PromotionRepository';
 import { DiscountRepository } from './repository/DiscountRepository';
 import { SavedPromotionRepository } from './repository/SavedPromotionRepository';
+import { UserRouter } from './route/UserRouter';
+import { UserController } from './controller/UserController';
+import { Route } from './constant/Route';
+import { PromotionRouter } from './route/PromotionRouter';
+import { errorHandler } from './middleware/ErrorHandler';
+import { PromotionController } from './controller/PromotionController';
+import { EnumController } from './controller/EnumController';
+import { EnumRouter } from './route/EnumRouter';
+import { ScheduleRepository } from './repository/ScheduleRepository';
+import { Schedule } from './entity/Schedule';
+import { SavedPromotion } from './entity/SavedPromotion';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -23,62 +34,11 @@ createConnection()
     app.use(bodyParser.json());
     const PORT = 8000;
 
-    const userRepository: UserRepository = getCustomRepository(UserRepository);
-    const promotionRepository: PromotionRepository = getCustomRepository(
-      PromotionRepository
-    );
-    const discountRepository: DiscountRepository = getCustomRepository(
-      DiscountRepository
-    );
-    const savedPromotionRepository: SavedPromotionRepository = getCustomRepository(
-      SavedPromotionRepository
-    );
+    // await loadSampleData();
 
-    // persist entities into database (see README.md for more details for loading data)
-    for (const user of users_sample) {
-      await userRepository.save(user);
-    }
+    registerRouters(app);
+    app.use(errorHandler);
 
-    for (const promotion of promotions_sample) {
-      await promotionRepository.save(promotion);
-    }
-
-    for (const [user, promotions] of saved_promotions_mapping) {
-      await savedPromotionRepository.addSavedPromotions(user, promotions);
-    }
-
-    // eager loading (loads everything)
-    const users: User[] = await userRepository.find({
-      relations: [
-        'uploadedPromotions',
-        'savedPromotions',
-        'savedPromotions.promotion',
-      ],
-    }); // see https://stackoverflow.com/questions/61236129/typeorm-custom-many-to-many-not-pulling-relation-data
-    const promotions: Promotion[] = await promotionRepository.find({
-      relations: ['user', 'discount'],
-    });
-    const discounts: Discount[] = await discountRepository.find({
-      relations: ['promotion'],
-    });
-
-    // lazy loading (loads only PK)
-    const usersLazy: User[] = await userRepository.find({
-      loadRelationIds: true,
-    });
-    const promotionsLazy: Promotion[] = await promotionRepository.find({
-      loadRelationIds: true,
-    });
-    const discountsLazy: Discount[] = await discountRepository.find({
-      loadRelationIds: true,
-    });
-
-    // define routes
-    app.get('/', (req, res) => res.send('Hello World'));
-    app.get('/users', async (req, res) => {
-      const body = await something();
-      res.send(body);
-    });
     app.listen(PORT, () => {
       console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
     });
@@ -87,7 +47,91 @@ createConnection()
     console.log(error);
   });
 
-async function something(): Promise<User[]> {
-  const userRepository = getRepository(User);
-  return await userRepository.find();
+function registerRouters(app: Express) {
+  app.get('/', (req, res) => res.send('Hello World'));
+
+  const promotionController = new PromotionController();
+  const promotionRouter = new PromotionRouter(promotionController);
+  app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
+
+  const enumController = new EnumController();
+  const enumRouter = new EnumRouter(enumController);
+  app.use(Route.ENUMS, enumRouter.getRoutes());
+
+  const userController = new UserController();
+  const userRouter = new UserRouter(userController);
+  app.use(Route.USERS, userRouter.getRoutes());
+}
+
+/* eslint-disable  @typescript-eslint/no-unused-vars */
+async function loadSampleData() {
+  const userRepository: UserRepository = getCustomRepository(UserRepository);
+  const promotionRepository: PromotionRepository = getCustomRepository(
+    PromotionRepository
+  );
+  const discountRepository: DiscountRepository = getCustomRepository(
+    DiscountRepository
+  );
+  const savedPromotionRepository: SavedPromotionRepository = getCustomRepository(
+    SavedPromotionRepository
+  );
+  const scheduleRepository: ScheduleRepository = getCustomRepository(
+    ScheduleRepository
+  );
+
+  // persist entities into database (see README.md for more details for loading data)
+  for (const user of users_sample) {
+    await userRepository.save(user);
+  }
+
+  for (const promotion of promotions_sample) {
+    await promotionRepository.save(promotion);
+  }
+
+  for (const [user, promotions] of saved_promotions_mapping) {
+    await savedPromotionRepository.addSavedPromotions(user, promotions);
+  }
+
+  // eager loading (loads everything)
+  const users: User[] = await userRepository.find({
+    relations: [
+      'uploadedPromotions',
+      'savedPromotions',
+      'savedPromotions.promotion',
+    ],
+  }); // see https://stackoverflow.com/questions/61236129/typeorm-custom-many-to-many-not-pulling-relation-data
+  const promotions: Promotion[] = await promotionRepository.find({
+    relations: ['user', 'discount', 'schedules'],
+  });
+  const discounts: Discount[] = await discountRepository.find({
+    relations: ['promotion'],
+  });
+  const savedPromotions: SavedPromotion[] = await savedPromotionRepository.find(
+    {
+      relations: ['user', 'promotion'],
+    }
+  );
+  const schedules: Schedule[] = await scheduleRepository.find({
+    relations: ['promotion'],
+  });
+
+  // lazy loading (loads only PK)
+  const usersLazy: User[] = await userRepository.find({
+    loadRelationIds: true,
+  });
+  const promotionsLazy: Promotion[] = await promotionRepository.find({
+    loadRelationIds: true,
+  });
+  const discountsLazy: Discount[] = await discountRepository.find({
+    loadRelationIds: true,
+  });
+  const savedPromotionsLazy: SavedPromotion[] = await savedPromotionRepository.find(
+    {
+      loadRelationIds: true,
+    }
+  );
+  const schedulesLazy: Schedule[] = await scheduleRepository.find({
+    loadRelationIds: true,
+  });
+  console.log();
 }
