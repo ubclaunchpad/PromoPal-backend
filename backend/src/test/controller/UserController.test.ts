@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm';
+import { getManager, getCustomRepository } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from '../repository/BaseRepositoryTest';
@@ -99,7 +99,7 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('PATCH /users/:id', async () => {
+  test('PATCH /users/:id', async (done) => {
     const changedProperties = {
       firstName: 'Diff firstName',
       lastName: 'Diff lastName',
@@ -107,16 +107,28 @@ describe('Unit tests for UserController', function () {
     };
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
-    await request(app)
+    request(app)
       .patch(`/users/${expectedUser.id}`)
       .send({
         ...changedProperties,
       })
-      .expect(204);
-
-    // check properties of user have changed
-    const user = await userRepository.findOneOrFail({ id: expectedUser.id });
-    expect(user).toMatchObject(changedProperties);
+      .expect(204)
+      .end(() => {
+        // check properties of user have changed
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            const userRepository = transactionalEntityManager.getCustomRepository(
+              UserRepository
+            );
+            const user = await userRepository.findOneOrFail({
+              id: expectedUser.id,
+            });
+            expect(user).toMatchObject(changedProperties);
+            done();
+          }
+        );
+      });
   });
 
   test('PATCH /users/:id - invalid request body should be caught', async (done) => {
@@ -142,63 +154,58 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id', async () => {
+  test('DELETE /users/:id', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
-    await request(app).delete(`/users/${expectedUser.id}`).expect(204);
-
-    // check that user no longer exists
-    await expect(
-      userRepository.findOneOrFail({ id: expectedUser.id })
-    ).rejects.toThrowError();
+    request(app)
+      .delete(`/users/${expectedUser.id}`)
+      .expect(204)
+      .end(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that user no longer exists
+            const userRepository = transactionalEntityManager.getCustomRepository(
+              UserRepository
+            );
+            await expect(
+              userRepository.findOneOrFail({ id: expectedUser.id })
+            ).rejects.toThrowError();
+            done();
+          }
+        );
+      });
   });
 
-  test('DELETE /users/:id - delete non-existent user should not fail', async () => {
-    const expectedUser: User = new UserFactory().generate();
-    await userRepository.save(expectedUser);
-    await userRepository.delete(expectedUser.id);
-    await request(app).delete(`/users/${expectedUser.id}`).expect(204);
-
-    // check that user no longer exists
-    await expect(
-      userRepository.findOneOrFail({ id: expectedUser.id })
-    ).rejects.toThrowError();
+  test('DELETE /users/:id - delete non-existent user should not fail', async (done) => {
+    const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
+    request(app)
+      .delete(`/users/${nonExistentUUID}`)
+      .expect(204)
+      .end(async () => {
+        // check that user no longer exists
+        await expect(
+          userRepository.findOneOrFail({ id: nonExistentUUID })
+        ).rejects.toThrowError();
+        done();
+      });
   });
 
   test('GET /users/:id/savedPromotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion2 = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion3 = new PromotionFactory().generate(
+    const promotion = new PromotionFactory().generate(
       expectedUser,
       new DiscountFactory().generate(),
       [new ScheduleFactory().generate()]
     );
 
     await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion1);
-    await promotionRepository.save(promotion2);
-    await promotionRepository.save(promotion3);
+    await promotionRepository.save(promotion);
 
     // create saved promotions
     await savedPromotionRepository.save(
-      new SavedPromotionFactory().generate(expectedUser, promotion1)
+      new SavedPromotionFactory().generate(expectedUser, promotion)
     );
-    await savedPromotionRepository.save(
-      new SavedPromotionFactory().generate(expectedUser, promotion2)
-    );
-    await savedPromotionRepository.save(
-      new SavedPromotionFactory().generate(expectedUser, promotion3)
-    );
-
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
       .expect(200)
@@ -207,11 +214,11 @@ describe('Unit tests for UserController', function () {
         const user = res.body;
         expect(user).toHaveProperty('savedPromotions');
         compareUsers(user, expectedUser);
-        expect(user.savedPromotions).toHaveLength(3);
+        expect(user.savedPromotions).toHaveLength(1);
         expect(user.savedPromotions[0]).toMatchObject({
           userId: expectedUser.id,
-          promotionId: promotion1.id,
-          promotion: { id: promotion1.id, name: promotion1.name },
+          promotionId: promotion.id,
+          promotion: { id: promotion.id, name: promotion.name },
         });
         done();
       });
@@ -259,7 +266,7 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id/savedPromotions/:pid', async () => {
+  test('DELETE /users/:id/savedPromotions/:pid', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
       expectedUser,
@@ -275,20 +282,30 @@ describe('Unit tests for UserController', function () {
     await promotionRepository.save(promotion);
     await savedPromotionRepository.save(savedPromotion);
 
-    await request(app)
+    request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .expect(204);
-
-    // check that saved promotion no longer exists
-    await expect(
-      savedPromotionRepository.findOneOrFail({
-        userId: expectedUser.id,
-        promotionId: promotion.id,
-      })
-    ).rejects.toThrowError();
+      .expect(204)
+      .end(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that saved promotion no longer exists
+            const savedPromotionRepository = transactionalEntityManager.getCustomRepository(
+              SavedPromotionRepository
+            );
+            await expect(
+              savedPromotionRepository.findOneOrFail({
+                userId: expectedUser.id,
+                promotionId: promotion.id,
+              })
+            ).rejects.toThrowError();
+            done();
+          }
+        );
+      });
   });
 
-  test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion was never saved by user', async () => {
+  test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion was never saved by user', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
       expectedUser,
@@ -299,61 +316,30 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     await promotionRepository.save(promotion);
 
-    await request(app)
+    request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .expect(204);
-
-    // check that saved promotion no longer exists
-    await expect(
-      savedPromotionRepository.findOneOrFail({
-        userId: expectedUser.id,
-        promotionId: promotion.id,
-      })
-    ).rejects.toThrowError();
+      .expect(204, done);
   });
 
-  test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async () => {
-    const expectedUser: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
+  test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async (done) => {
+    const nonExistentPid = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
+    const nonExistentUid = '65d7bc0a-6490-4e09-82e0-cb835a64e1b9';
 
-    await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion);
-    await userRepository.delete(expectedUser.id);
-    await promotionRepository.delete(promotion.id);
-
-    await request(app)
-      .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .expect(204);
-
-    // check that saved promotion no longer exists
-    await expect(
-      savedPromotionRepository.findOneOrFail({
-        userId: expectedUser.id,
-        promotionId: promotion.id,
-      })
-    ).rejects.toThrowError();
+    request(app)
+      .delete(`/users/${nonExistentUid}/savedPromotions/${nonExistentPid}`)
+      .expect(204, done);
   });
 
   test('GET /users/:id/uploadedPromotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion2 = new PromotionFactory().generate(
+    const promotion = new PromotionFactory().generate(
       expectedUser,
       new DiscountFactory().generate(),
       [new ScheduleFactory().generate()]
     );
 
     await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion1);
-    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion);
 
     request(app)
       .get(`/users/${expectedUser.id}/uploadedPromotions`)
@@ -363,11 +349,11 @@ describe('Unit tests for UserController', function () {
         const user = res.body;
         expect(user).toHaveProperty('uploadedPromotions');
         compareUsers(user, expectedUser);
-        expect(user.uploadedPromotions).toHaveLength(2);
+        expect(user.uploadedPromotions).toHaveLength(1);
         expect(user.uploadedPromotions[0]).toMatchObject({
-          id: promotion1.id,
-          name: promotion1.name,
-          description: promotion1.description,
+          id: promotion.id,
+          name: promotion.name,
+          description: promotion.description,
         });
         done();
       });

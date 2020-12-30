@@ -29,13 +29,19 @@ describe('Unit tests for PromotionController', function () {
       'CuisineType',
     ];
     const supportedEnums = [DiscountType, PromotionType, CuisineType];
+    const promises: Promise<any>[] = [];
     for (let i = 0; i < supportedEnums.length; i++) {
-      const res = await request(app)
-        .get(`/enums/${supportedEnumStrings[i]}`)
-        .expect(200);
-
-      const values = res.body;
-      expect(values).toMatchObject(Object.values(supportedEnums[i]));
+      const bodyFunction = (res: request.Response) => {
+        const values = res.body;
+        expect(values).toMatchObject(Object.values(supportedEnums[i]));
+      };
+      promises.push(
+        request(app)
+          .get(`/enums/${supportedEnumStrings[i]}`)
+          .expect(200)
+          .expect(bodyFunction)
+      );
     }
+    await Promise.all(promises);
   });
 });

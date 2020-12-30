@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, getManager } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from '../repository/BaseRepositoryTest';
@@ -69,16 +69,10 @@ describe('Unit tests for PromotionController', function () {
       new DiscountFactory().generate(DiscountType.AMOUNT),
       [new ScheduleFactory().generate()]
     );
-    const promotion3 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.OTHER),
-      [new ScheduleFactory().generate()]
-    );
 
     await userRepository.save(user);
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
-    await promotionRepository.save(promotion3);
 
     request(app)
       .get('/promotions')
@@ -225,15 +219,12 @@ describe('Unit tests for PromotionController', function () {
       [new ScheduleFactory().generate()]
     );
 
-    await userRepository.save(user);
-    await userRepository.delete(user.id);
-
     request(app)
       .post('/promotions')
       .send({
         ...promotion,
         user: undefined,
-        userId: user.id,
+        userId: '65d7bc0a-6490-4e09-82e0-cb835a64e1b8', // non-existent user UUID
       })
       .expect(400)
       .end((err, res) => {
@@ -247,7 +238,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('DELETE /promotions/:id', async () => {
+  test('DELETE /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
       user,
@@ -257,33 +248,29 @@ describe('Unit tests for PromotionController', function () {
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
-    await request(app).delete(`/promotions/${promotion.id}`).expect(204);
-
-    // check that user no longer exists
-    await expect(
-      promotionRepository.findOneOrFail({ id: promotion.id })
-    ).rejects.toThrowError();
+    request(app)
+      .delete(`/promotions/${promotion.id}`)
+      .expect(204)
+      .end(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion no longer exists
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            await expect(
+              promotionRepository.findOneOrFail({ id: promotion.id })
+            ).rejects.toThrowError();
+            done();
+          }
+        );
+      });
   });
 
-  test('DELETE /promotions/:id - deleting non-existent promotion should not fail', async () => {
-    const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
-
-    await userRepository.save(user);
-    await promotionRepository.save(promotion);
-
-    // delete the promotion
-    await promotionRepository.delete(promotion.id);
-    await request(app).delete(`/promotions/${promotion.id}`).expect(204);
-
-    // check that user no longer exists
-    await expect(
-      promotionRepository.findOneOrFail({ id: promotion.id })
-    ).rejects.toThrowError();
+  test('DELETE /promotions/:id - deleting non-existent promotion should not fail', async (done) => {
+    const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
+    request(app).delete(`/promotions/${nonExistentUUID}`).expect(204, done);
   });
 
   /**
