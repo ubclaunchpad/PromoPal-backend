@@ -14,7 +14,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react",
-    "types": ["googlemaps"]
+    "types": ["googlemaps", "../node_modules/@types", "jest", "mocha"]
   },
   "include": ["src", "index.d.ts"]
 }
