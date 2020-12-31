@@ -42,6 +42,7 @@ describe('Unit tests for SavedPromotionRepository', function () {
     
     // save the promotion
     const saved_user: User = new UserFactory().generate();
+    await userRepository.save(saved_user);
     const savedPromotion = savedPromotionRepository.create({userId: saved_user.id, promotionId: promotion.id});
     await savedPromotionRepository.save(savedPromotion);
     const savedpromotion = await savedPromotionRepository.findOne({
@@ -63,6 +64,7 @@ describe('Unit tests for SavedPromotionRepository', function () {
     await promotionRepository.save(promotion);
     // save the promotion
     const saved_user: User = new UserFactory().generate();
+    await userRepository.save(saved_user);
     await savedPromotionRepository.addSavedPromotion(saved_user, promotion);
     try {
       await savedPromotionRepository.addSavedPromotion(saved_user, promotion);
@@ -84,6 +86,7 @@ describe('Unit tests for SavedPromotionRepository', function () {
     await promotionRepository.save(promotion);
     // save the promotion
     const saved_user: User = new UserFactory().generate();
+    await userRepository.save(saved_user);
     await savedPromotionRepository.addSavedPromotion(saved_user, promotion);
     try {
       await savedPromotionRepository.deleteSavedPromotion(saved_user, promotion);
