@@ -23,7 +23,7 @@ export class UserRouter {
       this.userController.newSaved
     );
     this.userRouter.delete(
-      '/:id/savePromotions/:pid',
+      '/:id/savedPromotions/:pid',
       this.userController.deleteSaved
     );
     // uploaded promotion endpoint
