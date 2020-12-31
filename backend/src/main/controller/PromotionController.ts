@@ -60,7 +60,6 @@ export class PromotionController {
           .getAllPromotions(promotionQuery);
 
         await this.cachingService.setLatLonForPromotions(promotions);
-
         return response.send(promotions);
       });
     } catch (e) {

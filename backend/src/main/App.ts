@@ -37,7 +37,6 @@ createConnection()
     const PORT = 8000;
 
     // await loadSampleData();
-
     await registerRouters(app);
     app.use(errorHandler);
 

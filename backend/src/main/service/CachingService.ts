@@ -22,9 +22,9 @@ export class CachingService {
         JSON.stringify(value),
         (err: Error | null, data: string) => {
           if (err) {
-            reject(err);
+            return reject(err);
           }
-          resolve(true);
+          return resolve(true);
         }
       );
     });
@@ -39,9 +39,9 @@ export class CachingService {
         }
 
         if (data) {
-          resolve(JSON.parse(data));
+          return resolve(JSON.parse(data));
         } else {
-          reject('No lat/lon information for this placeID');
+          return reject('No lat/lon information for this placeID');
         }
       });
     });
@@ -63,7 +63,6 @@ export class CachingService {
       .then((locationDetails: CachingObject) => {
         promotion.lat = locationDetails.lat;
         promotion.lon = locationDetails.lon;
-        // no return value since modifying object
       })
       .catch((err) => {
         throw err;

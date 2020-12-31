@@ -115,9 +115,7 @@ const promotion1 = new Promotion(
   If you’re looking for more ways to help families with sick children you can always round up your order - even when Fries for Good is over. When you finish placing your order, simply ask to “Round Up for RMHC” at participating McDonald’s restaurants, and your order will be rounded to the nearest dollar. The difference will be donated to RMHC Canada.`,
   new Date(),
   new Date(),
-  'promo1',
-  'description1',
-  'restaurantName1'
+  'promo1'
 );
 const promotion2 = new Promotion(
   user2,
@@ -130,9 +128,7 @@ const promotion2 = new Promotion(
   'Just for a limited time happy hour deals starting at 7 pm. Drinks will be 15% off!',
   new Date(),
   new Date(),
-  'promo2',
-  'description2',
-  'restaurantName2'
+  'promo2'
 );
 const promotion3 = new Promotion(
   user2,
@@ -145,9 +141,7 @@ const promotion3 = new Promotion(
   "Every item on the menu for Wendy's is cheaper than usual. This promotion runs every Friday",
   new Date(),
   new Date(),
-  'promo3',
-  'description3',
-  'restaurantName3'
+  'promo3'
 );
 const promotion4 = new Promotion(
   user2,
@@ -160,9 +154,7 @@ const promotion4 = new Promotion(
   'Lifetime; 10% off pick up orders over $20.00; #5 - 4300 Kingsway, Burnaby',
   new Date(),
   new Date(),
-  'promo4',
-  'description4',
-  'restaurantName4'
+  'promo4'
 );
 const promotion5 = new Promotion(
   user3,
@@ -175,9 +167,7 @@ const promotion5 = new Promotion(
   'Pick-up only: Over $30 order - free spring rolls (2), over $45 order - free fried rice, over $65 order: free honey or dry garlic spareribs;; address is 7088 Kerr Street',
   new Date(),
   new Date(),
-  'promo5',
-  'description5',
-  'restaurantName5'
+  'promo5'
 );
 const promotion6 = new Promotion(
   user4,
@@ -190,9 +180,7 @@ const promotion6 = new Promotion(
   'Event starts Monday, November 30th and you can get any size McCafé premium roast coffee for $1.00.',
   new Date(),
   new Date(),
-  'promo6',
-  'description6',
-  'restaurantName6'
+  'promo6'
 );
 const promotion7 = new Promotion(
   user5,
@@ -205,9 +193,7 @@ const promotion7 = new Promotion(
   'Make a purchase using the Starbucks app from 11/23 to 11/29 at participating stores and get a coupon code loaded to your account for a free standard menu size handcrafted drink. Excludes purchases of alcohol, Starbucks Cards and Starbucks Card reloads.',
   new Date(),
   new Date(),
-  'promo7',
-  'description7',
-  'restaurantName7'
+  'promo7'
 );
 const promotion8 = new Promotion(
   user5,
@@ -220,9 +206,7 @@ const promotion8 = new Promotion(
   'For us, great burgers come first. Since 2013 we’ve been serving beef raised without artificial hormones and steroids, and now all our beef is also grass-fed. Grass-fed beef is as simple as it sounds — cattle only graze on grass and other forage, like hay. We source our grass-fed beef from select ranches in Canada, the US, Australia and New Zealand, and are committed to offering Canadians burgers they can confidently enjoy.',
   new Date(),
   new Date(),
-  'promo8',
-  'description8',
-  'restaurantName8'
+  'promo8'
 );
 const promotion9 = new Promotion(
   user6,
@@ -235,9 +219,7 @@ const promotion9 = new Promotion(
   '50% off all pizzas- Monday, Tuesday and Wednesday Only! Online Only (Code 8722).',
   new Date(),
   new Date(),
-  'promo9',
-  'description9',
-  'restaurantName9'
+  'promo9'
 );
 const promotion10 = new Promotion(
   user6,
@@ -250,9 +232,7 @@ const promotion10 = new Promotion(
   'Extended until Nov 22. Buy One Large Ground Beef Burrito and get the second Large Ground Beef Burrito for 50% off when you order online at quesada.ca or through the Quesada App. Use your exclusive promo code “GROUNDBEEF” at checkout.',
   new Date(),
   new Date(),
-  'promo10',
-  'description10',
-  'restaurantName10'
+  'promo10'
 );
 const promotion11 = new Promotion(
   user7,
@@ -265,9 +245,7 @@ const promotion11 = new Promotion(
   'Takeout 30% off at Katsuya. Applicable on all their Katsu menu. Cash Only. Only applicable at these following locations: North York, Downtown Toronto, Scarborough, Yorkdale',
   new Date(),
   new Date(),
-  'promo11',
-  'description11',
-  'restaurantName11'
+  'promo11'
 );
 const promotion12 = new Promotion(
   user7,
@@ -280,9 +258,7 @@ const promotion12 = new Promotion(
   'Every Wednesday in November you can get an 8 inch sub, bag of 7 select chips, and a bottle of AHA water',
   new Date(),
   new Date(),
-  'promo12',
-  'description12',
-  'restaurantName12'
+  'promo12'
 );
 const promotion13 = new Promotion(
   user7,
@@ -295,9 +271,7 @@ const promotion13 = new Promotion(
   'Visit https://www.swisschalet.com/en.html to get more details',
   new Date(),
   new Date(),
-  'promo13',
-  'description13',
-  'restaurantName13'
+  'promo13'
 );
 const promotion14 = new Promotion(
   user7,
@@ -310,9 +284,7 @@ const promotion14 = new Promotion(
   'The store is located at 495 Bloor St West.',
   new Date(),
   new Date(),
-  'promo14',
-  'description14',
-  'restaurantName14'
+  'promo14'
 );
 const promotion15 = new Promotion(
   user7,
@@ -325,9 +297,7 @@ const promotion15 = new Promotion(
   "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.",
   new Date(),
   new Date(),
-  'promo15',
-  'description15',
-  'restaurantName15'
+  'promo15'
 );
 const promotion16 = new Promotion(
   user7,
@@ -340,9 +310,7 @@ const promotion16 = new Promotion(
   'Get two of your favourites for the price of one during Starbucks Happy Hour on select Thursdays each month, from 2 p.m. to 7 p.m. at participating stores. Our app is the best place for Happy Hour alerts and offer redemptions. Happy Hour happens every few weeks. But it’s always a Thursday from 2 p.m. to 7 p.m. and it’s always BOGO. And don’t worry, we’ll let you know when it’s happening and add the coupons to your home screen within the app. Make sure to enable push notifications for the Starbucks app on your phone to receive Happy Hour alerts.',
   new Date(),
   new Date(),
-  'promo16',
-  'description16',
-  'restaurantName16'
+  'promo16'
 );
 
 export const discounts_sample = [

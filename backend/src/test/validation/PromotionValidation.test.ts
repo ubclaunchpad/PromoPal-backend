@@ -406,7 +406,8 @@ describe('Unit tests for PromotionValidation', function () {
       expect(e.details[7].message).toEqual(
         '"expirationDate" must be a valid date'
       );
-      expect(e.details[9].message).toEqual('"startDate" must be a valid date');
+      expect(e.details[8].message).toEqual('"startDate" must be a valid date');
+      expect(e.details[9].message).toEqual('"restaurantName" must be a string');
     }
   });
 });

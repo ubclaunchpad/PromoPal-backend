@@ -17,7 +17,8 @@ export class PromotionFactory {
     name?: string,
     description?: string,
     startDate?: Date,
-    expirationDate?: Date
+    expirationDate?: Date,
+    restaurantName?: string
   ): Promotion {
     return new Promotion(
       user,
@@ -29,7 +30,8 @@ export class PromotionFactory {
       name ?? randomString(10),
       description ?? randomString(100),
       startDate ?? new Date(),
-      expirationDate ?? new Date()
+      expirationDate ?? new Date(),
+      restaurantName ?? randomString(100)
     );
   }
 }
