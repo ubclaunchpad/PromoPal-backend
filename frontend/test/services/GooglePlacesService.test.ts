@@ -2,51 +2,36 @@ import { AxiosError } from "axios";
 import { GooglePlacesService } from "../../src/services/GooglePlacesService";
 import { RestaurantDetails } from "../../src/types/RestaurantDetails";
 import * as dotenv from "dotenv";
+import {RestaurantInfo} from "../../src/types/RestaurantInfo";
 
-/* eslint-disable  @typescript-eslint/no-unused-vars */
-// todo: remove eslint-disable once we add assertions
 describe("Unit tests for GooglePlacesService", function () {
   const googlePlacesAPI = new GooglePlacesService();
     dotenv.config();
 
   test("Search for a place using restaurant name and location, should be successful", () => {
     return googlePlacesAPI
-      .getRestaurantPlaceID("Jinya", "Robson St")
-      .then((result: string) => {
-        expect(result).toEqual("ChIJ4dRcUH5xhlQREcvYYxzhqv0");
+      .getRestaurantInfo("Jinya", "Robson St")
+      .then((result: RestaurantInfo) => {
+        expect(result).toEqual({
+            placeID: "ChIJ4dRcUH5xhlQREcvYYxzhqv0",
+            lat: 49.2803152,
+            lon: -123.1179336
+        });
       })
       .catch((error: AxiosError) => {
         fail("Did not expect to fail: " + error.message);
       });
   });
 
-  test("Search for a restaurant franchines/similiar restaurants using name and location, should be successful", () => {
+  test("Search for a restaurant franchises/similar restaurants using name and location, should be successful", () => {
     return googlePlacesAPI
-      .getRestaurantPlaceID("SURA", "Robson St")
-      .then((result: string) => {
-        expect(result).toEqual("ChIJcw7-mYdxhlQRxq9ZD4tvuH0");
-      })
-      .catch((error: AxiosError) => {
-        fail("Did not expect to fail: " + error.message);
-      });
-  });
-
-  test("Checking restaurant name and location, should return true", () => {
-    return googlePlacesAPI
-      .isCorrectRestaurantLocation("Robson St", "ChIJcw7-mYdxhlQRxq9ZD4tvuH0")
-      .then((result: boolean) => {
-        expect(result).toBeTruthy();
-      })
-      .catch((error: AxiosError) => {
-        fail("Did not expect to fail: " + error.message);
-      });
-  });
-
-  test("Checking restaurant name and location, should return false", () => {
-    return googlePlacesAPI
-      .isCorrectRestaurantLocation("Hazelbridge", "ChIJcw7-mYdxhlQRxq9ZD4tvuH0")
-      .then((result: boolean) => {
-        expect(result).toBeFalsy();
+      .getRestaurantInfo("SURA", "Robson St")
+      .then((result: RestaurantInfo) => {
+        expect(result).toEqual({
+            placeID: "ChIJcw7-mYdxhlQRxq9ZD4tvuH0",
+            lat: 49.288871,
+            lon: -123.131738
+        });
       })
       .catch((error: AxiosError) => {
         fail("Did not expect to fail: " + error.message);
@@ -96,7 +81,7 @@ describe("Unit tests for GooglePlacesService", function () {
           "map_url",
           "https://maps.google.com/?cid=77286563717231905"
         );
-        expect(restaurant).toHaveProperty("total_rating", 81);
+        expect(restaurant).toHaveProperty("total_rating", 84);
         expect(restaurant).toHaveProperty(
           "website",
           "https://www.ribandchicken.ca/"
