@@ -10,6 +10,7 @@ export interface Promotion {
   liked: boolean;
   name: string;
   restaurantName: string;
+  schedules: Schedule[];
   user: User;
 }
 
@@ -25,19 +26,19 @@ export interface User {
 export interface Discount {
   id: string;
   discountValue: number;
-  type: string;
+  discountType: string;
 }
 
 export interface PromotionImage {
   src: string;
 }
 
-export enum Category {
-  Bakery = "BAKERY",
-  BubbleTea = "BUBBLE_TEA",
-  Coffee = "COFFEE",
-  Dessert = "DESSERT",
-  FastFood = "FAST_FOOD",
+export interface Schedule {
+  id: string;
+  dayOfWeek: DayOfWeek;
+  endTime: string;
+  startTime: string;
+  isRecurring: boolean;
 }
 
 export enum CuisineType {
@@ -52,7 +53,7 @@ export enum CuisineType {
   Vietnamese = "VIETNAMESE",
 }
 
-export enum DaysOfWeek {
+export enum DayOfWeek {
   Sunday = "SUNDAY",
   Monday = "MONDAY",
   Tuesday = "TUESDAY",
@@ -73,16 +74,17 @@ export enum ServiceOptions {
 }
 
 export enum Sort {
+  Default = "DEFAULT",
   Distance = "DISTANCE",
   MostPopular = "MOST_POPULAR",
   Rating = "RATING",
 }
 
-export type FilterBy =
-  | "DEFAULT"
-  | Category
-  | CuisineType
-  | DaysOfWeek
-  | DiscountType
-  | ServiceOptions;
-export type SortBy = "DEFAULT" | Sort;
+export interface FilterOptions {
+  cuisineType: CuisineType[];
+  dayOfWeek: DayOfWeek[];
+  discountType: DiscountType[];
+  serviceOptions: ServiceOptions[];
+}
+
+export type Filter = CuisineType | DayOfWeek | DiscountType | ServiceOptions;

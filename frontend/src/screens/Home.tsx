@@ -3,9 +3,15 @@ import React, { ReactElement, useEffect, useState } from "react";
 import DropdownMenu from "../components/DropdownMenu";
 import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
-import { usePromotionsList } from "../contexts/PromotionsListContext";
-import * as Promotion from "../types/promotion";
+import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
 import { Dropdown, DropdownType } from "../types/dropdown";
+import {
+  CuisineType,
+  DayOfWeek,
+  DiscountType,
+  ServiceOptions,
+  Sort,
+} from "../types/promotion";
 
 const mapWidth = 60;
 
@@ -14,23 +20,58 @@ export default function Home(): ReactElement {
 
   const { dispatch } = usePromotionsList();
 
+  const actions = {
+    cuisineType: (cuisineType: CuisineType[]) =>
+      dispatch({
+        type: DispatchAction.UPDATE_FILTERS,
+        payload: { filter: { cuisineType } },
+      }),
+    dayOfWeek: (dayOfWeek: DayOfWeek[]) =>
+      dispatch({
+        type: DispatchAction.UPDATE_FILTERS,
+        payload: { filter: { dayOfWeek } },
+      }),
+    discountType: (discountType: DiscountType[]) =>
+      dispatch({
+        type: DispatchAction.UPDATE_FILTERS,
+        payload: { filter: { discountType } },
+      }),
+    serviceOptions: (serviceOptions: ServiceOptions[]) =>
+      dispatch({
+        type: DispatchAction.UPDATE_FILTERS,
+        payload: { filter: { serviceOptions } },
+      }),
+  };
+
   const dropdowns: Dropdown[] = [
     {
       text: "Sort",
       type: DropdownType.Radio,
       options: [
         {
-          action: () => dispatch({ sort: Promotion.Sort.Distance }),
+          action: () =>
+            dispatch({
+              type: DispatchAction.SORT,
+              payload: { sort: Sort.Distance },
+            }),
           text: "Distance",
           description: "Closest deals to you.",
         },
         {
-          action: () => dispatch({ sort: Promotion.Sort.MostPopular }),
+          action: () =>
+            dispatch({
+              type: DispatchAction.SORT,
+              payload: { sort: Sort.MostPopular },
+            }),
           text: "Most Popular",
           description: "Deals with the most number of saves from other users.",
         },
         {
-          action: () => dispatch({ sort: Promotion.Sort.Rating }),
+          action: () =>
+            dispatch({
+              type: DispatchAction.SORT,
+              payload: { sort: Sort.Rating },
+            }),
           text: "Rating",
           description: "Newest uploaded deals will be shown first.",
         },
@@ -41,11 +82,11 @@ export default function Home(): ReactElement {
       type: DropdownType.MultiSelect,
       options: [
         {
-          action: () => dispatch({ filter: Promotion.DiscountType.DollarsOff }),
+          action: actions.discountType,
           text: "$ Off",
         },
         {
-          action: () => dispatch({ filter: Promotion.DiscountType.PercentOff }),
+          action: actions.discountType,
           text: "% Off",
         },
       ],
@@ -55,39 +96,39 @@ export default function Home(): ReactElement {
       type: DropdownType.MultiSelect,
       options: [
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.American }),
+          action: actions.cuisineType,
           text: "American",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Chinese }),
+          action: actions.cuisineType,
           text: "Chinese",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.French }),
+          action: actions.cuisineType,
           text: "French",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Indian }),
+          action: actions.cuisineType,
           text: "Indian",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Italian }),
+          action: actions.cuisineType,
           text: "Italian",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Japanese }),
+          action: actions.cuisineType,
           text: "Japanese",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Korean }),
+          action: actions.cuisineType,
           text: "Korean",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Mexican }),
+          action: actions.cuisineType,
           text: "Mexican",
         },
         {
-          action: () => dispatch({ filter: Promotion.CuisineType.Vietnamese }),
+          action: actions.cuisineType,
           text: "Vietnamese",
         },
       ],
@@ -97,31 +138,31 @@ export default function Home(): ReactElement {
       type: DropdownType.MultiSelect,
       options: [
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Sunday }),
+          action: actions.dayOfWeek,
           text: "Sunday",
         },
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Monday }),
+          action: actions.dayOfWeek,
           text: "Monday",
         },
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Tuesday }),
+          action: actions.dayOfWeek,
           text: "Tuesday",
         },
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Wednesday }),
+          action: actions.dayOfWeek,
           text: "Wednesday",
         },
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Thursday }),
+          action: actions.dayOfWeek,
           text: "Thursday",
         },
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Friday }),
+          action: actions.dayOfWeek,
           text: "Friday",
         },
         {
-          action: () => dispatch({ filter: Promotion.DaysOfWeek.Saturday }),
+          action: actions.dayOfWeek,
           text: "Saturday",
         },
       ],
@@ -131,11 +172,11 @@ export default function Home(): ReactElement {
       type: DropdownType.MultiSelect,
       options: [
         {
-          action: () => dispatch({ filter: Promotion.ServiceOptions.DineIn }),
+          action: actions.serviceOptions,
           text: "Dine-In",
         },
         {
-          action: () => dispatch({ filter: Promotion.ServiceOptions.TakeOut }),
+          action: actions.serviceOptions,
           text: "Take-Out",
         },
       ],

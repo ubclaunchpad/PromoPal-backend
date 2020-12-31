@@ -4,8 +4,10 @@ export interface Dropdown {
   options: DropdownOption[];
 }
 
+export type DropdownAction = (...args: any[]) => void;
+
 export interface DropdownOption {
-  action: () => void;
+  action: DropdownAction;
   text: string;
   description?: string;
 }

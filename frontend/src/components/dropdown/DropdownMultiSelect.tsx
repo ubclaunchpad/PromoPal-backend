@@ -7,7 +7,7 @@ import React, {
 import { Checkbox, Col, Dropdown as DD, Row } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-import { Dropdown as DropdownType } from "../../types/dropdown";
+import { Dropdown as DropdownType, DropdownAction } from "../../types/dropdown";
 import "./Dropdown.css";
 
 const styles: { [identifier: string]: CSSProperties } = {
@@ -72,8 +72,7 @@ export default function DropdownMultiSelect({
    * Adds or removes key to selectedKeys array and performs the given action
    */
   const onClickHandler = useCallback(
-    (action: () => void, text: string) => {
-      // Update the selectedKeys array
+    (action: DropdownAction, text: string) => {
       let newSelectedKeys = [];
       const textIndex = selectedKeys.indexOf(text);
       if (textIndex >= 0) {
@@ -83,9 +82,7 @@ export default function DropdownMultiSelect({
         newSelectedKeys = [...selectedKeys, text];
       }
       changeSelectedKeys(newSelectedKeys);
-
-      // Run the given action
-      action();
+      action(newSelectedKeys);
     },
     [selectedKeys]
   );

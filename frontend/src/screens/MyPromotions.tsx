@@ -6,7 +6,7 @@ import PromotionCard from "../components/promotion/PromotionCard";
 import UploadPromoButton from "../components/button/UploadPromoButton";
 
 import { Dropdown, DropdownType } from "../types/dropdown";
-import { Promotion, User } from "../types/promotion";
+import { DayOfWeek, Promotion, Schedule, User } from "../types/promotion";
 
 const dropdowns: Dropdown[] = [
   {
@@ -71,6 +71,23 @@ const user: User = {
   username: "user",
 };
 
+const schedules: Schedule[] = [
+  {
+    id: "s1",
+    dayOfWeek: DayOfWeek.Monday,
+    endTime: "11:00:00",
+    startTime: "08:00:00",
+    isRecurring: false,
+  },
+  {
+    id: "s2",
+    dayOfWeek: DayOfWeek.Friday,
+    endTime: "20:00:00",
+    startTime: "17:00:00",
+    isRecurring: true,
+  },
+];
+
 const promotions: Promotion[] = [
   {
     id: "1",
@@ -81,13 +98,14 @@ const promotions: Promotion[] = [
     discount: {
       id: "d1",
       discountValue: 5,
-      type: "$",
+      discountType: "$",
     },
     expirationDate: "Nov 11, 2020",
     liked: false,
     image: { src: "" },
     name: "Happy Hour 2pm-4pm",
     restaurantName: "Starbucks",
+    schedules,
     user,
   },
   {
@@ -99,13 +117,14 @@ const promotions: Promotion[] = [
     discount: {
       id: "d2",
       discountValue: 2,
-      type: "$",
+      discountType: "$",
     },
     expirationDate: "Nov 20, 2020",
     liked: false,
     image: { src: "" },
     name: "$2 off Sandwiches",
     restaurantName: "Grandma Loves You",
+    schedules,
     user,
   },
   {
@@ -118,13 +137,14 @@ const promotions: Promotion[] = [
     discount: {
       id: "d2",
       discountValue: 2,
-      type: "$",
+      discountType: "$",
     },
     expirationDate: "Jan 1, 2020",
     liked: false,
     image: { src: "" },
     name: "10% off Breakfast",
     restaurantName: "Elephant Grind Coffee House",
+    schedules,
     user,
   },
 ];

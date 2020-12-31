@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
 
 import PromotionCard from "../components/promotion/PromotionCard";
-import { usePromotionsList } from "../contexts/PromotionsListContext";
+import { usePromotionsList } from "../contexts/PromotionsList";
 import { filterPromotions, sortPromotions } from "../services/promotions";
 import { Promotion } from "../types/promotion";
 
@@ -29,8 +29,8 @@ export default function PromotionList({
   };
 
   useEffect(() => {
-    const { filter, sort, promotions } = state;
-    const filteredPromotions = filterPromotions(promotions, filter);
+    const { filter, sort, data } = state;
+    const filteredPromotions = filterPromotions(data, filter);
     const sortedPromotions = sortPromotions(filteredPromotions, sort);
     setPromotions(sortedPromotions);
   }, [state]);

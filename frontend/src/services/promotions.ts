@@ -1,98 +1,119 @@
-import {
-  SortBy,
-  FilterBy,
-  Category,
-  CuisineType,
-  DaysOfWeek,
-  DiscountType,
-  ServiceOptions,
-  Sort,
-} from "../types/promotion";
-import { Promotion } from "../types/promotion";
-import { enumContainsValue } from "../utils/enum";
+import { FilterOptions, Sort, Promotion } from "../types/promotion";
 
-export async function get(): Promise<Promotion[]> {
+/**
+ * Fetches list of promotions and sets them on this instance.
+ * If an error occurs, an empty list will be set on this instance.
+ */
+export async function getPromotions(): Promise<Promotion[]> {
   return fetch("/promotions")
     .then((res: Response) => res.json())
+    .then((promotions: Promotion[]) => promotions)
     .catch(() => []);
 }
 
-export function sortPromotions(
-  promotions: Promotion[],
-  sort: SortBy
-): Promotion[] {
-  switch (sort) {
-    case Sort.Distance:
-      return sortDistance(promotions);
-    case Sort.MostPopular:
-      return sortPopularity(promotions);
-    case Sort.Rating:
-      return sortRating(promotions);
-    default:
-      return promotions;
-  }
-}
-
-function sortDistance(promotions: Promotion[]) {
-  // TODO: sort based on restaurant distance
-  return promotions;
-}
-
-function sortPopularity(promotions: Promotion[]) {
-  // TODO: sort based on number of saves
-  return promotions;
-}
-
-function sortRating(promotions: Promotion[]) {
-  // TODO: sort based on number of ratings
-  return promotions;
-}
-
+/**
+ * Returns the subset of this instance's promotions which satisfy at least one filter key in the `options` parameter.
+ *
+ * @param arr - The list of promotions to filter through
+ * @param options - An object specifying the keys and the values to filter the promotions by
+ */
 export function filterPromotions(
-  promotions: Promotion[],
-  filter: FilterBy
+  arr: Promotion[],
+  filters: FilterOptions
 ): Promotion[] {
-  if (enumContainsValue(Category, filter)) {
-    return filterCategory(promotions, filter as Category);
-  } else if (enumContainsValue(CuisineType, filter)) {
-    return filterCuisineType(promotions, filter as CuisineType);
-  } else if (enumContainsValue(DaysOfWeek, filter)) {
-    return filterDaysOfWeek(promotions, filter as DaysOfWeek);
-  } else if (enumContainsValue(DiscountType, filter)) {
-    return filterDiscountType(promotions, filter as DiscountType);
-  } else if (enumContainsValue(ServiceOptions, filter)) {
-    return filterServiceOptions(promotions, filter as ServiceOptions);
+  const { cuisineType, dayOfWeek, discountType, serviceOptions } = filters;
+
+  let promotions = [...arr];
+  if (filters.cuisineType.length > 0) {
+    promotions = filterCuisineType(promotions, cuisineType);
+  }
+  if (filters.dayOfWeek.length > 0) {
+    promotions = filterDayOfWeek(promotions, dayOfWeek);
+  }
+  if (filters.discountType.length > 0) {
+    promotions = filterDiscountType(promotions, discountType);
+  }
+  if (filters.serviceOptions.length > 0) {
+    promotions = filterServiceOptions(promotions, serviceOptions);
   }
   return promotions;
 }
 
-function filterCategory(promotions: Promotion[], filter: Category) {
-  return promotions.filter(
-    ({ category }) => category.replace("\\s", "_").toUpperCase() === filter
-  );
+function filterCuisineType(promotions: Promotion[], filters: string[]) {
+  let result: Promotion[] = [];
+  for (const key of filters) {
+    const filtered = promotions.filter(({ cuisine }) => {
+      const sanitized = cuisine.replace("\\s", "_");
+      return sanitized.toUpperCase() === key.toUpperCase();
+    });
+    result = [...result, ...filtered];
+  }
+  return result;
 }
 
-function filterCuisineType(promotions: Promotion[], filter: CuisineType) {
-  return promotions.filter(
-    ({ cuisine }) => cuisine.replace("\\s", "_").toUpperCase() === filter
-  );
+function filterDayOfWeek(promotions: Promotion[], filters: string[]) {
+  let result: Promotion[] = [];
+  for (const key of filters) {
+    const filtered = promotions.filter(({ schedules }) => {
+      return schedules.find(({ dayOfWeek }) => dayOfWeek === key);
+    });
+    result = [...result, ...filtered];
+  }
+  return result;
 }
 
-function filterDaysOfWeek(promotions: Promotion[], filter: DaysOfWeek) {
-  // TODO: filter based on promotion schedule
+function filterDiscountType(promotions: Promotion[], filters: string[]) {
+  let result: Promotion[] = [];
+  for (const key of filters) {
+    const filtered = promotions.filter((promotion) => {
+      const {
+        discount: { discountType },
+      } = promotion;
+      return discountType === key.substring(0, 1);
+    });
+    result = [...result, ...filtered];
+  }
+  return result;
+}
+
+// TODO: filter based on restaurant's service options
+function filterServiceOptions(promotions: Promotion[], filters: string[]) {
   return promotions;
 }
 
-function filterDiscountType(promotions: Promotion[], filter: DiscountType) {
-  switch (filter) {
-    case DiscountType.DollarsOff:
-      return promotions.filter(({ discount }) => discount.type === "$");
-    case DiscountType.PercentOff:
-      return promotions.filter(({ discount }) => discount.type === "%");
+/**
+ * Sorts the list of promotions set on this instance by the given key.
+ *
+ * @param arr - The list of promotions to sort
+ * @param key - The key which to sort the promotions by
+ */
+export function sortPromotions(arr: Promotion[], key: Sort): Promotion[] {
+  let promotions = [...arr];
+  switch (key) {
+    case Sort.Distance:
+      promotions = sortByDistance(promotions);
+      break;
+    case Sort.MostPopular:
+      promotions = sortByPopularity(promotions);
+      break;
+    case Sort.Rating:
+      promotions = sortByRating(promotions);
+      break;
   }
+  return promotions;
 }
 
-function filterServiceOptions(promotions: Promotion[], filter: ServiceOptions) {
-  // TODO: filter based on restaurant's service options
+// TODO: sort based on restaurant distance
+function sortByDistance(promotions: Promotion[]) {
+  return promotions;
+}
+
+// TODO: sort based on number of saves
+function sortByPopularity(promotions: Promotion[]) {
+  return promotions;
+}
+
+// TODO: sort based on number of ratings
+function sortByRating(promotions: Promotion[]) {
   return promotions;
 }

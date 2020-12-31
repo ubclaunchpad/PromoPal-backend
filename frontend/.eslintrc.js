@@ -11,5 +11,6 @@ module.exports = {
     quotes: ["error", "double"],
     "no-console": "error",
     "no-debugger": "error",
+    "@typescript-eslint/no-explicit-any": ["error", { ignoreRestArgs: true }],
   },
 };

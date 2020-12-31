@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactElement, useCallback } from "react";
 import { Col, Row, Typography } from "antd";
 
 import Dropdown from "./dropdown/Dropdown";
-import { usePromotionsList } from "../contexts/PromotionsListContext";
+import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
 import { Dropdown as DropdownType } from "../types/dropdown";
 
 const { Text } = Typography;
@@ -53,13 +53,13 @@ export default function DropdownMenu({
    * Set promotion list filter and sort to default
    */
   const handleClearAll = useCallback(() => {
-    dispatch({ filter: "DEFAULT", sort: "DEFAULT" });
+    dispatch({ type: DispatchAction.RESET_FILTERS });
   }, [dispatch]);
 
   return (
     <Row id="dropdown-menu" style={dropdownStyle}>
-      {dropdowns.map((dropdown) => (
-        <Col>
+      {dropdowns.map((dropdown, index) => (
+        <Col key={index}>
           <Dropdown {...dropdown} />
         </Col>
       ))}
