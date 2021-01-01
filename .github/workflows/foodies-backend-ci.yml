@@ -115,6 +115,17 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           # By mapping ports, we are running the job directly on the host machine (vs running job in container)
           - 5432:5432
+      redis:
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
 
     steps:
       - uses: actions/checkout@v2
@@ -149,6 +160,11 @@ jobs:
         env:
           # note password is named differently than above when used for psql
           PGPASSWORD: postgres
+
+      - name: Connect to Redis
+        env:
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
 
         # Runs integration tests
       - name: Integration Tests

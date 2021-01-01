@@ -164,7 +164,7 @@ export class App {
   async createRedisClient() {
     // todo: change to env later
     return redis.createClient({
-      host: 'redis-server',
+      host: 'localhost',
       port: 6379,
     });
   }
