@@ -7,13 +7,14 @@ import {
   ServiceOptions,
   Sort,
 } from "../types/promotion";
+import Routes from "../utils/routes";
 
 /**
  * Fetches list of promotions and sets them on this instance.
  * If an error occurs, an empty list will be set on this instance.
  */
 export async function getPromotions(): Promise<Promotion[]> {
-  return fetch("/promotions")
+  return fetch(Routes.PROMOTIONS)
     .then((res: Response) => res.json())
     .then((promotions: Promotion[]) => promotions)
     .catch(() => []);

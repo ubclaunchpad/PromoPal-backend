@@ -2,7 +2,7 @@ import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
 
 import PromotionCard from "../components/promotion/PromotionCard";
 import { usePromotionsList } from "../contexts/PromotionsList";
-import { filterPromotions, sortPromotions } from "../services/promotions";
+import { filterPromotions, sortPromotions } from "../services/PromotionService";
 import { Promotion } from "../types/promotion";
 
 const styles: { [identifier: string]: CSSProperties } = {
