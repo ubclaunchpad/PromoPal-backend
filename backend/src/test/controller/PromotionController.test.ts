@@ -5,26 +5,30 @@ import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
-import { registerTestApplication } from './BaseController';
+import { connectRedisClient, registerTestApplication } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
+import { RedisClient } from 'redis';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
+  let redisClient: RedisClient;
 
   beforeAll(async () => {
     await connection.create();
-    app = registerTestApplication();
+    redisClient = await connectRedisClient();
+    app = await registerTestApplication(redisClient);
   });
 
-  afterAll(async () => {
+  afterAll(async (done) => {
     await connection.close();
+    redisClient.quit();
   });
 
   beforeEach(async () => {
@@ -40,9 +44,16 @@ describe('Unit tests for PromotionController', function () {
     const promotion = new PromotionFactory().generate(user, discount, [
       schedule,
     ]);
+    promotion.lat = 234.12;
+    promotion.lon = -12.12;
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
+    await redisClient.setex(
+      promotion.placeId,
+      2592000,
+      JSON.stringify({ lat: promotion.lat, lon: promotion.lon })
+    );
 
     request(app)
       .get('/promotions')
@@ -73,6 +84,22 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
+
+    promotion1.lat = 234.12;
+    promotion1.lon = -12.12;
+    promotion2.lat = 34.12;
+    promotion2.lon = -12.12;
+
+    await redisClient.setex(
+      promotion1.placeId,
+      2592000,
+      JSON.stringify({ lat: promotion1.lat, lon: promotion1.lon })
+    );
+    await redisClient.setex(
+      promotion2.placeId,
+      2592000,
+      JSON.stringify({ lat: promotion2.lat, lon: promotion2.lon })
+    );
 
     request(app)
       .get('/promotions')
@@ -119,6 +146,29 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion2);
     await promotionRepository.save(promotion3);
 
+    promotion1.lat = 23.12;
+    promotion1.lon = -11.12;
+    promotion2.lat = 54.12;
+    promotion2.lon = -12.12;
+    promotion3.lat = 13.12;
+    promotion3.lon = 102.12;
+
+    await redisClient.setex(
+      promotion1.placeId,
+      2592000,
+      JSON.stringify({ lat: promotion1.lat, lon: promotion1.lon })
+    );
+    await redisClient.setex(
+      promotion2.placeId,
+      2592000,
+      JSON.stringify({ lat: promotion2.lat, lon: promotion2.lon })
+    );
+    await redisClient.setex(
+      promotion3.placeId,
+      2592000,
+      JSON.stringify({ lat: promotion3.lat, lon: promotion3.lon })
+    );
+
     request(app)
       .get('/promotions')
       .query({
@@ -139,6 +189,38 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
+  test('POST /promotions then GET /promotions/:id', async (done) => {
+    const user1: User = new UserFactory().generate();
+    const expectedPromotion1 = new PromotionFactory().generate(
+      user1,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+    expectedPromotion1.lat = -34.5;
+    expectedPromotion1.lon = 564.321;
+
+    await userRepository.save(user1);
+    request(app)
+      .post('/promotions')
+      .send({ ...expectedPromotion1, user: undefined, userId: user1.id })
+      .end((err, res) => {
+        if (err) return done(err);
+        done();
+      });
+
+    await promotionRepository.save(expectedPromotion1);
+
+    request(app)
+      .get(`/promotions/${expectedPromotion1.id}`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotion = res.body;
+        comparePromotions(promotion, expectedPromotion1);
+        done();
+      });
+  });
+
   test('GET /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
     const discount = new DiscountFactory().generate();
@@ -149,6 +231,14 @@ describe('Unit tests for PromotionController', function () {
 
     await userRepository.save(user);
     await promotionRepository.save(expectedPromotion);
+
+    expectedPromotion.lat = 234.12;
+    expectedPromotion.lon = -12.12;
+    await redisClient.setex(
+      expectedPromotion.placeId,
+      2592000,
+      JSON.stringify({ lat: expectedPromotion.lat, lon: expectedPromotion.lon })
+    );
 
     request(app)
       .get(`/promotions/${expectedPromotion.id}`)
@@ -168,6 +258,8 @@ describe('Unit tests for PromotionController', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()]
     );
+    expectedPromotion.lat = -34.5;
+    expectedPromotion.lon = 564.321;
 
     await userRepository.save(user);
     request(app)
@@ -203,10 +295,12 @@ describe('Unit tests for PromotionController', function () {
       .end((err, res) => {
         const frontEndErrorObject = res.body;
         expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
-        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message).toHaveLength(3);
         expect(frontEndErrorObject.message[0]).toContain(
           '"cuisine" must be one of'
         );
+        expect(frontEndErrorObject.message[1]).toContain('"lat" is required');
+        expect(frontEndErrorObject.message[2]).toContain('"lon" is required');
         done();
       });
   });
@@ -218,6 +312,8 @@ describe('Unit tests for PromotionController', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()]
     );
+    promotion.lat = -34.5;
+    promotion.lon = 456.9;
 
     request(app)
       .post('/promotions')
@@ -234,6 +330,29 @@ describe('Unit tests for PromotionController', function () {
         expect(frontEndErrorObject.message[0]).toContain(
           'Could not find any entity of type "User"'
         );
+        done();
+      });
+  });
+
+  test('POST /promotions/ - should not be able to add promotion if lat/lon do not exist', async (done) => {
+    const user: User = new UserFactory().generate();
+    const expectedPromotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    request(app)
+      .post('/promotions')
+      .send({ ...expectedPromotion, user: undefined, userId: user.id })
+      .expect(201)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
+        expect(frontEndErrorObject.message).toHaveLength(2);
+        expect(frontEndErrorObject.message[0]).toContain('"lat" is required');
+        expect(frontEndErrorObject.message[1]).toContain('"lon" is required');
         done();
       });
   });

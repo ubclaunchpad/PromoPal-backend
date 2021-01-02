@@ -24,7 +24,7 @@ import { EnumRouter } from './route/EnumRouter';
 import { ScheduleRepository } from './repository/ScheduleRepository';
 import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
-import redis, { RedisClient } from 'redis';
+import redis, { RedisClient, RedisError } from 'redis';
 import { CachingService } from './service/CachingService';
 
 /* eslint-disable  no-console */
@@ -33,11 +33,12 @@ import { CachingService } from './service/CachingService';
 export class App {
   async init(): Promise<void> {
     try {
-      const connection = await createConnection();
+      await createConnection();
       const app = express();
 
       // await this.loadSampleData();
-      this.registerHandlersAndRoutes(app);
+      const redisClient = await this.createRedisClient();
+      await this.registerHandlersAndRoutes(app, redisClient);
 
       const PORT = 8000;
       app.listen(PORT, () => {
@@ -54,7 +55,7 @@ export class App {
   //   redisClient.on('connect', function () {
   //     console.log('Connected to Redis');
   //   });
-  //   redisClient.on('error', function (err) {
+  //   redisClient.on('error', function (err: RedisError) {
   //     console.log('Redis error: ' + err);
   //   });
   // }
@@ -62,12 +63,14 @@ export class App {
   /**
    * Note: make sure any changes in handlers/routes/controllers will also appear for test/controller/BaseController.ts
    * */
-  async registerHandlersAndRoutes(app: Express): Promise<void> {
+  async registerHandlersAndRoutes(
+    app: Express,
+    redisClient: RedisClient
+  ): Promise<void> {
     app.use(bodyParser.json());
 
     app.get('/', (req, res) => res.send('Hello World'));
 
-    const redisClient = await this.createRedisClient();
     // this.handleRedisConnection(redisClient);
 
     const cachingService = new CachingService(redisClient);
@@ -158,13 +161,12 @@ export class App {
     const schedulesLazy: Schedule[] = await scheduleRepository.find({
       loadRelationIds: true,
     });
-    console.log();
   }
 
   async createRedisClient() {
     // todo: change to env later
     return redis.createClient({
-      host: 'localhost',
+      host: 'redis-server',
       port: 6379,
     });
   }

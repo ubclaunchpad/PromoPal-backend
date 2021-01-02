@@ -41,7 +41,7 @@ export class CachingService {
         if (data) {
           return resolve(JSON.parse(data));
         } else {
-          return reject('No lat/lon information for this placeID');
+          return resolve(JSON.parse(''));
         }
       });
     });
@@ -51,7 +51,7 @@ export class CachingService {
     return this.client;
   }
 
-  async setLatLonForPromotions(promotions: Promotion[]) {
+  async setLatLonForPromotions(promotions: Promotion[]): Promise<void[]> {
     const promises = promotions.map((promotion: Promotion) =>
       this.setLatLonForPromotion(promotion)
     );

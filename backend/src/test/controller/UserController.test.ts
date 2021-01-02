@@ -5,27 +5,31 @@ import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
-import { registerTestApplication } from './BaseController';
+import { connectRedisClient, registerTestApplication } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
+import { RedisClient } from 'redis';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
+  let redisClient: RedisClient;
 
   beforeAll(async () => {
     await connection.create();
-    app = registerTestApplication();
+    redisClient = await connectRedisClient();
+    app = await registerTestApplication(redisClient);
   });
 
   afterAll(async () => {
     await connection.close();
+    redisClient.quit();
   });
 
   beforeEach(async () => {
