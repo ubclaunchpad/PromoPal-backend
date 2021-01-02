@@ -1,4 +1,12 @@
-import { FilterOptions, Sort, Promotion } from "../types/promotion";
+import {
+  CuisineType,
+  DiscountType,
+  DayOfWeek,
+  FilterOptions,
+  Promotion,
+  ServiceOptions,
+  Sort,
+} from "../types/promotion";
 
 /**
  * Fetches list of promotions and sets them on this instance.
@@ -15,7 +23,7 @@ export async function getPromotions(): Promise<Promotion[]> {
  * Returns the subset of this instance's promotions which satisfy at least one filter key in the `options` parameter.
  *
  * @param arr - The list of promotions to filter through
- * @param options - An object specifying the keys and the values to filter the promotions by
+ * @param filters - An object specifying the keys and the values to filter the promotions by
  */
 export function filterPromotions(
   arr: Promotion[],
@@ -39,7 +47,7 @@ export function filterPromotions(
   return promotions;
 }
 
-function filterCuisineType(promotions: Promotion[], filters: string[]) {
+function filterCuisineType(promotions: Promotion[], filters: CuisineType[]) {
   let result: Promotion[] = [];
   for (const key of filters) {
     const filtered = promotions.filter(({ cuisine }) => {
@@ -51,7 +59,7 @@ function filterCuisineType(promotions: Promotion[], filters: string[]) {
   return result;
 }
 
-function filterDayOfWeek(promotions: Promotion[], filters: string[]) {
+function filterDayOfWeek(promotions: Promotion[], filters: DayOfWeek[]) {
   let result: Promotion[] = [];
   for (const key of filters) {
     const filtered = promotions.filter(({ schedules }) => {
@@ -62,7 +70,7 @@ function filterDayOfWeek(promotions: Promotion[], filters: string[]) {
   return result;
 }
 
-function filterDiscountType(promotions: Promotion[], filters: string[]) {
+function filterDiscountType(promotions: Promotion[], filters: DiscountType[]) {
   let result: Promotion[] = [];
   for (const key of filters) {
     const filtered = promotions.filter((promotion) => {
@@ -76,8 +84,11 @@ function filterDiscountType(promotions: Promotion[], filters: string[]) {
   return result;
 }
 
-// TODO: filter based on restaurant's service options
-function filterServiceOptions(promotions: Promotion[], filters: string[]) {
+// TODO: see https://github.com/ubclaunchpad/foodies/issues/100
+function filterServiceOptions(
+  promotions: Promotion[],
+  filters: ServiceOptions[]
+) {
   return promotions;
 }
 
@@ -103,17 +114,17 @@ export function sortPromotions(arr: Promotion[], key: Sort): Promotion[] {
   return promotions;
 }
 
-// TODO: sort based on restaurant distance
+// TODO: see https://github.com/ubclaunchpad/foodies/issues/99
 function sortByDistance(promotions: Promotion[]) {
   return promotions;
 }
 
-// TODO: sort based on number of saves
+// TODO: see https://github.com/ubclaunchpad/foodies/issues/99
 function sortByPopularity(promotions: Promotion[]) {
   return promotions;
 }
 
-// TODO: sort based on number of ratings
+// TODO: see https://github.com/ubclaunchpad/foodies/issues/99
 function sortByRating(promotions: Promotion[]) {
   return promotions;
 }
