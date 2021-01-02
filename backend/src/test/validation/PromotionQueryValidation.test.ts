@@ -2,6 +2,7 @@ import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionQueryValidation } from '../../main/validation/PromotionQueryValidation';
 import { CuisineType } from '../../main/data/CuisineType';
 import { PromotionType } from '../../main/data/PromotionType';
+import { Day } from '../../main/data/Day';
 
 describe('Unit tests for PromotionQueryValidation', function () {
   // mark these types as any so that we can make them improper
@@ -14,6 +15,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       discountType: DiscountType.AMOUNT,
       discountValue: 2,
       expirationDate: '2020-11-09 03:39:40.395843',
+      dayOfWeek: Day.THURSDAY,
       searchQuery: 'promo',
     };
   });
@@ -161,6 +163,32 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
+  test('Should fail if given incorrect dayOfWeek', async () => {
+    try {
+      promotionQueryDTO.dayOfWeek = 'Invalid Day Of Week';
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual(
+        '"dayOfWeek" must be one of [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday]'
+      );
+    }
+  });
+
+  test('Should be valid if given correct dayOfWeek', async () => {
+    try {
+      promotionQueryDTO.dayOfWeek = Day.MONDAY;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+    } catch (e) {
+      fail('Should not have failed');
+    }
+  });
+
   test('Should fail if any fields are the wrong type', async () => {
     try {
       promotionQueryDTO = {
@@ -169,6 +197,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
         discountType: false,
         discountValue: 'hi',
         expirationDate: true,
+        dayOfWeek: 123,
         searchQuery: 1,
       };
       await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
@@ -176,7 +205,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(8);
+      expect(e.details.length).toEqual(10);
       expect(e.details[0].message).toEqual('"searchQuery" must be a string');
       expect(e.details[1].message).toEqual(
         '"discountType" must be one of [%, $, Other]'
@@ -189,6 +218,8 @@ describe('Unit tests for PromotionQueryValidation', function () {
       expect(e.details[7].message).toEqual(
         '"expirationDate" must be a valid date'
       );
+      expect(e.details[8].message).toContain('"dayOfWeek" must be one of');
+      expect(e.details[9].message).toEqual('"dayOfWeek" must be a string');
     }
   });
 });
