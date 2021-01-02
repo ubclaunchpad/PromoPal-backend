@@ -1,6 +1,5 @@
 import { CachingService } from '../../main/service/CachingService';
 import { CachingObject } from '../../main/data/CachingObject';
-import redis from 'redis';
 import { Promotion } from '../../main/entity/Promotion';
 import { PromotionType } from '../../main/data/PromotionType';
 import { CuisineType } from '../../main/data/CuisineType';
@@ -9,17 +8,14 @@ import { DiscountType } from '../../main/data/DiscountType';
 import { Schedule } from '../../main/entity/Schedule';
 import { Day } from '../../main/data/Day';
 import { User } from '../../main/entity/User';
+import redisMock from 'redis-mock';
 
-// NOTE: RUNNING THESE TESTS WILL MODIFY THE ASSOCIATED REDIS SERVER!
 describe('tests for redis cache', function () {
   let cachingService: CachingService;
 
   beforeEach(() => {
-    const redisClient = redis.createClient({
-      host: 'localhost',
-      port: 6379,
-    });
-    cachingService = new CachingService(redisClient);
+    const redisMockClient = redisMock.createClient();
+    cachingService = new CachingService(redisMockClient);
   });
 
   afterEach(() => {

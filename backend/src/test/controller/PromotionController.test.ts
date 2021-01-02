@@ -12,7 +12,7 @@ import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
-import { RedisClient } from 'redis';
+import { RedisClient } from 'redis-mock';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -189,38 +189,6 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('POST /promotions then GET /promotions/:id', async (done) => {
-    const user1: User = new UserFactory().generate();
-    const expectedPromotion1 = new PromotionFactory().generate(
-      user1,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
-    expectedPromotion1.lat = -34.5;
-    expectedPromotion1.lon = 564.321;
-
-    await userRepository.save(user1);
-    request(app)
-      .post('/promotions')
-      .send({ ...expectedPromotion1, user: undefined, userId: user1.id })
-      .end((err, res) => {
-        if (err) return done(err);
-        done();
-      });
-
-    await promotionRepository.save(expectedPromotion1);
-
-    request(app)
-      .get(`/promotions/${expectedPromotion1.id}`)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        const promotion = res.body;
-        comparePromotions(promotion, expectedPromotion1);
-        done();
-      });
-  });
-
   test('GET /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
     const discount = new DiscountFactory().generate();
@@ -270,6 +238,38 @@ describe('Unit tests for PromotionController', function () {
         if (err) return done(err);
         const promotion = res.body;
         comparePromotions(promotion, expectedPromotion);
+        done();
+      });
+  });
+
+  test('POST /promotions then GET /promotions/:id', async (done) => {
+    const user1: User = new UserFactory().generate();
+    const expectedPromotion1 = new PromotionFactory().generate(
+      user1,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+    expectedPromotion1.lat = -34.5;
+    expectedPromotion1.lon = 564.321;
+
+    await userRepository.save(user1);
+    request(app)
+      .post('/promotions')
+      .send({ ...expectedPromotion1, user: undefined, userId: user1.id })
+      .end((err, res) => {
+        if (err) return done(err);
+        done();
+      });
+
+    await promotionRepository.save(expectedPromotion1);
+
+    request(app)
+      .get(`/promotions/${expectedPromotion1.id}`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotion = res.body;
+        comparePromotions(promotion, expectedPromotion1);
         done();
       });
   });

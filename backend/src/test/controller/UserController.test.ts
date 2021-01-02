@@ -12,7 +12,7 @@ import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
-import { RedisClient } from 'redis';
+import { RedisClient } from 'redis-mock';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;

@@ -1,6 +1,6 @@
 import express, { Express } from 'express';
 import { App } from '../../main/App';
-import redis, { RedisClient } from 'redis';
+import redisMock, { RedisClient } from 'redis-mock';
 
 /**
  * Creates an express app and registers all handlers and routes
@@ -16,8 +16,6 @@ export const registerTestApplication = async (
 };
 
 export const connectRedisClient = async (): Promise<RedisClient> => {
-  return redis.createClient({
-    host: 'localhost',
-    port: 6379,
-  });
+  // see https://www.npmjs.com/package/redis-mock
+  return redisMock.createClient();
 };
