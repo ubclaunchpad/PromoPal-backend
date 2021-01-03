@@ -16,6 +16,14 @@ export class PromotionRouter {
       '/:id',
       this.promotionController.deletePromotion
     );
+    this.promotionRouter.post(
+      '/:id/upVote',
+      this.promotionController.upVotePromotion
+    );
+    this.promotionRouter.post(
+      '/:id/downVote',
+      this.promotionController.downVotePromotion
+    );
     return this.promotionRouter;
   }
 }
