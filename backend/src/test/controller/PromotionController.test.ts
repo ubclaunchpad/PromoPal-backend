@@ -251,7 +251,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .delete(`/promotions/${promotion.id}`)
       .expect(204)
-      .end(() => {
+      .then(() => {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
@@ -287,8 +287,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .post(`/promotions/${promotion.id}/upVote`)
       .expect(204)
-      .end((err) => {
-        if (err) return done(err);
+      .then(() => {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
@@ -320,8 +319,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .post(`/promotions/${promotion.id}/downVote`)
       .expect(204)
-      .end((err) => {
-        if (err) return done(err);
+      .then(() => {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
