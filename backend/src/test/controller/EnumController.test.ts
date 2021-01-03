@@ -5,6 +5,7 @@ import { registerTestApplication } from './BaseController';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionType } from '../../main/data/PromotionType';
 import { CuisineType } from '../../main/data/CuisineType';
+import { Day } from '../../main/data/Day';
 
 describe('Unit tests for PromotionController', function () {
   let app: Express;
@@ -27,8 +28,9 @@ describe('Unit tests for PromotionController', function () {
       'DiscountType',
       'PromotionType',
       'CuisineType',
+      'Day',
     ];
-    const supportedEnums = [DiscountType, PromotionType, CuisineType];
+    const supportedEnums = [DiscountType, PromotionType, CuisineType, Day];
     const promises: Promise<any>[] = [];
     for (let i = 0; i < supportedEnums.length; i++) {
       const bodyFunction = (res: request.Response) => {
