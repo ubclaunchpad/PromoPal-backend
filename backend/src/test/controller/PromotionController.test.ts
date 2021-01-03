@@ -243,34 +243,30 @@ describe('Unit tests for PromotionController', function () {
   });
 
   test('POST /promotions then GET /promotions/:id', async (done) => {
-    const user1: User = new UserFactory().generate();
-    const expectedPromotion1 = new PromotionFactory().generate(
-      user1,
+    const user: User = new UserFactory().generate();
+    const expectedPromotion = new PromotionFactory().generate(
+      user,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()]
     );
-    expectedPromotion1.lat = -34.5;
-    expectedPromotion1.lon = 564.321;
+    expectedPromotion.lat = -34.5;
+    expectedPromotion.lon = 564.321;
 
-    await userRepository.save(user1);
+    await userRepository.save(user);
     request(app)
       .post('/promotions')
-      .send({ ...expectedPromotion1, user: undefined, userId: user1.id })
-      .end((err, res) => {
-        if (err) return done(err);
-        done();
-      });
-
-    await promotionRepository.save(expectedPromotion1);
-
-    request(app)
-      .get(`/promotions/${expectedPromotion1.id}`)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        const promotion = res.body;
-        comparePromotions(promotion, expectedPromotion1);
-        done();
+      .send({ ...expectedPromotion, user: undefined, userId: user.id })
+      .then(async () => {
+        await promotionRepository.save(expectedPromotion);
+        request(app)
+          .get(`/promotions/${expectedPromotion.id}`)
+          .expect(200)
+          .end((err, res) => {
+            if (err) return done(err);
+            const promotion = res.body;
+            comparePromotions(promotion, expectedPromotion);
+            done();
+          });
       });
   });
 
