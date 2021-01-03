@@ -251,7 +251,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .delete(`/promotions/${promotion.id}`)
       .expect(204)
-      .end(() => {
+      .then(() => {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
@@ -271,6 +271,70 @@ describe('Unit tests for PromotionController', function () {
   test('DELETE /promotions/:id - deleting non-existent promotion should not fail', async (done) => {
     const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
     request(app).delete(`/promotions/${nonExistentUUID}`).expect(204, done);
+  });
+
+  test('POST /promotions/:id/upVote', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            expect(newPromotion.votes).toEqual(1);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/downVote', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has decremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            expect(newPromotion.votes).toEqual(-1);
+            done();
+          }
+        );
+      });
   });
 
   /**

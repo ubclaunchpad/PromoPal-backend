@@ -158,4 +158,14 @@ export class Promotion {
     select: false,
   })
   tsVector: string;
+
+  /**
+   * Not included in the constructor because when we create a promotion, starts at 0 votes
+   * Only way to "interact" with votes is through direct endpoints that increase/decrease the votes
+   * */
+  @Column({
+    type: 'integer',
+    default: 0,
+  })
+  votes: number;
 }
