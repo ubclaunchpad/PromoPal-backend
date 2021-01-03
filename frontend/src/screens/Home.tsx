@@ -4,20 +4,18 @@ import DropdownMenu from "../components/DropdownMenu";
 import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
 import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
-import { getDiscountTypes } from "../services/EnumService";
+import { getEnum } from "../services/EnumService";
 import { Dropdown, DropdownType } from "../types/dropdown";
-import {
-  CuisineType,
-  DayOfWeek,
-  ServiceOptions,
-  Sort,
-} from "../types/promotion";
+import { DayOfWeek, ServiceOptions, Sort } from "../types/promotion";
+import Routes from "../utils/routes";
 
 const mapWidth = 60;
 
 export default function Home(): ReactElement {
   const [height, setHeight] = useState<string>("");
 
+  // Dropdown options for cuisine types
+  const [cuisineTypes, setCuisineTypes] = useState<string[]>([]);
   // Dropdown options for discount types
   const [discountTypes, setDiscountTypes] = useState<string[]>([]);
 
@@ -27,16 +25,27 @@ export default function Home(): ReactElement {
    * On component mount, load dropdown options
    */
   useEffect(() => {
-    getDiscountTypes()
-      .then((discountTypes) => setDiscountTypes(discountTypes))
-      .catch(() => setDiscountTypes([]));
+    [
+      {
+        endpoint: Routes.ENUMS.DISCOUNT_TYPES,
+        setOptions: setDiscountTypes,
+      },
+      {
+        endpoint: Routes.ENUMS.CUISINE_TYPES,
+        setOptions: setCuisineTypes,
+      },
+    ].forEach(({ endpoint, setOptions }) => {
+      getEnum(endpoint)
+        .then((options) => setOptions(options))
+        .catch(() => setOptions([]));
+    });
   }, []);
 
   /**
    * Callback functions when dropdown option is selected
    */
   const actions = {
-    cuisineType: (cuisineType: CuisineType[]) =>
+    cuisineType: (cuisineType: string) =>
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { cuisineType } },
@@ -46,7 +55,7 @@ export default function Home(): ReactElement {
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { dayOfWeek } },
       }),
-    discountType: (discountType: string[]) =>
+    discountType: (discountType: string) =>
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { discountType } },
@@ -102,45 +111,11 @@ export default function Home(): ReactElement {
     },
     {
       text: "Cuisine",
-      type: DropdownType.MultiSelect,
-      options: [
-        {
-          action: actions.cuisineType,
-          text: "American",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Chinese",
-        },
-        {
-          action: actions.cuisineType,
-          text: "French",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Indian",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Italian",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Japanese",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Korean",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Mexican",
-        },
-        {
-          action: actions.cuisineType,
-          text: "Vietnamese",
-        },
-      ],
+      type: DropdownType.Radio,
+      options: cuisineTypes.map((cuisineType) => ({
+        action: actions.cuisineType,
+        text: cuisineType,
+      })),
     },
     {
       text: "Day of the Week",

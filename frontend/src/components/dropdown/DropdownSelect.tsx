@@ -35,6 +35,8 @@ const styles: { [identifier: string]: CSSProperties } = {
   menu: {
     backgroundColor: "#fff",
     borderRadius: 20,
+    maxHeight: "80vh",
+    overflow: "scroll",
     paddingTop: 15,
     paddingBottom: 15,
   },

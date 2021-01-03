@@ -1,5 +1,4 @@
 import {
-  CuisineType,
   DayOfWeek,
   FilterOptions,
   Promotion,
@@ -46,16 +45,11 @@ export function filterPromotions(
   return promotions;
 }
 
-function filterCuisineType(promotions: Promotion[], filters: CuisineType[]) {
-  let result: Promotion[] = [];
-  for (const key of filters) {
-    const filtered = promotions.filter(({ cuisine }) => {
-      const sanitized = cuisine.replace("\\s", "_");
-      return sanitized.toUpperCase() === key.toUpperCase();
-    });
-    result = [...result, ...filtered];
-  }
-  return result;
+function filterCuisineType(promotions: Promotion[], filter: string) {
+  return promotions.filter(({ cuisine }) => {
+    const sanitized = cuisine.replace("\\s", "_");
+    return sanitized.toUpperCase() === filter.toUpperCase();
+  });
 }
 
 function filterDayOfWeek(promotions: Promotion[], filters: DayOfWeek[]) {

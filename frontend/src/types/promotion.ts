@@ -41,18 +41,6 @@ export interface Schedule {
   isRecurring: boolean;
 }
 
-export enum CuisineType {
-  American = "AMERICAN",
-  Chinese = "CHINESE",
-  French = "FRENCH",
-  Indian = "INDIAN",
-  Italian = "ITALIAN",
-  Japanese = "JAPANESE",
-  Korean = "KOREAN",
-  Mexican = "MEXICAN",
-  Vietnamese = "VIETNAMESE",
-}
-
 export enum DayOfWeek {
   Sunday = "SUNDAY",
   Monday = "MONDAY",
@@ -76,10 +64,8 @@ export enum Sort {
 }
 
 export interface FilterOptions {
-  cuisineType: CuisineType[];
+  cuisineType: string;
   dayOfWeek: DayOfWeek[];
   discountType: string;
   serviceOptions: ServiceOptions[];
 }
-
-export type Filter = CuisineType | DayOfWeek | ServiceOptions;
