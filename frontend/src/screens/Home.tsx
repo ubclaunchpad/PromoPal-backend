@@ -6,7 +6,7 @@ import PromotionList from "../components/PromotionList";
 import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
 import { getEnum } from "../services/EnumService";
 import { Dropdown, DropdownType } from "../types/dropdown";
-import { DayOfWeek, ServiceOptions, Sort } from "../types/promotion";
+import { DayOfWeek, Sort } from "../types/promotion";
 import Routes from "../utils/routes";
 
 const mapWidth = 60;
@@ -70,11 +70,6 @@ export default function Home(): ReactElement {
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { promotionType } },
-      }),
-    serviceOptions: (serviceOptions: ServiceOptions[]) =>
-      dispatch({
-        type: DispatchAction.UPDATE_FILTERS,
-        payload: { filter: { serviceOptions } },
       }),
   };
 
@@ -169,20 +164,6 @@ export default function Home(): ReactElement {
         action: actions.promotionType,
         text: promotionType,
       })),
-    },
-    {
-      text: "Service Options",
-      type: DropdownType.MultiSelect,
-      options: [
-        {
-          action: actions.serviceOptions,
-          text: "Dine-In",
-        },
-        {
-          action: actions.serviceOptions,
-          text: "Take-Out",
-        },
-      ],
     },
   ];
 

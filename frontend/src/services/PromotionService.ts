@@ -1,10 +1,4 @@
-import {
-  DayOfWeek,
-  FilterOptions,
-  Promotion,
-  ServiceOptions,
-  Sort,
-} from "../types/promotion";
+import { DayOfWeek, FilterOptions, Promotion, Sort } from "../types/promotion";
 import Routes from "../utils/routes";
 
 /**
@@ -27,13 +21,7 @@ export function filterPromotions(
   arr: Promotion[],
   filters: FilterOptions
 ): Promotion[] {
-  const {
-    cuisineType,
-    dayOfWeek,
-    discountType,
-    promotionType,
-    serviceOptions,
-  } = filters;
+  const { cuisineType, dayOfWeek, discountType, promotionType } = filters;
 
   let promotions = [...arr];
   if (filters.cuisineType.length > 0) {
@@ -47,9 +35,6 @@ export function filterPromotions(
   }
   if (filters.promotionType.length > 0) {
     promotions = filterPromotionType(promotions, promotionType);
-  }
-  if (filters.serviceOptions.length > 0) {
-    promotions = filterServiceOptions(promotions, serviceOptions);
   }
   return promotions;
 }
@@ -91,14 +76,6 @@ function filterPromotionType(promotions: Promotion[], filters: string[]) {
     result = [...result, ...filtered];
   }
   return result;
-}
-
-// TODO: see https://github.com/ubclaunchpad/foodies/issues/100
-function filterServiceOptions(
-  promotions: Promotion[],
-  filters: ServiceOptions[]
-) {
-  return promotions;
 }
 
 /**

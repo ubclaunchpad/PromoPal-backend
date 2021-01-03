@@ -73,7 +73,6 @@ export const defaultFilters: FilterOptions = {
   dayOfWeek: [],
   discountType: "",
   promotionType: [],
-  serviceOptions: [],
 };
 
 export const defaultSort = Sort.Default;

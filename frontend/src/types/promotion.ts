@@ -52,11 +52,6 @@ export enum DayOfWeek {
   Saturday = "SATURDAY",
 }
 
-export enum ServiceOptions {
-  DineIn = "DINE_IN",
-  TakeOut = "TAKE_OUT",
-}
-
 export enum Sort {
   Default = "DEFAULT",
   Distance = "DISTANCE",
@@ -69,5 +64,4 @@ export interface FilterOptions {
   dayOfWeek: DayOfWeek[];
   discountType: string;
   promotionType: string[];
-  serviceOptions: ServiceOptions[];
 }
