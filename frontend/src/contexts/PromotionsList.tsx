@@ -69,7 +69,7 @@ export type DispatchParams = {
 };
 
 export const defaultFilters: FilterOptions = {
-  cuisineType: "",
+  cuisine: "",
   dayOfWeek: [],
   discountType: "",
   promotionType: [],

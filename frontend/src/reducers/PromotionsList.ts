@@ -28,10 +28,15 @@ export function promotionsListReducer(
      * Sets state.isLoading to false and state.hasError to false.
      */
     case DispatchAction.DATA_SUCCESS: {
-      const { promotions } = payload as { promotions: Promotion[] };
+      if (payload) {
+        const { promotions } = payload as { promotions: Promotion[] };
+        nextState = {
+          ...nextState,
+          data: promotions,
+        };
+      }
       nextState = {
         ...nextState,
-        data: promotions,
         hasError: false,
         isLoading: false,
       };
@@ -42,10 +47,15 @@ export function promotionsListReducer(
      * Updates state.data to be either given promotions or previous promotions set on state if undefined.
      */
     case DispatchAction.DATA_FAILURE: {
-      const { promotions } = payload as { promotions: Promotion[] };
+      if (payload) {
+        const { promotions } = payload as { promotions: Promotion[] };
+        nextState = {
+          ...nextState,
+          data: promotions,
+        };
+      }
       nextState = {
         ...nextState,
-        data: promotions ?? state.data,
         isLoading: false,
         hasError: true,
       };

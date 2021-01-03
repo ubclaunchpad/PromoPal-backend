@@ -1,85 +1,53 @@
-import { DayOfWeek, FilterOptions, Promotion, Sort } from "../types/promotion";
+import { FilterOptions, Promotion, Sort } from "../types/promotion";
 import Routes from "../utils/routes";
 
 /**
- * Fetches list of promotions and sets them on this instance.
- * If an error occurs, an empty list will be set on this instance.
+ * Fetches entire list of promotions. If a query object is given, filters the promotions according to the given query.
+ * If an error occurs, an empty list will be returned.
  */
-export async function getPromotions(): Promise<Promotion[]> {
-  return fetch(Routes.PROMOTIONS)
+export async function getPromotions(
+  query?: Record<string, string>
+): Promise<Promotion[]> {
+  let endpoint = Routes.PROMOTIONS;
+  if (query) {
+    const queryParams = new URLSearchParams(query);
+    endpoint += `?${queryParams.toString()}`;
+  }
+  return fetch(endpoint)
     .then((res: Response) => res.json())
     .catch(() => []);
 }
 
 /**
- * Returns the subset of this instance's promotions which satisfy at least one filter key in the `options` parameter.
+ * Returns the subset of all promotions which satisfy at least one filter key in the `filters` parameter.
  *
- * @param arr - The list of promotions to filter through
  * @param filters - An object specifying the keys and the values to filter the promotions by
  */
-export function filterPromotions(
-  arr: Promotion[],
-  filters: FilterOptions
-): Promotion[] {
-  const { cuisineType, dayOfWeek, discountType, promotionType } = filters;
+export function filterPromotions(filters: FilterOptions): Promise<Promotion[]> {
+  const { cuisine, dayOfWeek, discountType, promotionType } = filters;
 
-  let promotions = [...arr];
-  if (filters.cuisineType.length > 0) {
-    promotions = filterCuisineType(promotions, cuisineType);
+  const promotionQueryDTO: Record<string, string> = {};
+  if (cuisine?.length > 0) {
+    promotionQueryDTO.cuisine = cuisine;
   }
-  if (filters.dayOfWeek.length > 0) {
-    promotions = filterDayOfWeek(promotions, dayOfWeek);
+  if (discountType?.length > 0) {
+    // Handle case where filter is one of ["$ Off", "$ Off"]
+    let discount = discountType;
+    if (discountType !== "Other") {
+      discount = discountType.substring(0, 1);
+    }
+    promotionQueryDTO.discountType = discount;
   }
-  if (filters.discountType.length > 0) {
-    promotions = filterDiscountType(promotions, discountType);
+  if (promotionType?.length > 0) {
+    // Stringify array of promotion types
+    promotionQueryDTO.promotionType = JSON.stringify(promotionType);
   }
-  if (filters.promotionType.length > 0) {
-    promotions = filterPromotionType(promotions, promotionType);
-  }
-  return promotions;
-}
 
-function filterCuisineType(promotions: Promotion[], filter: string) {
-  return promotions.filter(({ cuisine }) => {
-    const sanitized = cuisine.replace("\\s", "_");
-    return sanitized.toUpperCase() === filter.toUpperCase();
-  });
-}
-
-function filterDayOfWeek(promotions: Promotion[], filters: DayOfWeek[]) {
-  let result: Promotion[] = [];
-  for (const key of filters) {
-    const filtered = promotions.filter(({ schedules }) => {
-      return schedules.find(({ dayOfWeek }) => dayOfWeek === key);
-    });
-    result = [...result, ...filtered];
-  }
-  return result;
-}
-
-function filterDiscountType(promotions: Promotion[], filter: string) {
-  // Handle case where filter is one of ["$ Off", "$ Off"]
-  if (filter !== "Other") {
-    filter = filter.substring(0, 1);
-  }
-  return promotions.filter(
-    ({ discount: { discountType } }) => filter === discountType
-  );
-}
-
-function filterPromotionType(promotions: Promotion[], filters: string[]) {
-  let result: Promotion[] = [];
-  for (const key of filters) {
-    const filtered = promotions.filter(
-      ({ promotionType }) => promotionType === key
-    );
-    result = [...result, ...filtered];
-  }
-  return result;
+  return getPromotions(promotionQueryDTO);
 }
 
 /**
- * Sorts the list of promotions set on this instance by the given key.
+ * Sorts the given of list of promotions by the given key.
  *
  * @param arr - The list of promotions to sort
  * @param key - The key which to sort the promotions by

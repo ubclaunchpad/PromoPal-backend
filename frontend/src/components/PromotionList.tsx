@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
 
 import PromotionCard from "../components/promotion/PromotionCard";
-import { usePromotionsList } from "../contexts/PromotionsList";
+import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
 import { filterPromotions, sortPromotions } from "../services/PromotionService";
 import { Promotion } from "../types/promotion";
 
@@ -20,7 +20,7 @@ export default function PromotionList({
 }): ReactElement {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
 
-  const { state } = usePromotionsList();
+  const { state, dispatch } = usePromotionsList();
 
   const containerStyles = {
     marginLeft: `calc(100vw - ${dimensions.width})`,
@@ -28,12 +28,24 @@ export default function PromotionList({
     ...styles.container,
   };
 
+  /**
+   * Fetches promotions satisfying the current query and sorts them
+   */
   useEffect(() => {
-    const { filter, sort, data } = state;
-    const filteredPromotions = filterPromotions(data, filter);
-    const sortedPromotions = sortPromotions(filteredPromotions, sort);
-    setPromotions(sortedPromotions);
-  }, [state]);
+    dispatch({ type: DispatchAction.DATA_LOADING });
+    filterPromotions(state.filter)
+      .then((filteredPromotions) =>
+        sortPromotions(filteredPromotions, state.sort)
+      )
+      .then((sortedPromotions) => {
+        dispatch({ type: DispatchAction.DATA_SUCCESS });
+        setPromotions(sortedPromotions);
+      })
+      .catch(() => {
+        dispatch({ type: DispatchAction.DATA_FAILURE });
+        setPromotions([]);
+      });
+  }, [state.filter, state.sort, dispatch]);
 
   return (
     <div style={containerStyles}>

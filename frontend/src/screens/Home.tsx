@@ -51,10 +51,10 @@ export default function Home(): ReactElement {
    * Callback functions when dropdown option is selected
    */
   const actions = {
-    cuisineType: (cuisineType: string) =>
+    cuisine: (cuisine: string) =>
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
-        payload: { filter: { cuisineType } },
+        payload: { filter: { cuisine } },
       }),
     dayOfWeek: (dayOfWeek: DayOfWeek[]) =>
       dispatch({
@@ -118,9 +118,9 @@ export default function Home(): ReactElement {
     {
       text: "Cuisine",
       type: DropdownType.Radio,
-      options: cuisineTypes.map((cuisineType) => ({
-        action: actions.cuisineType,
-        text: cuisineType,
+      options: cuisineTypes.map((cuisine) => ({
+        action: actions.cuisine,
+        text: cuisine,
       })),
     },
     {

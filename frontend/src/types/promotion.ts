@@ -60,7 +60,7 @@ export enum Sort {
 }
 
 export interface FilterOptions {
-  cuisineType: string;
+  cuisine: string;
   dayOfWeek: DayOfWeek[];
   discountType: string;
   promotionType: string[];
