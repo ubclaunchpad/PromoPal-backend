@@ -66,6 +66,77 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
+  test('Should pass for valid cuisine type', async () => {
+    try {
+      promotionQueryDTO.cuisine = CuisineType.AFGHAN;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+    } catch (e) {
+      fail('Should not have failed');
+    }
+  });
+
+  test('Should pass for array of cuisine types', async () => {
+    try {
+      promotionQueryDTO.cuisine = [
+        CuisineType.CARIBBEAN,
+        CuisineType.CAJUN,
+        CuisineType.AINU,
+      ];
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+    } catch (e) {
+      fail('Should not have failed');
+    }
+  });
+
+  test('Should pass for single cuisine in array', async () => {
+    try {
+      promotionQueryDTO.cuisine = [CuisineType.CARIBBEAN];
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+    } catch (e) {
+      fail('Should not have failed');
+    }
+  });
+
+  test('Should fail if element in array is not valid cuisine', async () => {
+    try {
+      promotionQueryDTO.cuisine = [
+        CuisineType.CARIBBEAN,
+        'Non-existent cuisine type',
+      ];
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toContain(
+        '"cuisine" does not match any of the allowed types'
+      );
+    }
+  });
+
+  test('Should fail if is unparsed json', async () => {
+    try {
+      promotionQueryDTO.cuisine = JSON.stringify([
+        CuisineType.CARIBBEAN,
+        CuisineType.CAJUN,
+      ]);
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toContain('"cuisine" must be one of');
+    }
+  });
+
   test('Should fail if given incorrect discount type', async () => {
     try {
       promotionQueryDTO.discountType = 'Invalid Discount Type';
