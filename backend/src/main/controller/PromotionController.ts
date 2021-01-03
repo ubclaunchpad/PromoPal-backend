@@ -191,4 +191,52 @@ export class PromotionController {
       return next(e);
     }
   };
+
+  /**
+   * Upvotes a promotion
+   * todo: this endpoint should not be used until https://github.com/ubclaunchpad/foodies/issues/104 is finished
+   */
+  upVotePromotion = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .increment({ id }, 'votes', 1);
+        return response.status(204).send();
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  /**
+   * Downvotes a promotion
+   * todo: this endpoint should not be used until https://github.com/ubclaunchpad/foodies/issues/104 is finished
+   */
+  downVotePromotion = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .decrement({ id }, 'votes', 1);
+        return response.status(204).send();
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
 }

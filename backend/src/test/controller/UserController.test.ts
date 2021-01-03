@@ -117,7 +117,7 @@ describe('Unit tests for UserController', function () {
         ...changedProperties,
       })
       .expect(204)
-      .end(() => {
+      .then(() => {
         // check properties of user have changed
         return getManager().transaction(
           'READ UNCOMMITTED',
@@ -164,7 +164,7 @@ describe('Unit tests for UserController', function () {
     request(app)
       .delete(`/users/${expectedUser.id}`)
       .expect(204)
-      .end(() => {
+      .then(() => {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
@@ -289,7 +289,7 @@ describe('Unit tests for UserController', function () {
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
       .expect(204)
-      .end(() => {
+      .then(() => {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
