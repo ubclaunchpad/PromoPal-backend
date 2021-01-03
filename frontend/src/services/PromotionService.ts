@@ -1,6 +1,5 @@
 import {
   CuisineType,
-  DiscountType,
   DayOfWeek,
   FilterOptions,
   Promotion,
@@ -16,7 +15,6 @@ import Routes from "../utils/routes";
 export async function getPromotions(): Promise<Promotion[]> {
   return fetch(Routes.PROMOTIONS)
     .then((res: Response) => res.json())
-    .then((promotions: Promotion[]) => promotions)
     .catch(() => []);
 }
 
@@ -71,18 +69,14 @@ function filterDayOfWeek(promotions: Promotion[], filters: DayOfWeek[]) {
   return result;
 }
 
-function filterDiscountType(promotions: Promotion[], filters: DiscountType[]) {
-  let result: Promotion[] = [];
-  for (const key of filters) {
-    const filtered = promotions.filter((promotion) => {
-      const {
-        discount: { discountType },
-      } = promotion;
-      return discountType === key.substring(0, 1);
-    });
-    result = [...result, ...filtered];
+function filterDiscountType(promotions: Promotion[], filter: string) {
+  // Handle case where filter is one of ["$ Off", "$ Off"]
+  if (filter !== "Other") {
+    filter = filter.substring(0, 1);
   }
-  return result;
+  return promotions.filter(
+    ({ discount: { discountType } }) => filter === discountType
+  );
 }
 
 // TODO: see https://github.com/ubclaunchpad/foodies/issues/100

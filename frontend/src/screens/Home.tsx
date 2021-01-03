@@ -4,11 +4,11 @@ import DropdownMenu from "../components/DropdownMenu";
 import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
 import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
+import { getDiscountTypes } from "../services/EnumService";
 import { Dropdown, DropdownType } from "../types/dropdown";
 import {
   CuisineType,
   DayOfWeek,
-  DiscountType,
   ServiceOptions,
   Sort,
 } from "../types/promotion";
@@ -18,8 +18,23 @@ const mapWidth = 60;
 export default function Home(): ReactElement {
   const [height, setHeight] = useState<string>("");
 
+  // Dropdown options for discount types
+  const [discountTypes, setDiscountTypes] = useState<string[]>([]);
+
   const { dispatch } = usePromotionsList();
 
+  /**
+   * On component mount, load dropdown options
+   */
+  useEffect(() => {
+    getDiscountTypes()
+      .then((discountTypes) => setDiscountTypes(discountTypes))
+      .catch(() => setDiscountTypes([]));
+  }, []);
+
+  /**
+   * Callback functions when dropdown option is selected
+   */
   const actions = {
     cuisineType: (cuisineType: CuisineType[]) =>
       dispatch({
@@ -31,7 +46,7 @@ export default function Home(): ReactElement {
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { dayOfWeek } },
       }),
-    discountType: (discountType: DiscountType[]) =>
+    discountType: (discountType: string[]) =>
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { discountType } },
@@ -79,17 +94,11 @@ export default function Home(): ReactElement {
     },
     {
       text: "Discount Type",
-      type: DropdownType.MultiSelect,
-      options: [
-        {
-          action: actions.discountType,
-          text: "$ Off",
-        },
-        {
-          action: actions.discountType,
-          text: "% Off",
-        },
-      ],
+      type: DropdownType.Radio,
+      options: discountTypes.map((discountType) => ({
+        action: actions.discountType,
+        text: discountType === "Other" ? "Other" : `${discountType} Off`,
+      })),
     },
     {
       text: "Cuisine",

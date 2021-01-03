@@ -1,12 +1,18 @@
 /* Dropdown radio options */
 .ant-dropdown .ant-dropdown-menu .dropdown-option-radio {
   height: 50px;
+  vertical-align: middle;
 }
 
 /* Dropdown multi select options */
 .ant-dropdown .ant-dropdown-menu .dropdown-option-multi {
   height: 30px;
   vertical-align: middle;
+}
+
+/* Dropdown radio group */
+.ant-radio-group {
+  width: 100%;
 }
 
 /* Hover: dropdown options */

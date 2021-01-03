@@ -63,11 +63,6 @@ export enum DayOfWeek {
   Saturday = "SATURDAY",
 }
 
-export enum DiscountType {
-  DollarsOff = "DOLLARS_OFF",
-  PercentOff = "PERCENT_OFF",
-}
-
 export enum ServiceOptions {
   DineIn = "DINE_IN",
   TakeOut = "TAKE_OUT",
@@ -83,8 +78,8 @@ export enum Sort {
 export interface FilterOptions {
   cuisineType: CuisineType[];
   dayOfWeek: DayOfWeek[];
-  discountType: DiscountType[];
+  discountType: string;
   serviceOptions: ServiceOptions[];
 }
 
-export type Filter = CuisineType | DayOfWeek | DiscountType | ServiceOptions;
+export type Filter = CuisineType | DayOfWeek | ServiceOptions;

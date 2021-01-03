@@ -8,6 +8,7 @@ import { Col, Dropdown, Radio } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 import { Dropdown as DropdownType } from "../../types/dropdown";
+import { DropdownAction } from "../../types/dropdown";
 import "./Dropdown.css";
 
 const { Group } = Radio;
@@ -28,14 +29,17 @@ const styles: { [identifier: string]: CSSProperties } = {
     paddingLeft: 15,
     paddingRight: 15,
   },
+  largeText: {
+    fontSize: "1.1em",
+  },
   menu: {
     backgroundColor: "#fff",
     borderRadius: 20,
     paddingTop: 15,
+    paddingBottom: 15,
   },
   option: {
     display: "inline",
-    fontSize: "1.1em",
     top: 2,
   },
   optionDescription: {
@@ -44,7 +48,9 @@ const styles: { [identifier: string]: CSSProperties } = {
     color: "gray",
   },
   radio: {
+    margin: 0,
     paddingLeft: 10,
+    paddingRight: 10,
     width: "100%",
   },
 };
@@ -73,23 +79,36 @@ export default function DropdownSelect({
   /**
    * Sets activeKey for this dropdown and performs given action
    */
-  const onClickHandler = useCallback((action: () => void, text: string) => {
+  const onClickHandler = useCallback((action: DropdownAction, text: string) => {
     setActiveKey(text);
-    action();
+    action(text);
   }, []);
 
   const dropdownOptions = () => (
     <Col style={styles.menu}>
       <Group name={text} defaultValue={0}>
         {options.map(({ action, description, text }, index) => (
-          <Col className="dropdown-option-radio" key={index}>
+          <Col
+            className="dropdown-option-multi"
+            key={index}
+            style={{ height: description ? 50 : 30 }}
+          >
             <Radio
               style={styles.radio}
               value={index}
               onClick={() => onClickHandler(action, text)}
             >
-              <Col style={styles.option}>{text}</Col>
-              <Col style={styles.optionDescription}>{description}</Col>
+              <Col
+                style={{
+                  ...styles.option,
+                  ...(description && styles.largeText),
+                }}
+              >
+                {text}
+              </Col>
+              {description && (
+                <Col style={styles.optionDescription}>{description}</Col>
+              )}
             </Radio>
           </Col>
         ))}

@@ -8,7 +8,7 @@ import React, {
 } from "react";
 
 import { promotionsListReducer } from "../reducers/PromotionsList";
-import { getPromotions } from "../services/promotions";
+import { getPromotions } from "../services/PromotionService";
 import { Sort, FilterOptions, Promotion } from "../types/promotion";
 
 export enum DispatchAction {
@@ -71,7 +71,7 @@ export type DispatchParams = {
 export const defaultFilters: FilterOptions = {
   cuisineType: [],
   dayOfWeek: [],
-  discountType: [],
+  discountType: "",
   serviceOptions: [],
 };
 
