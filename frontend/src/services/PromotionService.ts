@@ -27,7 +27,13 @@ export function filterPromotions(
   arr: Promotion[],
   filters: FilterOptions
 ): Promotion[] {
-  const { cuisineType, dayOfWeek, discountType, serviceOptions } = filters;
+  const {
+    cuisineType,
+    dayOfWeek,
+    discountType,
+    promotionType,
+    serviceOptions,
+  } = filters;
 
   let promotions = [...arr];
   if (filters.cuisineType.length > 0) {
@@ -38,6 +44,9 @@ export function filterPromotions(
   }
   if (filters.discountType.length > 0) {
     promotions = filterDiscountType(promotions, discountType);
+  }
+  if (filters.promotionType.length > 0) {
+    promotions = filterPromotionType(promotions, promotionType);
   }
   if (filters.serviceOptions.length > 0) {
     promotions = filterServiceOptions(promotions, serviceOptions);
@@ -71,6 +80,17 @@ function filterDiscountType(promotions: Promotion[], filter: string) {
   return promotions.filter(
     ({ discount: { discountType } }) => filter === discountType
   );
+}
+
+function filterPromotionType(promotions: Promotion[], filters: string[]) {
+  let result: Promotion[] = [];
+  for (const key of filters) {
+    const filtered = promotions.filter(
+      ({ promotionType }) => promotionType === key
+    );
+    result = [...result, ...filtered];
+  }
+  return result;
 }
 
 // TODO: see https://github.com/ubclaunchpad/foodies/issues/100

@@ -18,6 +18,8 @@ export default function Home(): ReactElement {
   const [cuisineTypes, setCuisineTypes] = useState<string[]>([]);
   // Dropdown options for discount types
   const [discountTypes, setDiscountTypes] = useState<string[]>([]);
+  // Dropdown options for promotion types
+  const [promotionTypes, setPromotionTypes] = useState<string[]>([]);
 
   const { dispatch } = usePromotionsList();
 
@@ -33,6 +35,10 @@ export default function Home(): ReactElement {
       {
         endpoint: Routes.ENUMS.CUISINE_TYPES,
         setOptions: setCuisineTypes,
+      },
+      {
+        endpoint: Routes.ENUMS.PROMOTION_TYPES,
+        setOptions: setPromotionTypes,
       },
     ].forEach(({ endpoint, setOptions }) => {
       getEnum(endpoint)
@@ -59,6 +65,11 @@ export default function Home(): ReactElement {
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { discountType } },
+      }),
+    promotionType: (promotionType: string) =>
+      dispatch({
+        type: DispatchAction.UPDATE_FILTERS,
+        payload: { filter: { promotionType } },
       }),
     serviceOptions: (serviceOptions: ServiceOptions[]) =>
       dispatch({
@@ -150,6 +161,14 @@ export default function Home(): ReactElement {
           text: "Saturday",
         },
       ],
+    },
+    {
+      text: "Promotion Type",
+      type: DropdownType.MultiSelect,
+      options: promotionTypes.map((promotionType) => ({
+        action: actions.promotionType,
+        text: promotionType,
+      })),
     },
     {
       text: "Service Options",

@@ -72,6 +72,7 @@ export const defaultFilters: FilterOptions = {
   cuisineType: "",
   dayOfWeek: [],
   discountType: "",
+  promotionType: [],
   serviceOptions: [],
 };
 

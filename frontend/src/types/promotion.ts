@@ -9,6 +9,7 @@ export interface Promotion {
   image: PromotionImage;
   liked: boolean;
   name: string;
+  promotionType: string;
   restaurantName: string;
   schedules: Schedule[];
   user: User;
@@ -67,5 +68,6 @@ export interface FilterOptions {
   cuisineType: string;
   dayOfWeek: DayOfWeek[];
   discountType: string;
+  promotionType: string[];
   serviceOptions: ServiceOptions[];
 }
