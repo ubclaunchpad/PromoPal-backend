@@ -325,7 +325,7 @@ describe('Unit tests for PromotionController', function () {
         return getManager().transaction(
           'READ UNCOMMITTED',
           async (transactionalEntityManager) => {
-            // check that promotion votes has incremented
+            // check that promotion votes has decremented
             const promotionRepository = transactionalEntityManager.getCustomRepository(
               PromotionRepository
             );

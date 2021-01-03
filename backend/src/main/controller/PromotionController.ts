@@ -167,6 +167,7 @@ export class PromotionController {
 
   /**
    * Upvotes a promotion
+   * todo: this endpoint should not be used until https://github.com/ubclaunchpad/foodies/issues/104 is finished
    */
   upVotePromotion = async (
     request: Request,
@@ -180,7 +181,7 @@ export class PromotionController {
         });
         await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .increment({ id: id }, 'votes', 1);
+          .increment({ id }, 'votes', 1);
         return response.status(204).send();
       });
     } catch (e) {
@@ -190,6 +191,7 @@ export class PromotionController {
 
   /**
    * Downvotes a promotion
+   * todo: this endpoint should not be used until https://github.com/ubclaunchpad/foodies/issues/104 is finished
    */
   downVotePromotion = async (
     request: Request,
@@ -203,7 +205,7 @@ export class PromotionController {
         });
         await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .decrement({ id: id }, 'votes', 1);
+          .decrement({ id }, 'votes', 1);
         return response.status(204).send();
       });
     } catch (e) {
