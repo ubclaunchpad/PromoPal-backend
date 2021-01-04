@@ -6,7 +6,7 @@
   "password": "postgres",
   "database": "foodies",
   "synchronize": true,
-  "dropSchema": false,
+  "dropSchema": true,
   "logging": false,
   "cache": true,
   "entities": ["src/main/entity/**/*.ts"],
