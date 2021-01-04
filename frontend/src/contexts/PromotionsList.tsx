@@ -91,6 +91,7 @@ const PromotionsListContext = createContext<Context>({
 });
 
 /**
+ * @component PromotionsListProvider
  * The context provider component for promotions.
  *
  * @param children - The child components or elements
@@ -132,7 +133,7 @@ export function usePromotionsList(): Context {
   const context = useContext(PromotionsListContext);
   if (!context) {
     throw new Error(
-      "usePromotionsState must be used within a PromotionsProvider"
+      "usePromotionsList must be used within a PromotionsProvider"
     );
   }
   return context;

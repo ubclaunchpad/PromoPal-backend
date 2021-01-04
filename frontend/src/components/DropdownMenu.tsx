@@ -4,6 +4,7 @@ import { Col, Row, Typography } from "antd";
 import Dropdown from "./dropdown/Dropdown";
 import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
 import { Dropdown as DropdownType } from "../types/dropdown";
+import { DropdownProvider, useDropdown } from "../contexts/Dropdown";
 
 const { Text } = Typography;
 
@@ -27,6 +28,25 @@ const styles: { [identifier: string]: CSSProperties } = {
   },
 };
 
+function ClearAllButton(): ReactElement {
+  const promotionsList = usePromotionsList();
+  const dropdown = useDropdown();
+
+  /**
+   * Sets promotion list filter and sort to default and clears dropdowns
+   */
+  const handleClearAll = useCallback(() => {
+    promotionsList.dispatch({ type: DispatchAction.RESET_FILTERS });
+    dropdown.state.resetCallbacks.forEach((resetDropdown) => resetDropdown());
+  }, [dropdown.state, promotionsList.dispatch]);
+
+  return (
+    <Col onClick={handleClearAll} style={styles.clearAll}>
+      <Text>Clear All</Text>
+    </Col>
+  );
+}
+
 /**
  * @component DropdownMenu
  * This component acts as a container displaying the list of provided dropdowns.
@@ -42,30 +62,21 @@ export default function DropdownMenu({
   dropdowns: DropdownType[];
   shadow?: boolean;
 }): ReactElement {
-  const { dispatch } = usePromotionsList();
-
   const dropdownStyle = {
     ...styles.dropdownMenu,
     ...(shadow && styles.shadow),
   };
 
-  /**
-   * Set promotion list filter and sort to default
-   */
-  const handleClearAll = useCallback(() => {
-    dispatch({ type: DispatchAction.RESET_FILTERS });
-  }, [dispatch]);
-
   return (
-    <Row id="dropdown-menu" style={dropdownStyle}>
-      {dropdowns.map((dropdown, index) => (
-        <Col key={index}>
-          <Dropdown {...dropdown} />
-        </Col>
-      ))}
-      <Col onClick={handleClearAll} style={styles.clearAll}>
-        <Text>Clear All</Text>
-      </Col>
-    </Row>
+    <DropdownProvider>
+      <Row id="dropdown-menu" style={dropdownStyle}>
+        {dropdowns.map((dropdown, index) => (
+          <Col key={index}>
+            <Dropdown {...dropdown} />
+          </Col>
+        ))}
+        <ClearAllButton />
+      </Row>
+    </DropdownProvider>
   );
 }

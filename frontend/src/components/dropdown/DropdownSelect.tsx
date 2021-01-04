@@ -2,11 +2,13 @@ import React, {
   CSSProperties,
   ReactElement,
   useCallback,
+  useEffect,
   useState,
 } from "react";
 import { Col, Dropdown, Radio } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
+import { DispatchAction, useDropdown } from "../../contexts/Dropdown";
 import { Dropdown as DropdownType } from "../../types/dropdown";
 import { DropdownAction } from "../../types/dropdown";
 import "./Dropdown.css";
@@ -73,6 +75,8 @@ export default function DropdownSelect({
    */
   const [activeKey, setActiveKey] = useState<string>("");
 
+  const { dispatch } = useDropdown();
+
   const dropdownButtonStyle = {
     ...styles.button,
     ...(activeKey && styles.active),
@@ -84,6 +88,16 @@ export default function DropdownSelect({
   const onClickHandler = useCallback((action: DropdownAction, text: string) => {
     setActiveKey(text);
     action(text);
+  }, []);
+
+  /**
+   * On component mount, add reset callback to dropdown state
+   */
+  useEffect(() => {
+    dispatch({
+      type: DispatchAction.ADD_RESET_CALLBACK,
+      payload: { resetCallback: () => setActiveKey("") },
+    });
   }, []);
 
   const dropdownOptions = () => (

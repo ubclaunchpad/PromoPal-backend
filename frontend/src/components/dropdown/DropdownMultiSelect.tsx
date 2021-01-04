@@ -2,11 +2,13 @@ import React, {
   CSSProperties,
   ReactElement,
   useCallback,
+  useEffect,
   useState,
 } from "react";
 import { Checkbox, Col, Dropdown as DD, Row } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
+import { DispatchAction, useDropdown } from "../../contexts/Dropdown";
 import { Dropdown as DropdownType, DropdownAction } from "../../types/dropdown";
 import "./Dropdown.css";
 
@@ -63,6 +65,8 @@ export default function DropdownMultiSelect({
    */
   const [visible, setVisible] = useState<boolean>(false);
 
+  const { dispatch } = useDropdown();
+
   const dropdownButtonStyle = {
     ...styles.button,
     ...(selectedKeys.length > 0 && styles.active),
@@ -87,6 +91,16 @@ export default function DropdownMultiSelect({
     [selectedKeys]
   );
 
+  /**
+   * On component mount, add reset callback to dropdown state
+   */
+  useEffect(() => {
+    dispatch({
+      type: DispatchAction.ADD_RESET_CALLBACK,
+      payload: { resetCallback: () => changeSelectedKeys([]) },
+    });
+  }, []);
+
   const dropdownOptions = (
     <Col style={styles.menu}>
       {options.map(({ action, text }, index) => (
@@ -94,6 +108,7 @@ export default function DropdownMultiSelect({
           <Checkbox
             style={styles.checkbox}
             onClick={() => onClickHandler(action, text)}
+            checked={selectedKeys.includes(text)}
           >
             <Col style={styles.option}>{text}</Col>
           </Checkbox>
