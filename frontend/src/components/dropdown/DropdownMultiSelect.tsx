@@ -99,7 +99,7 @@ export default function DropdownMultiSelect({
       type: DispatchAction.ADD_RESET_CALLBACK,
       payload: { resetCallback: () => changeSelectedKeys([]) },
     });
-  }, []);
+  }, [dispatch]);
 
   const dropdownOptions = (
     <Col style={styles.menu}>

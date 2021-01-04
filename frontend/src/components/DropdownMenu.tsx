@@ -38,7 +38,7 @@ function ClearAllButton(): ReactElement {
   const handleClearAll = useCallback(() => {
     promotionsList.dispatch({ type: DispatchAction.RESET_FILTERS });
     dropdown.state.resetCallbacks.forEach((resetDropdown) => resetDropdown());
-  }, [dropdown.state, promotionsList.dispatch]);
+  }, [dropdown, promotionsList]);
 
   return (
     <Col onClick={handleClearAll} style={styles.clearAll}>

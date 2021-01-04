@@ -98,7 +98,7 @@ export default function DropdownSelect({
       type: DispatchAction.ADD_RESET_CALLBACK,
       payload: { resetCallback: () => setActiveKey("") },
     });
-  }, []);
+  }, [dispatch]);
 
   const dropdownOptions = () => (
     <Col style={styles.menu}>
