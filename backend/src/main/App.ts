@@ -51,15 +51,6 @@ export class App {
     }
   }
 
-  // handleRedisConnection(redisClient: RedisClient) {
-  //   redisClient.on('connect', function () {
-  //     console.log('Connected to Redis');
-  //   });
-  //   redisClient.on('error', function (err: RedisError) {
-  //     console.log('Redis error: ' + err);
-  //   });
-  // }
-
   /**
    * Note: make sure any changes in handlers/routes/controllers will also appear for test/controller/BaseController.ts
    * */
@@ -70,8 +61,6 @@ export class App {
     app.use(bodyParser.json());
 
     app.get('/', (req, res) => res.send('Hello World'));
-
-    // this.handleRedisConnection(redisClient);
 
     const cachingService = new CachingService(redisClient);
 
