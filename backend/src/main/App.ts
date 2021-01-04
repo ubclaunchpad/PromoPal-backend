@@ -33,7 +33,7 @@ export class App {
     try {
       const connection = await createConnection({
         type: 'postgres',
-        host: process.env['DB_HOST'],
+        host: process.env['DB_HOST'] ?? 'localhost',
         port: 5432,
         username: 'postgres',
         password: 'postgres',
