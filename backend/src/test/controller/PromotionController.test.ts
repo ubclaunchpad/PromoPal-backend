@@ -26,7 +26,7 @@ describe('Unit tests for PromotionController', function () {
     app = await registerTestApplication(redisClient);
   });
 
-  afterAll(async (done) => {
+  afterAll(async () => {
     await connection.close();
     redisClient.quit();
   });

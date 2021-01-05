@@ -90,8 +90,8 @@ export class PromotionController {
         const locationDetails: CachingObject = await this.cachingService.getLatLonValue(
           promotion.placeId
         );
-        promotion.lat = locationDetails.lat;
-        promotion.lon = locationDetails.lon;
+        promotion.lat = locationDetails?.lat;
+        promotion.lon = locationDetails?.lon;
 
         return response.send(promotion);
       });

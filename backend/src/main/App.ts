@@ -24,7 +24,7 @@ import { EnumRouter } from './route/EnumRouter';
 import { ScheduleRepository } from './repository/ScheduleRepository';
 import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
-import redis, { RedisClient, RedisError } from 'redis';
+import redis, { RedisClient } from 'redis';
 import { CachingService } from './service/CachingService';
 
 /* eslint-disable  no-console */
@@ -152,7 +152,7 @@ export class App {
     });
   }
 
-  async createRedisClient() {
+  async createRedisClient(): Promise<RedisClient> {
     // todo: change to env later
     return redis.createClient({
       host: 'redis-server',

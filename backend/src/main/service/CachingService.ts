@@ -20,7 +20,7 @@ export class CachingService {
         placeId,
         2592000,
         JSON.stringify(value),
-        (err: Error | null, data: string) => {
+        (err: Error | null) => {
           if (err) {
             return reject(err);
           }
@@ -37,17 +37,12 @@ export class CachingService {
           // todo: https://github.com/ubclaunchpad/foodies/issues/89
           reject(err);
         }
-
-        if (data) {
-          return resolve(JSON.parse(data));
-        } else {
-          return resolve(JSON.parse(''));
-        }
+        return resolve(JSON.parse(data ?? '{}'));
       });
     });
   }
 
-  getClient() {
+  getClient(): RedisClient {
     return this.client;
   }
 
@@ -58,11 +53,11 @@ export class CachingService {
     return Promise.all(promises);
   }
 
-  async setLatLonForPromotion(promotion: Promotion) {
+  async setLatLonForPromotion(promotion: Promotion): Promise<void> {
     return this.getLatLonValue(promotion.placeId)
       .then((locationDetails: CachingObject) => {
-        promotion.lat = locationDetails.lat;
-        promotion.lon = locationDetails.lon;
+        promotion.lat = locationDetails?.lat;
+        promotion.lon = locationDetails?.lon;
       })
       .catch((err) => {
         throw err;
