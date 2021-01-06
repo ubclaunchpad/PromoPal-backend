@@ -186,4 +186,3 @@ docker-compose exec redis-server redis-cli // redis-server is the name of the se
   4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions). This is critical as new IDs are created each time.  
      ![image](https://user-images.githubusercontent.com/49849754/98633056-8504e100-22d5-11eb-9b24-54af8d87f1b1.png)
   5. Delete the generated files.
-    
