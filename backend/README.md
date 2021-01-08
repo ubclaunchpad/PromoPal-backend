@@ -139,6 +139,11 @@ await loadSampleData();
 
 Follow the docker instructions on the global `README.md`.
 
+### Run tests inside docker container
+```
+docker exec -it foodies_web_1 yarn run test
+```
+
 ### Inspect file system of docker image (https://stackoverflow.com/a/44769468)
 
 ```
