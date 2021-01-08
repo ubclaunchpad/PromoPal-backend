@@ -1,8 +1,9 @@
 FROM node:15.0.1
 WORKDIR /foodies/backend
-COPY *.json /foodies/backend/
+COPY package.json ./
+COPY yarn.lock ./
 RUN yarn install
 # build
 COPY . .
 RUN yarn run build
-RUN yarn run prestart
+CMD yarn run start

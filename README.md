@@ -17,4 +17,12 @@ Load the back-end in a container:
 ```
 docker-compose exec web bash
 ```
+Stop docker compose without removing containers
+```
+docker-compose stop
+```
 
+Stops containers and removes containers, networks, volumes, and images created by up. See https://docs.docker.com/compose/reference/down/
+```
+docker-compose down
+```

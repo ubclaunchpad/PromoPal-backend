@@ -139,6 +139,14 @@ await loadSampleData();
 
 Follow the docker instructions on the global `README.md`.
 
+### Inspect file system of docker image (https://stackoverflow.com/a/44769468)
+
+```
+docker run -it image_name sh
+// or if you prefer bash
+docker run -it image_name bash
+```
+
 ## If you modify any of the entities
 
 - make sure `main/resources/Data.ts` is updated accordingly.

@@ -25,7 +25,6 @@ services:
           - ./backend:/foodies/backend
         ports:
           - "8000:8000"
-        command: bash -c "yarn install && yarn start"
         depends_on: 
           - db
         links: 
