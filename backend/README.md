@@ -140,6 +140,9 @@ await loadSampleData();
 Follow the docker instructions on the global `README.md`.
 
 ### Run tests inside docker container
+
+Note we currently don't support this because we have not created the `foodies_test` database in docker-compose. But it should be fairly straightforward to do so
+
 ```
 docker exec -it foodies_web_1 yarn run test
 ```
