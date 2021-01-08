@@ -79,11 +79,7 @@ You can also run tests using this command
 yarn run test
 ```
 
-## Local development (without docker)
-
-### Change ormconfig.json
-
-Find `ormconfig.json` and change the following line to `host: localhost`
+## Local development
 
 ### Using Intellij
 

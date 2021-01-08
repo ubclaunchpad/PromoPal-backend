@@ -30,3 +30,5 @@ services:
           - db
         links: 
           - db
+        environment:
+          DB_HOST: db
