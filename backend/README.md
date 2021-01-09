@@ -166,6 +166,7 @@ testing locally without Docker afterwards.
   5. Delete the generated files.
 
 ## Setting up Local Redis
+
 To get a local server setup, please refer to the docs here https://redis.io/topics/quickstart.
 
 ## Connecting to Redis
