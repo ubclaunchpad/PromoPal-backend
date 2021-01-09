@@ -17,7 +17,6 @@ import { ScheduleDTO } from '../validation/ScheduleValidation';
 import { Schedule } from '../entity/Schedule';
 import * as querystring from 'querystring';
 import { CachingService } from '../service/CachingService';
-import { CachingObject } from '../data/CachingObject';
 
 export class PromotionController {
   private cachingService: CachingService;
@@ -87,12 +86,7 @@ export class PromotionController {
             cache: true,
           });
 
-        const locationDetails: CachingObject = await this.cachingService.getLatLonValue(
-          promotion.placeId
-        );
-        promotion.lat = locationDetails?.lat;
-        promotion.lon = locationDetails?.lon;
-
+        await this.cachingService.setLatLonForPromotion(promotion);
         return response.send(promotion);
       });
     } catch (e) {
@@ -154,11 +148,7 @@ export class PromotionController {
           .getCustomRepository(PromotionRepository)
           .save(promotion);
 
-        await this.cachingService.cacheLatLonValues(
-          promotionDTO.placeId,
-          promotionDTO.lat,
-          promotionDTO.lon
-        );
+        await this.cachingService.getValuesAndCache(promotionDTO);
         result.lat = promotionDTO.lat;
         result.lon = promotionDTO.lon;
 

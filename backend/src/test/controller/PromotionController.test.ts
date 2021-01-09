@@ -18,17 +18,17 @@ describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
-  let redisClient: RedisClient;
+  let mockRedisClient: RedisClient;
 
   beforeAll(async () => {
     await connection.create();
-    redisClient = await connectRedisClient();
-    app = await registerTestApplication(redisClient);
+    mockRedisClient = await connectRedisClient();
+    app = await registerTestApplication(mockRedisClient);
   });
 
   afterAll(async () => {
     await connection.close();
-    redisClient.quit();
+    mockRedisClient.quit();
   });
 
   beforeEach(async () => {
@@ -44,12 +44,10 @@ describe('Unit tests for PromotionController', function () {
     const promotion = new PromotionFactory().generate(user, discount, [
       schedule,
     ]);
-    promotion.lat = 234.12;
-    promotion.lon = -12.12;
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
-    await redisClient.setex(
+    await mockRedisClient.setex(
       promotion.placeId,
       2592000,
       JSON.stringify({ lat: promotion.lat, lon: promotion.lon })
@@ -85,17 +83,12 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
 
-    promotion1.lat = 234.12;
-    promotion1.lon = -12.12;
-    promotion2.lat = 34.12;
-    promotion2.lon = -12.12;
-
-    await redisClient.setex(
+    await mockRedisClient.setex(
       promotion1.placeId,
       2592000,
       JSON.stringify({ lat: promotion1.lat, lon: promotion1.lon })
     );
-    await redisClient.setex(
+    await mockRedisClient.setex(
       promotion2.placeId,
       2592000,
       JSON.stringify({ lat: promotion2.lat, lon: promotion2.lon })
@@ -146,28 +139,15 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion2);
     await promotionRepository.save(promotion3);
 
-    promotion1.lat = 23.12;
-    promotion1.lon = -11.12;
-    promotion2.lat = 54.12;
-    promotion2.lon = -12.12;
-    promotion3.lat = 13.12;
-    promotion3.lon = 102.12;
+    const promotions: Promotion[] = [promotion1, promotion2, promotion3];
 
-    await redisClient.setex(
-      promotion1.placeId,
-      2592000,
-      JSON.stringify({ lat: promotion1.lat, lon: promotion1.lon })
-    );
-    await redisClient.setex(
-      promotion2.placeId,
-      2592000,
-      JSON.stringify({ lat: promotion2.lat, lon: promotion2.lon })
-    );
-    await redisClient.setex(
-      promotion3.placeId,
-      2592000,
-      JSON.stringify({ lat: promotion3.lat, lon: promotion3.lon })
-    );
+    for (const promotion of promotions) {
+      await mockRedisClient.setex(
+        promotion.placeId,
+        2592000,
+        JSON.stringify({ lat: promotion.lat, lon: promotion.lon })
+      );
+    }
 
     request(app)
       .get('/promotions')
@@ -200,9 +180,7 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(expectedPromotion);
 
-    expectedPromotion.lat = 234.12;
-    expectedPromotion.lon = -12.12;
-    await redisClient.setex(
+    await mockRedisClient.setex(
       expectedPromotion.placeId,
       2592000,
       JSON.stringify({ lat: expectedPromotion.lat, lon: expectedPromotion.lon })
@@ -226,8 +204,6 @@ describe('Unit tests for PromotionController', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()]
     );
-    expectedPromotion.lat = -34.5;
-    expectedPromotion.lon = 564.321;
 
     await userRepository.save(user);
     request(app)
@@ -242,34 +218,6 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('POST /promotions then GET /promotions/:id', async (done) => {
-    const user: User = new UserFactory().generate();
-    const expectedPromotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
-    expectedPromotion.lat = -34.5;
-    expectedPromotion.lon = 564.321;
-
-    await userRepository.save(user);
-    request(app)
-      .post('/promotions')
-      .send({ ...expectedPromotion, user: undefined, userId: user.id })
-      .then(async () => {
-        await promotionRepository.save(expectedPromotion);
-        request(app)
-          .get(`/promotions/${expectedPromotion.id}`)
-          .expect(200)
-          .end((err, res) => {
-            if (err) return done(err);
-            const promotion = res.body;
-            comparePromotions(promotion, expectedPromotion);
-            done();
-          });
-      });
-  });
-
   test('POST /promotions/ - invalid request body should be caught', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
@@ -277,6 +225,9 @@ describe('Unit tests for PromotionController', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()]
     );
+
+    delete promotion.lat;
+    delete promotion.lon;
 
     await userRepository.save(user);
     request(app)
@@ -308,8 +259,6 @@ describe('Unit tests for PromotionController', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()]
     );
-    promotion.lat = -34.5;
-    promotion.lon = 456.9;
 
     request(app)
       .post('/promotions')
@@ -338,11 +287,14 @@ describe('Unit tests for PromotionController', function () {
       [new ScheduleFactory().generate()]
     );
 
+    delete expectedPromotion.lat;
+    delete expectedPromotion.lon;
+
     await userRepository.save(user);
     request(app)
       .post('/promotions')
       .send({ ...expectedPromotion, user: undefined, userId: user.id })
-      .expect(201)
+      .expect(400)
       .end((err, res) => {
         const frontEndErrorObject = res.body;
         expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
@@ -465,6 +417,8 @@ describe('Unit tests for PromotionController', function () {
       placeId: expectedPromotion.placeId,
       expirationDate: expectedPromotion.expirationDate.toISOString(),
       startDate: expectedPromotion.startDate.toISOString(),
+      lat: expectedPromotion.lat,
+      lon: expectedPromotion.lon,
     };
 
     // since id is undefined in POST requests

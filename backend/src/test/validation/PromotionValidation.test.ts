@@ -395,7 +395,7 @@ describe('Unit tests for PromotionValidation', function () {
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(10);
+      expect(e.details.length).toEqual(12);
       expect(e.details[0].message).toEqual('"userId" must be a string');
       expect(e.details[1].message).toEqual('"placeId" must be a string');
       expect(e.details[2].message).toEqual('"schedules" must be an array');
@@ -407,7 +407,11 @@ describe('Unit tests for PromotionValidation', function () {
         '"expirationDate" must be a valid date'
       );
       expect(e.details[8].message).toEqual('"startDate" must be a valid date');
-      expect(e.details[9].message).toEqual('"restaurantName" must be a string');
+      expect(e.details[9].message).toEqual('"lat" must be a number');
+      expect(e.details[10].message).toEqual('"lon" must be a number');
+      expect(e.details[11].message).toEqual(
+        '"restaurantName" must be a string'
+      );
     }
   });
 });

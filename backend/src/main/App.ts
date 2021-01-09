@@ -64,6 +64,9 @@ export class App {
 
     const cachingService = new CachingService(redisClient);
 
+    // cache the lat/lon for existing sample data
+    await this.cacheSampleData(cachingService);
+
     const promotionController = new PromotionController(cachingService);
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
@@ -158,5 +161,17 @@ export class App {
       host: 'redis-server',
       port: 6379,
     });
+  }
+
+  private async cacheSampleData(cachingService: CachingService) {
+    for (const promotion of promotions_sample) {
+      promotion.lat = Math.random() * (-200.0 - 200.0) + 200.0;
+      promotion.lon = Math.random() * (-200.0 - 200.0) + 200.0;
+      await cachingService.cacheLatLonValues(
+        promotion.placeId,
+        promotion.lat,
+        promotion.lon
+      );
+    }
   }
 }

@@ -165,6 +165,9 @@ testing locally without Docker afterwards.
      ![image](https://user-images.githubusercontent.com/49849754/98633056-8504e100-22d5-11eb-9b24-54af8d87f1b1.png)
   5. Delete the generated files.
 
+## Setting up Local Redis
+To get a local server setup, please refer to the docs here https://redis.io/topics/quickstart.
+
 ## Connecting to Redis
 
 If you are interested in using a local Redis server, go to `App.ts` and modify the host field in the createRedisClient function to `localhost`. <br /> <br />
