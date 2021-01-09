@@ -148,6 +148,28 @@ Follow the docker instructions on the global `README.md`.
 Please note that you must shut down the Docker containers if you intend on
 testing locally without Docker afterwards.
 
+### Debugging inside docker
+
+Execute these commands at the **directory containing the docker-compose file** `<roodDir>/foodies`
+
+#### Debugging Postgres
+
+These steps help open the psql cli from the postgres container
+
+```
+docker-compose exec db bash // db is the name of the service we specified in the docker-compose.yml file
+psql -U postgres -d foodies // now you should be able to use the psql cli for the postgres container
+```
+
+#### Debugging Redis
+
+These steps help open the redis-cli from the redis container.
+Use the list of commands here https://redis.io/commands
+
+```
+docker-compose exec redis-server redis-cli // redis-server is the name of the service we specified in the docker-compose.yml file
+```
+
 ## If you modify any of the entities
 
 - make sure `main/resources/Data.ts` is updated accordingly.
@@ -167,5 +189,5 @@ To get a local server setup, please refer to the docs here https://redis.io/topi
 
 ## Connecting to Redis
 
-If you are interested in using a local Redis server, go to `App.ts` and modify the host field in the createRedisClient function to `localhost`. <br /> <br />
-If you would like to connect to the Redis server associated with Docker, modify the host to `redis-server`.
+If you are interested in using a local Redis server, go to your `.env` and modify the REDIS_HOST field to `localhost`. <br /> <br />
+If you would like to connect to the Redis server associated with Docker, modify the REDIS_HOST field to `redis-server`.
