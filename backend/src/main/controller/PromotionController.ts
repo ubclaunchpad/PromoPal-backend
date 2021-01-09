@@ -148,9 +148,12 @@ export class PromotionController {
           .getCustomRepository(PromotionRepository)
           .save(promotion);
 
-        await this.cachingService.getValuesAndCache(promotionDTO);
-        result.lat = promotionDTO.lat;
-        result.lon = promotionDTO.lon;
+        await this.cachingService.cacheLatLonValues(
+          promotion.placeId,
+          promotionDTO.lat,
+          promotionDTO.lon
+        );
+        await this.cachingService.setLatLonForPromotion(result);
 
         return response.status(201).send(result);
       });

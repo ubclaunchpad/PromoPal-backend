@@ -134,13 +134,15 @@ synchronize: true,
 dropSchema: true
 ```
 
-Then TypeORM will automatically create the schema drop the schema on every application launch
-Make sure these lines are uncommented in `App.ts` for TypeORM to save the data when the application starts. After data is loaded,
+Then TypeORM will automatically create the schema drop the schema on every application launch.
+Make sure this line is uncommented in `App.ts` in the `loadAndCacheSampleData` function for TypeORM to save the data when the application starts. After data is loaded,
 it is recommended to set `dropSchema: false`.
 
 ```
 await loadSampleData();
 ```
+
+If you find that the cached lat/lon values are not displaying for your promotions, make sure both functions `loadAndCacheSampleData` and `cacheLatLonForSamplePromotions` in `App.ts` are not commented out.
 
 ## Local development with Docker
 

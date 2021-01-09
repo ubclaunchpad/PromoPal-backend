@@ -1,34 +1,35 @@
 import { RedisClient } from 'redis';
 import { CachingObject } from '../data/CachingObject';
 import { Promotion } from '../entity/Promotion';
-import { PromotionDTO } from '../validation/PromotionValidation';
 
-// handles the caching for lat/lon values for restaurants with redis
+/**
+ * Handles the caching for lat/lon values for restaurants with Redis
+ */
 export class CachingService {
   private client: RedisClient;
 
-  // sets redis client for class
+  /**
+   * Sets Redis client for class
+   * @param client - current Redis client instance
+   */
   constructor(client: RedisClient) {
     this.client = client;
   }
 
-  // formats promotionDTO for caching
-  async getValuesAndCache(promotion: PromotionDTO): Promise<boolean> {
-    const placeId: string = promotion.placeId;
-    const latitude: number = promotion.lat;
-    const longitude: number = promotion.lon;
-    const result = await this.cacheLatLonValues(placeId, latitude, longitude);
-    return result;
-  }
-
-  // caches the lat/lon values for a promotion's restaurant
-  // key is placeId and value is of the form { lat: x, lon: y }
-  // sets the cached value to expire in 30 days (limit imposed by Google Places API)
+  /**
+   * Caches the lat/lon values for a promotion's restaurant
+   * key is placeId and value is of the type CachingObject
+   * sets the cached value to expire in 30 days
+   *
+   * @param placeId - place ID of the restaurant
+   * @param latitude - latitude value of the restaurant
+   * @param longitude - longitude value of the restaurant
+   */
   async cacheLatLonValues(
     placeId: string,
     latitude: number,
     longitude: number
-  ): Promise<boolean> {
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
       const value: CachingObject = { lat: latitude, lon: longitude };
       this.client.setex(
@@ -39,13 +40,16 @@ export class CachingService {
           if (err) {
             return reject(err);
           }
-          return resolve(true);
+          return resolve();
         }
       );
     });
   }
 
-  // retrieves the lat/lon value for the particular placeID
+  /**
+   * Retrieves the lat/lon value for the particular place ID
+   * @param placeId - place ID of the restaurant
+   */
   async getLatLonValue(placeId: string): Promise<CachingObject> {
     return new Promise((resolve, reject) => {
       this.client.get(placeId, (err: Error | null, data: string | null) => {
@@ -58,12 +62,10 @@ export class CachingService {
     });
   }
 
-  // returns redisClient
-  getClient(): RedisClient {
-    return this.client;
-  }
-
-  // sets the lat/lon value fields for each promotion in the list of promotions
+  /**
+   * Sets the lat/lon values for each promotion in the list of promotions
+   * @param promotions - list of promotions
+   */
   async setLatLonForPromotions(promotions: Promotion[]): Promise<void[]> {
     const promises = promotions.map((promotion: Promotion) =>
       this.setLatLonForPromotion(promotion)
@@ -71,7 +73,10 @@ export class CachingService {
     return Promise.all(promises);
   }
 
-  // sets the lat/lon value for a promotion
+  /**
+   * Sets the lat/lon values for a promotion
+   * @param promotion - current promotion instance
+   */
   async setLatLonForPromotion(promotion: Promotion): Promise<void> {
     return this.getLatLonValue(promotion.placeId)
       .then((locationDetails: CachingObject) => {

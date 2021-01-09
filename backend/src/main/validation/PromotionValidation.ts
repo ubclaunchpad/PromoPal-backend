@@ -44,7 +44,7 @@ export class PromotionValidation {
       .default(new Date()),
     /** note incoming format is a string, and Joi will automatically convert to type Date */
     expirationDate: Joi.date().required(),
-    lat: Joi.number().required().strict(true), // note incoming format is a string, and Joi will automatically convert to type Number (both lat/lon)
+    lat: Joi.number().required().strict(true),
     lon: Joi.number().required().strict(true),
     restaurantName: Joi.string().required(),
   }).required();
