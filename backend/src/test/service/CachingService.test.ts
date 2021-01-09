@@ -12,30 +12,23 @@ import { ScheduleFactory } from '../factory/ScheduleFactory';
 describe('tests for redis cache', function () {
   let cachingService: CachingService;
 
-  beforeEach(() => {
+  beforeAll(() => {
     const redisMockClient = redisMock.createClient();
     cachingService = new CachingService(redisMockClient);
   });
 
-  afterEach(() => {
+  afterAll(() => {
     const client = cachingService.getClient();
     client.quit();
   });
 
-  test('adding lat/lon value', () => {
+  test('caching and getting lat/lon values', () => {
     return cachingService
       .cacheLatLonValues('ChIJIfBAsjeuEmsRdgu9Pl1Ps48', -34.2, -46.123)
       .then((value: boolean) => {
         expect(value).toBeTruthy();
+        return cachingService.getLatLonValue('ChIJIfBAsjeuEmsRdgu9Pl1Ps48');
       })
-      .catch((e) => {
-        fail('Did not expect to fail: ' + e.message);
-      });
-  });
-
-  test('getting lat/lon value', async () => {
-    return cachingService
-      .getLatLonValue('ChIJIfBAsjeuEmsRdgu9Pl1Ps48')
       .then((result: CachingObject) => {
         expect(result).toHaveProperty('lat');
         expect(result).toHaveProperty('lon');
@@ -65,8 +58,12 @@ describe('tests for redis cache', function () {
     );
 
     const promotions: Promotion[] = [promotion1, promotion2];
+
     return cachingService
-      .setLatLonForPromotions(promotions)
+      .cacheLatLonValues('ChIJIfBAsjeuEmsRdgu9Pl1Ps48', -34.2, -46.123)
+      .then(() => {
+        return cachingService.setLatLonForPromotions(promotions);
+      })
       .then(() => {
         const expectedPromotion1 = promotion1;
         expectedPromotion1.lat = -34.2;
@@ -84,7 +81,7 @@ describe('tests for redis cache', function () {
 
   test('setting lat/lon for a promotion', async () => {
     const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
+    const promotion: Promotion = new PromotionFactory().generate(
       user,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       [new ScheduleFactory().generate()],
@@ -92,7 +89,10 @@ describe('tests for redis cache', function () {
     );
 
     return cachingService
-      .setLatLonForPromotion(promotion)
+      .cacheLatLonValues('ChIJIfBAsjeuEmsRdgu9Pl1Ps48', -34.2, -46.123)
+      .then(() => {
+        return cachingService.setLatLonForPromotion(promotion);
+      })
       .then(() => {
         const expectedPromotion = promotion;
         expectedPromotion.lat = -34.2;

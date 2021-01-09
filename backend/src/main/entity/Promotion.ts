@@ -162,7 +162,7 @@ export class Promotion {
   tsVector: string;
 
   /*
-   * Represents restaurant name inputted by user
+   * Represents restaurant name from Google Places API
    * Many promotions can come from the same restaurant and thus have the same restaurantName
    * */
   @Column()

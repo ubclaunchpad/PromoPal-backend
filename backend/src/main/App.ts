@@ -33,7 +33,7 @@ import { CachingService } from './service/CachingService';
 export class App {
   async init(): Promise<void> {
     try {
-      await createConnection({
+      const connection = await createConnection({
         type: 'postgres',
         host: process.env['DB_HOST'] ?? 'localhost',
         port: 5432,
@@ -83,6 +83,9 @@ export class App {
     app.get('/', (req, res) => res.send('Hello World'));
 
     const cachingService = new CachingService(redisClient);
+
+    // cache the lat/lon for existing sample data
+    await this.cacheSampleData(cachingService);
 
     const promotionController = new PromotionController(cachingService);
     const promotionRouter = new PromotionRouter(promotionController);
@@ -177,5 +180,17 @@ export class App {
       host: process.env.REDIS_HOST ?? 'localhost',
       port: 6379,
     });
+  }
+
+  private async cacheSampleData(cachingService: CachingService) {
+    for (const promotion of promotions_sample) {
+      promotion.lat = Math.random() * (-200.0 - 200.0) + 200.0;
+      promotion.lon = Math.random() * (-200.0 - 200.0) + 200.0;
+      await cachingService.cacheLatLonValues(
+        promotion.placeId,
+        promotion.lat,
+        promotion.lon
+      );
+    }
   }
 }
