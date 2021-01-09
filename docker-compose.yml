@@ -30,5 +30,7 @@ services:
           - db
         links: 
           - db
+        environment:
+          DB_HOST: db
     redis-server:
       image: 'redis'
