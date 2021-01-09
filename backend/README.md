@@ -189,5 +189,5 @@ To get a local server setup, please refer to the docs here https://redis.io/topi
 
 ## Connecting to Redis
 
-If you are interested in using a local Redis server, go to `App.ts` and modify the host field in the createRedisClient function to `localhost`. <br /> <br />
-If you would like to connect to the Redis server associated with Docker, modify the host to `redis-server`.
+If you are interested in using a local Redis server, go to your `.env` and modify the REDIS_HOST field to `localhost`. <br /> <br />
+If you would like to connect to the Redis server associated with Docker, modify the REDIS_HOST field to `redis-server`.
