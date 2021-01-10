@@ -153,7 +153,8 @@ export class PromotionController {
           promotionDTO.lat,
           promotionDTO.lon
         );
-        await this.cachingService.setLatLonForPromotion(result);
+        result.lat = promotionDTO.lat;
+        result.lon = promotionDTO.lon;
 
         return response.status(201).send(result);
       });
