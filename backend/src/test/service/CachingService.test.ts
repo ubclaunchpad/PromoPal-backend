@@ -34,8 +34,8 @@ describe('tests for redis cache', function () {
       const resultTwo = await cachingService.getLatLonValue(mockPlaceID);
       expect(resultTwo).toHaveProperty('lat');
       expect(resultTwo).toHaveProperty('lon');
-      expect(resultTwo.lat).toBe(-34.2);
-      expect(resultTwo.lon).toBe(-46.123);
+      expect(resultTwo.lat).toBe(mockLatitude);
+      expect(resultTwo.lon).toBe(mockLongitude);
     } catch (e) {
       fail('Did not expect to fail: ' + e.message);
     }
@@ -93,10 +93,8 @@ describe('tests for redis cache', function () {
         mockLongitude
       );
       await cachingService.setLatLonForPromotion(promotion);
-      const expectedPromotion = promotion;
-      expectedPromotion.lat = -34.2;
-      expectedPromotion.lon = -46.123;
-      expect(expectedPromotion).toEqual(promotion);
+      expect(promotion.lat).toEqual(mockLatitude);
+      expect(promotion.lon).toEqual(mockLongitude);
     } catch (e) {
       fail('Did not expect to fail: ' + e.message);
     }

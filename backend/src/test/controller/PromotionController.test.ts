@@ -13,16 +13,19 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
+import { CachingService } from '../../main/service/CachingService';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
+  let cachingService: CachingService;
 
   beforeAll(async () => {
     await connection.create();
     mockRedisClient = await connectRedisClient();
+    cachingService = new CachingService(mockRedisClient);
     app = await registerTestApplication(mockRedisClient);
   });
 
@@ -47,7 +50,7 @@ describe('Unit tests for PromotionController', function () {
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
-    await setLatLonForPromotions([promotion]);
+    await cacheLatLonForPromotions([promotion]);
 
     request(app)
       .get('/promotions')
@@ -79,7 +82,7 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
 
-    await setLatLonForPromotions([promotion1, promotion2]);
+    await cacheLatLonForPromotions([promotion1, promotion2]);
 
     request(app)
       .get('/promotions')
@@ -126,7 +129,7 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion2);
     await promotionRepository.save(promotion3);
 
-    await setLatLonForPromotions([promotion1, promotion2, promotion3]);
+    await cacheLatLonForPromotions([promotion1, promotion2, promotion3]);
 
     request(app)
       .get('/promotions')
@@ -159,7 +162,7 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(expectedPromotion);
 
-    await setLatLonForPromotions([expectedPromotion]);
+    await cacheLatLonForPromotions([expectedPromotion]);
 
     request(app)
       .get(`/promotions/${expectedPromotion.id}`)
@@ -201,9 +204,6 @@ describe('Unit tests for PromotionController', function () {
       [new ScheduleFactory().generate()]
     );
 
-    delete promotion.lat;
-    delete promotion.lon;
-
     await userRepository.save(user);
     request(app)
       .post('/promotions')
@@ -217,12 +217,36 @@ describe('Unit tests for PromotionController', function () {
       .end((err, res) => {
         const frontEndErrorObject = res.body;
         expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
-        expect(frontEndErrorObject.message).toHaveLength(3);
+        expect(frontEndErrorObject.message).toHaveLength(1);
         expect(frontEndErrorObject.message[0]).toContain(
           '"cuisine" must be one of'
         );
-        expect(frontEndErrorObject.message[1]).toContain('"lat" is required');
-        expect(frontEndErrorObject.message[2]).toContain('"lon" is required');
+        done();
+      });
+  });
+
+  test('POST /promotions/ - should not be able to add promotion if lat/lon do not exist', async (done) => {
+    const user: User = new UserFactory().generate();
+    const expectedPromotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    delete expectedPromotion.lat;
+    delete expectedPromotion.lon;
+
+    await userRepository.save(user);
+    request(app)
+      .post('/promotions')
+      .send({ ...expectedPromotion, user: undefined, userId: user.id })
+      .expect(400)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
+        expect(frontEndErrorObject.message).toHaveLength(2);
+        expect(frontEndErrorObject.message[0]).toContain('"lat" is required');
+        expect(frontEndErrorObject.message[1]).toContain('"lon" is required');
         done();
       });
   });
@@ -353,19 +377,16 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  async function setLatLonForPromotions(promotions: Promotion[]) {
-    const promises = promotions.map((promotion: Promotion) =>
-      setLatLonForPromotion(promotion)
-    );
-    return Promise.all(promises);
-  }
-
-  function setLatLonForPromotion(promotion: Promotion) {
-    return mockRedisClient.setex(
-      promotion.placeId,
-      2592000,
-      JSON.stringify({ lat: promotion.lat, lon: promotion.lon })
-    );
+  async function cacheLatLonForPromotions(promotions: Promotion[]) {
+    for (const promotion of promotions) {
+      if (promotion.lat && promotion.lon) {
+        await cachingService.cacheLatLonValues(
+          promotion.placeId,
+          promotion.lat,
+          promotion.lon
+        );
+      }
+    }
   }
 
   /**
