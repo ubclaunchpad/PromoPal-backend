@@ -68,7 +68,7 @@ yarn run syncSchema
 
 ## Run migrations
 
-This will run any migrations in the `/migrations` folder. Currently `ormconfig.json` is configured to run migrations when the application starts.
+This will run any migrations in the `/migrations` folder. Currently `ormconfig.ts` is configured to run migrations when the application starts.
 
 ```
 yarn run run_migration
@@ -127,7 +127,7 @@ yarn run loadSqlData
 
 ### Loading data through typeORM
 
-In `ormconfig.json`, if you set:
+In `ormconfig.ts`, if you set:
 
 ```
 synchronize: true,
@@ -170,6 +170,25 @@ Use the list of commands here https://redis.io/commands
 
 ```
 docker-compose exec redis-server redis-cli // redis-server is the name of the service we specified in the docker-compose.yml file
+```
+
+### Run tests inside docker container
+
+Note we currently don't support this because we have not created the `foodies_test` database in docker-compose. But it should be fairly straightforward to do so
+
+```
+docker exec -it foodies_web_1 yarn run test
+// or
+docker-compose exec web bash
+yarn run test
+```
+
+### Inspect file system of docker image (https://stackoverflow.com/a/44769468)
+
+```
+docker run -it image_name sh
+// or if you prefer bash
+docker run -it image_name bash
 ```
 
 ## If you modify any of the entities
