@@ -145,6 +145,9 @@ Note we currently don't support this because we have not created the `foodies_te
 
 ```
 docker exec -it foodies_web_1 yarn run test
+// or
+docker-compose exec web bash
+yarn run test
 ```
 
 ### Inspect file system of docker image (https://stackoverflow.com/a/44769468)
