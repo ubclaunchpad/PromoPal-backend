@@ -62,7 +62,7 @@ export class App {
       await this.registerHandlersAndRoutes(app, this.redisClient);
 
       // load sample data and cache the lat/lon for existing data
-      await this.loadAndCacheSampleData();
+      // await this.loadAndCacheSampleData();
 
       const PORT = 8000;
       app.listen(PORT, () => {
@@ -196,7 +196,7 @@ export class App {
   }
 
   async loadAndCacheSampleData(): Promise<void> {
-    // await this.loadSampleDBData();
+    await this.loadSampleDBData();
     await this.cacheLatLonForSamplePromotions();
   }
 }
