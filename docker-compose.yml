@@ -25,10 +25,14 @@ services:
           - ./backend:/foodies/backend
         ports:
           - "8000:8000"
-        command: bash -c "yarn install && yarn start"
         depends_on: 
           - db
         links: 
           - db
         environment:
           DB_HOST: db
+          REDIS_HOST: redis-server
+    redis-server:
+        image: redis
+        ports:
+          - "6379:6379"

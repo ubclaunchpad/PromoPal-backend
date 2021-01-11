@@ -4,8 +4,10 @@
 
 1. Postgres
    - when installing, use the default password "postgres"
+   - for macOS users, suggested installation is through homebrew
 2. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
+3. Redis
 
 ## Before starting
 
@@ -22,7 +24,12 @@ Fill out the environment variables respectively
 
 You will need two databases, `foodies` and `foodies_test`.
 
-**Make sure your username is `postgres`**.
+**Ensure you have a `postgres` user setup, and it is your current username**. <br />
+_If you do not have this setup, please execute the following command. Otherwise, go to Step 1_.
+
+```
+CREATE ROLE postgres WITH LOGIN PASSWORD 'postgres'
+```
 
 1. Launch `psql`
 2. Connect to localhost and select everything to default. The password should be the same as the one during installation, "postgres".
@@ -45,7 +52,7 @@ GRANT ALL PRIVILEGES ON DATABASE foodies TO postgres;
 
 Currently, all tests drop the schema after each test. Therefore, do not design tests to be reliant on data from previous tests.
 
-## Drop the database schema:
+## Drop the database schema
 
 ```
 yarn run dropSchema
@@ -61,7 +68,7 @@ yarn run syncSchema
 
 ## Run migrations
 
-This will run any migrations in the `/migrations` folder. Currently `ormconfig.json` is configured to run migrations when the application starts.
+This will run any migrations in the `/migrations` folder. Currently `ormconfig.ts` is configured to run migrations when the application starts.
 
 ```
 yarn run run_migration
@@ -120,24 +127,69 @@ yarn run loadSqlData
 
 ### Loading data through typeORM
 
-In `ormconfig.json`, if you set:
+In `ormconfig.ts`, if you set:
 
 ```
 synchronize: true,
 dropSchema: true
 ```
 
-Then TypeORM will automatically create the schema drop the schema on every application launch
-Make sure these lines are uncommented in `App.ts` for TypeORM to save the data when the application starts. After data is loaded,
+Then TypeORM will automatically create the schema drop the schema on every application launch.
+Make sure this line is uncommented in `App.ts` in the `loadAndCacheSampleData` function for TypeORM to save the data when the application starts. After data is loaded,
 it is recommended to set `dropSchema: false`.
 
 ```
 await loadSampleData();
 ```
 
+If you find that the cached lat/lon values are not displaying for your promotions, make sure both functions `loadAndCacheSampleData` and `cacheLatLonForSamplePromotions` in `App.ts` are not commented out.
+
 ## Local development with Docker
 
 Follow the docker instructions on the global `README.md`.
+Please note that you must shut down the Docker containers if you intend on
+testing locally without Docker afterwards.
+
+### Debugging inside docker
+
+Execute these commands at the **directory containing the docker-compose file** `<roodDir>/foodies`
+
+#### Debugging Postgres
+
+These steps help open the psql cli from the postgres container
+
+```
+docker-compose exec db bash // db is the name of the service we specified in the docker-compose.yml file
+psql -U postgres -d foodies // now you should be able to use the psql cli for the postgres container
+```
+
+#### Debugging Redis
+
+These steps help open the redis-cli from the redis container.
+Use the list of commands here https://redis.io/commands
+
+```
+docker-compose exec redis-server redis-cli // redis-server is the name of the service we specified in the docker-compose.yml file
+```
+
+### Run tests inside docker container
+
+Note we currently don't support this because we have not created the `foodies_test` database in docker-compose. But it should be fairly straightforward to do so
+
+```
+docker exec -it foodies_web_1 yarn run test
+// or
+docker-compose exec web bash
+yarn run test
+```
+
+### Inspect file system of docker image (https://stackoverflow.com/a/44769468)
+
+```
+docker run -it image_name sh
+// or if you prefer bash
+docker run -it image_name bash
+```
 
 ## If you modify any of the entities
 
@@ -148,6 +200,15 @@ Follow the docker instructions on the global `README.md`.
      ![image](https://user-images.githubusercontent.com/49849754/98633000-6f8fb700-22d5-11eb-8a02-9726213ebad4.png)
   3. Make note of the location you save these files to and click `Export to File`  
      ![image](https://user-images.githubusercontent.com/49849754/98633026-79191f00-22d5-11eb-833b-da2372a51da8.png)
-  4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions)  
+  4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions). This is critical as new IDs are created each time.  
      ![image](https://user-images.githubusercontent.com/49849754/98633056-8504e100-22d5-11eb-9b24-54af8d87f1b1.png)
   5. Delete the generated files.
+
+## Setting up Local Redis
+
+To get a local server setup, please refer to the docs here https://redis.io/topics/quickstart.
+
+## Connecting to Redis
+
+If you are interested in using a local Redis server, go to your `.env` and modify the REDIS_HOST field to `localhost`. <br /> <br />
+If you would like to connect to the Redis server associated with Docker, modify the REDIS_HOST field to `redis-server`.
