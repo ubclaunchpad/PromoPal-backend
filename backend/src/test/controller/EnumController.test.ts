@@ -1,22 +1,26 @@
 import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
-import { registerTestApplication } from './BaseController';
+import { connectRedisClient, registerTestApplication } from './BaseController';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionType } from '../../main/data/PromotionType';
 import { CuisineType } from '../../main/data/CuisineType';
 import { Day } from '../../main/data/Day';
+import { RedisClient } from 'redis-mock';
 
 describe('Unit tests for PromotionController', function () {
   let app: Express;
+  let redisClient: RedisClient;
 
   beforeAll(async () => {
     await connection.create();
-    app = registerTestApplication();
+    redisClient = await connectRedisClient();
+    app = await registerTestApplication(redisClient);
   });
 
   afterAll(async () => {
     await connection.close();
+    redisClient.quit();
   });
 
   beforeEach(async () => {
