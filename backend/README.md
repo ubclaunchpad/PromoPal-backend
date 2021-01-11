@@ -68,7 +68,7 @@ yarn run syncSchema
 
 ## Run migrations
 
-This will run any migrations in the `/migrations` folder. Currently `ormconfig.json` is configured to run migrations when the application starts.
+This will run any migrations in the `/migrations` folder. Currently `ormconfig.ts` is configured to run migrations when the application starts.
 
 ```
 yarn run run_migration
@@ -127,7 +127,7 @@ yarn run loadSqlData
 
 ### Loading data through typeORM
 
-In `ormconfig.json`, if you set:
+In `ormconfig.ts`, if you set:
 
 ```
 synchronize: true,
