@@ -24,14 +24,18 @@ import { EnumRouter } from './route/EnumRouter';
 import { ScheduleRepository } from './repository/ScheduleRepository';
 import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
+import redis, { RedisClient } from 'redis';
+import { CachingService } from './service/CachingService';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 //todo: ormconfig.json should not have synchronize and drop schema as true for production
 export class App {
+  private redisClient: RedisClient;
+
   async init(): Promise<void> {
     try {
-      const connection = await createConnection({
+      await createConnection({
         type: 'postgres',
         host: process.env['DB_HOST'] ?? 'localhost',
         port: 5432,
@@ -54,8 +58,11 @@ export class App {
       });
       const app = express();
 
-      // await this.loadSampleData();
-      this.registerHandlersAndRoutes(app);
+      this.redisClient = await this.createRedisClient();
+      await this.registerHandlersAndRoutes(app, this.redisClient);
+
+      // load sample data and cache the lat/lon for existing data
+      // await this.loadAndCacheSampleData();
 
       const PORT = 8000;
       app.listen(PORT, () => {
@@ -71,12 +78,16 @@ export class App {
   /**
    * Note: make sure any changes in handlers/routes/controllers will also appear for test/controller/BaseController.ts
    * */
-  registerHandlersAndRoutes(app: Express): void {
+  async registerHandlersAndRoutes(
+    app: Express,
+    redisClient: RedisClient
+  ): Promise<void> {
     app.use(bodyParser.json());
 
     app.get('/', (req, res) => res.send('Hello World'));
 
-    const promotionController = new PromotionController();
+    const cachingService = new CachingService(redisClient);
+    const promotionController = new PromotionController(cachingService);
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 
@@ -93,7 +104,7 @@ export class App {
   }
 
   /* eslint-disable  @typescript-eslint/no-unused-vars */
-  async loadSampleData(): Promise<void> {
+  async loadSampleDBData(): Promise<void> {
     const userRepository: UserRepository = getCustomRepository(UserRepository);
     const promotionRepository: PromotionRepository = getCustomRepository(
       PromotionRepository
@@ -162,6 +173,30 @@ export class App {
     const schedulesLazy: Schedule[] = await scheduleRepository.find({
       loadRelationIds: true,
     });
-    console.log();
+  }
+
+  async createRedisClient(): Promise<RedisClient> {
+    return redis.createClient({
+      host: process.env.REDIS_HOST ?? 'localhost',
+      port: 6379,
+    });
+  }
+
+  private async cacheLatLonForSamplePromotions(): Promise<void> {
+    const cachingService = new CachingService(this.redisClient);
+    for (const promotion of promotions_sample) {
+      promotion.lat = Math.random() * (-200.0 - 200.0) + 200.0;
+      promotion.lon = Math.random() * (-200.0 - 200.0) + 200.0;
+      await cachingService.cacheLatLonValues(
+        promotion.placeId,
+        promotion.lat,
+        promotion.lon
+      );
+    }
+  }
+
+  async loadAndCacheSampleData(): Promise<void> {
+    await this.loadSampleDBData();
+    await this.cacheLatLonForSamplePromotions();
   }
 }
