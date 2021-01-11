@@ -31,7 +31,8 @@ export class Promotion {
     name: string,
     description: string,
     startDate: Date,
-    expirationDate: Date
+    expirationDate: Date,
+    restaurantName: string
   ) {
     this.user = user;
     this.discount = discount;
@@ -43,6 +44,7 @@ export class Promotion {
     this.description = description;
     this.startDate = startDate;
     this.expirationDate = expirationDate;
+    this.restaurantName = restaurantName;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -158,6 +160,19 @@ export class Promotion {
     select: false,
   })
   tsVector: string;
+
+  /*
+   * Represents restaurant name from Google Places API
+   * Many promotions can come from the same restaurant and thus have the same restaurantName
+   * */
+  @Column()
+  restaurantName: string;
+
+  /*
+   * These are just temporary values due to caching restrictions for lat/lon
+   */
+  lon?: number;
+  lat?: number;
 
   /**
    * Not included in the constructor because when we create a promotion, starts at 0 votes

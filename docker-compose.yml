@@ -31,3 +31,8 @@ services:
           - db
         environment:
           DB_HOST: db
+          REDIS_HOST: redis-server
+    redis-server:
+        image: redis
+        ports:
+          - "6379:6379"
