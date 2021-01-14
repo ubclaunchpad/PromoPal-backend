@@ -1,6 +1,7 @@
 import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm';
 import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
+import { Schedule } from '../entity/Schedule';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -19,7 +20,7 @@ export class PromotionRepository extends Repository<Promotion> {
     } else {
       return this.createQueryBuilder('promotion')
         .innerJoinAndSelect('promotion.discount', 'discount')
-        .innerJoinAndSelect('promotion.schedules', 'schedules')
+        .innerJoinAndSelect('promotion.schedules', 'schedule')
         .cache(true) // https://typeorm.io/#/caching Any promotions added within the 1 second cache window won't be returned to the user
         .getMany();
     }
@@ -31,7 +32,7 @@ export class PromotionRepository extends Repository<Promotion> {
   private applyQueryOptions(promotionQuery: PromotionQueryDTO): Promise<any> {
     const queryBuilder = this.createQueryBuilder('promotion')
       .innerJoinAndSelect('promotion.discount', 'discount')
-      .innerJoinAndSelect('promotion.schedules', 'schedules');
+      .innerJoinAndSelect('promotion.schedules', 'schedule');
 
     if (promotionQuery?.promotionType) {
       queryBuilder.andWhere('promotion.promotionType = :promotionType', {
@@ -76,6 +77,24 @@ export class PromotionRepository extends Repository<Promotion> {
         "promotion.expirationDate ::timestamptz at time zone 'UTC' >= :date ::timestamptz at time zone 'UTC'",
         {
           date: promotionQuery.expirationDate,
+        }
+      );
+    }
+
+    if (promotionQuery?.dayOfWeek) {
+      // use a subQuery so that we still return all the schedules of a promotion
+      queryBuilder.andWhere(
+        (qb) => {
+          const subQuery = qb
+            .subQuery()
+            .select('S.promotionId')
+            .from(Schedule, 'S')
+            .where('S.dayOfWeek = :dayOfWeek')
+            .getQuery();
+          return 'promotion.id in ' + subQuery;
+        },
+        {
+          dayOfWeek: promotionQuery.dayOfWeek,
         }
       );
     }
