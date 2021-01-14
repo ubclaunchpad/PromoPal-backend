@@ -3,11 +3,13 @@ import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { NextFunction, Request, Response } from 'express';
 import Joi from 'joi';
+import { Day } from '../data/Day';
 
 enum SupportedEnums {
   DiscountType = 'DiscountType',
   PromotionType = 'PromotionType',
   CuisineType = 'CuisineType',
+  Day = 'Day',
 }
 
 export class EnumController {
@@ -48,6 +50,8 @@ export class EnumController {
         return PromotionType;
       case SupportedEnums.CuisineType:
         return CuisineType;
+      case SupportedEnums.Day:
+        return Day;
     }
   }
 

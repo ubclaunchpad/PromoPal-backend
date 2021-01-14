@@ -17,6 +17,7 @@ import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { UserFactory } from '../factory/UserFactory';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
+import { Day } from '../../main/data/Day';
 
 describe('Integration tests for all entities', function () {
   const SAMPLE_SEARCH_QUERY = 'beef cafe';
@@ -660,6 +661,65 @@ describe('Integration tests for all entities', function () {
       expect(promotions[0].discount.discountValue).toBeGreaterThanOrEqual(
         promotionQueryDTO.discountValue as number
       );
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Should be able to get all promotions that are available a specific day of the week', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      dayOfWeek: Day.MONDAY,
+    };
+
+    const user1 = new UserFactory().generate();
+    const user2 = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generate(
+      user1,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate('8:00', '9:00', Day.MONDAY)]
+    );
+    const promotion2 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate('8:00', '9:00', Day.TUESDAY)]
+    );
+
+    const promotion3 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [
+        new ScheduleFactory().generate('8:00', '9:00', Day.FRIDAY),
+        new ScheduleFactory().generate('8:00', '9:00', Day.MONDAY),
+        new ScheduleFactory().generate('8:00', '9:00', Day.SATURDAY),
+      ]
+    );
+
+    await userRepository.save(user1);
+    await userRepository.save(user2);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(2);
+      const expectedPromotions = [promotion1, promotion3];
+      for (const expectedPromotion of expectedPromotions) {
+        const p = promotions.find(
+          (promotion) => promotion.id === expectedPromotion.id
+        );
+        expect(p).toBeDefined();
+        expect(p!.schedules.length).toEqual(expectedPromotion.schedules.length);
+        expect(
+          p!.schedules.find(
+            (schedule) => schedule.dayOfWeek === promotionQueryDTO.dayOfWeek
+          )
+        ).toBeDefined();
+      }
     } catch (e) {
       fail('Should not have failed: ' + e);
     }
