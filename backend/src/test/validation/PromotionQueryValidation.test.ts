@@ -103,6 +103,21 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
+  test('Should fail for empty cuisine array', async () => {
+    try {
+      promotionQueryDTO.cuisine = [];
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toContain(
+        '"cuisine" does not match any of the allowed types'
+      );
+    }
+  });
+
   test('Should fail if element in array is not valid cuisine', async () => {
     try {
       promotionQueryDTO.cuisine = [
@@ -121,7 +136,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
-  test('Should fail if is unparsed json', async () => {
+  test('Should fail if cuisine is unparsed json', async () => {
     try {
       promotionQueryDTO.cuisine = JSON.stringify([
         CuisineType.CARIBBEAN,

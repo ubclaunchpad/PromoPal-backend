@@ -19,7 +19,9 @@ export class PromotionQueryValidation {
     /** request.query needs to follow format in order to be automatically converted to array - https://stackoverflow.com/a/33086861 */
     cuisine: Joi.alternatives(
       Joi.string().valid(...Object.values(CuisineType)),
-      Joi.array().items(Joi.string().valid(...Object.values(CuisineType)))
+      Joi.array()
+        .min(1)
+        .items(Joi.string().valid(...Object.values(CuisineType)))
     ),
     /** note incoming format is a string, and Joi will automatically convert to type Date */
     expirationDate: Joi.date(),
