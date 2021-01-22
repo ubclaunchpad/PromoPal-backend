@@ -50,7 +50,7 @@ export enum Sort {
 }
 
 export interface FilterOptions {
-  cuisine: string;
+  cuisine: string[];
   dayOfWeek: string[];
   discountType: string;
   promotionType: string[];

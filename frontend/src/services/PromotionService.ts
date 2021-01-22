@@ -1,19 +1,48 @@
 import { FilterOptions, Promotion, Sort } from "../types/promotion";
 import Routes from "../utils/routes";
 
+type EnumSuccess = Promotion[];
+
+type EnumError = {
+  errorCode: string;
+  message: string[];
+};
+
+type EnumResponse = EnumSuccess | EnumError;
+
 /**
  * Fetches entire list of promotions. If a query object is given, filters the promotions according to the given query.
  * If an error occurs, an empty list will be returned.
+ * 
+ * @param query [optional] - An array of objects with key-value pairs for the query parameters
  */
-export async function getPromotions(query?: Record<string, string>): Promise<Promotion[]> {
+export async function getPromotions(query?: Record<string, string>[]): Promise<Promotion[]> {
   let endpoint = Routes.PROMOTIONS;
-  if (query) {
-    const queryParams = new URLSearchParams(query);
-    endpoint += `?${queryParams.toString()}`;
+  if (query && query.length > 0) {
+    endpoint += '?'
+    query.forEach((param: Record<string, string>, index: number) => {
+      const [key] = Object.keys(param);
+      const [value] = Object.values(param);
+
+      // First query param is not prefixed by an ampersand
+      endpoint += `${index > 0 ? '&' : ''}${key}=${value}`;
+    });
   }
+  
   return fetch(endpoint)
-    .then((res: Response) => res.json())
-    .catch(() => []);
+  .then((res: Response) => res.json())
+  .then((promotions: EnumResponse) => {
+    // Promotions are returned in arrays
+    if (Array.isArray(promotions)) {
+      return promotions as EnumSuccess;
+    }
+    // If it isn't an array, it's probably an object that indicates an error
+    throw promotions as EnumError;
+  })
+  .catch((err: Error) => {
+    // Allow caller to handle error
+    throw err;
+  });
 }
 
 /**
@@ -22,23 +51,24 @@ export async function getPromotions(query?: Record<string, string>): Promise<Pro
  * @param filters - An object specifying the keys and the values to filter the promotions by
  */
 export function filterPromotions(filters: FilterOptions): Promise<Promotion[]> {
-  const { cuisine, dayOfWeek, discountType, promotionType } = filters;
+  let { cuisine, dayOfWeek, discountType, promotionType } = filters;
 
-  const promotionQueryDTO: Record<string, string> = {};
+  const promotionQueryDTO: Record<string, string>[] = [];
   if (cuisine?.length > 0) {
-    promotionQueryDTO.cuisine = cuisine;
+    cuisine.forEach((cuisine: string) => promotionQueryDTO.push({ cuisine }));
+  }
+  if (dayOfWeek.length > 0) {
+    dayOfWeek.forEach((dayOfWeek: string) => promotionQueryDTO.push({ dayOfWeek }));
   }
   if (discountType?.length > 0) {
     // Handle case where filter is one of ["$ Off", "% Off"]
-    let discount = discountType;
     if (discountType !== "Other") {
-      discount = discountType.substring(0, 1);
+      discountType = discountType.substring(0, 1);
     }
-    promotionQueryDTO.discountType = discount;
+    promotionQueryDTO.push({ discountType });
   }
   if (promotionType?.length > 0) {
-    // Stringify array of promotion types
-    promotionQueryDTO.promotionType = JSON.stringify(promotionType);
+    promotionType.forEach((promotionType: string) => promotionQueryDTO.push({ promotionType }));
   }
 
   return getPromotions(promotionQueryDTO);

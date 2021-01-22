@@ -121,7 +121,7 @@ export default function Home(): ReactElement {
     },
     {
       text: "Cuisine",
-      type: DropdownType.Radio,
+      type: DropdownType.MultiSelect,
       options: cuisineTypes.map((cuisine) => ({
         action: actions.cuisine,
         text: cuisine,

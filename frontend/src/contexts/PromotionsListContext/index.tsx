@@ -7,7 +7,7 @@ import { Sort, FilterOptions, Promotion } from "../../types/promotion";
 import { Context, DispatchAction, DispatchParams, State } from "./types";
 
 export const defaultFilters: FilterOptions = {
-  cuisine: "",
+  cuisine: [],
   dayOfWeek: [],
   discountType: "",
   promotionType: [],
