@@ -7,10 +7,7 @@ import {
 } from "../contexts/PromotionsListContext";
 import { Promotion, FilterOptions, Sort } from "../types/promotion";
 
-export function promotionsListReducer(
-  state: State,
-  { type, payload }: DispatchParams
-): State {
+export function promotionsListReducer(state: State, { type, payload }: DispatchParams): State {
   let nextState = state;
 
   switch (type) {

@@ -1,9 +1,6 @@
 import { DispatchAction, DispatchParams, State } from "../contexts/DropdownContext";
 
-export function dropdownReducer(
-  state: State,
-  { type, payload }: DispatchParams
-): State {
+export function dropdownReducer(state: State, { type, payload }: DispatchParams): State {
   let nextState = state;
 
   switch (type) {

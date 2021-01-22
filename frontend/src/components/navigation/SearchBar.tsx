@@ -12,7 +12,5 @@ const styles: { [identifier: string]: CSSProperties } = {
 export default function SearchBar(): ReactElement {
   const onSearch = (value: string) => alert(value);
 
-  return (
-    <Search placeholder="Search..." onSearch={onSearch} style={styles.search} />
-  );
+  return <Search placeholder="Search..." onSearch={onSearch} style={styles.search} />;
 }

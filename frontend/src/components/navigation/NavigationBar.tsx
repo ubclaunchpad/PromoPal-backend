@@ -62,10 +62,7 @@ export default function NavigationBar(): ReactElement {
           <Menu.Item key={Pages.Login} style={isActive(Pages.Login)}>
             <Link to="/login">Login</Link>
           </Menu.Item>
-          <Menu.Item
-            key={Pages.UploadPromotion}
-            style={isActive(Pages.UploadPromotion)}
-          >
+          <Menu.Item key={Pages.UploadPromotion} style={isActive(Pages.UploadPromotion)}>
             <Link to="/promotion/upload">Upload Promotion</Link>
           </Menu.Item>
         </Menu>

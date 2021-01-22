@@ -5,9 +5,7 @@ import Routes from "../utils/routes";
  * Fetches entire list of promotions. If a query object is given, filters the promotions according to the given query.
  * If an error occurs, an empty list will be returned.
  */
-export async function getPromotions(
-  query?: Record<string, string>
-): Promise<Promotion[]> {
+export async function getPromotions(query?: Record<string, string>): Promise<Promotion[]> {
   let endpoint = Routes.PROMOTIONS;
   if (query) {
     const queryParams = new URLSearchParams(query);
