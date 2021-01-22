@@ -6,7 +6,7 @@ import PromotionCard from "../components/promotion/PromotionCard";
 import UploadPromoButton from "../components/button/UploadPromoButton";
 
 import { Dropdown, DropdownType } from "../types/dropdown";
-import { DayOfWeek, Promotion, Schedule, User } from "../types/promotion";
+import { Promotion, Schedule, User } from "../types/promotion";
 
 const dropdowns: Dropdown[] = [
   {
@@ -74,14 +74,14 @@ const user: User = {
 const schedules: Schedule[] = [
   {
     id: "s1",
-    dayOfWeek: DayOfWeek.Monday,
+    dayOfWeek: "Monday",
     endTime: "11:00:00",
     startTime: "08:00:00",
     isRecurring: false,
   },
   {
     id: "s2",
-    dayOfWeek: DayOfWeek.Friday,
+    dayOfWeek: "Friday",
     endTime: "20:00:00",
     startTime: "17:00:00",
     isRecurring: true,
@@ -134,8 +134,7 @@ const promotions: Promotion[] = [
     category: "Lunch",
     cuisine: "American",
     dateAdded: "Nov 15, 2020",
-    description:
-      "Get 10% off of your order (pre-tax) when you spend over $15 on breakfast.",
+    description: "Get 10% off of your order (pre-tax) when you spend over $15 on breakfast.",
     discount: {
       id: "d2",
       discountValue: 2,

@@ -36,20 +36,10 @@ export interface PromotionImage {
 
 export interface Schedule {
   id: string;
-  dayOfWeek: DayOfWeek;
+  dayOfWeek: string;
   endTime: string;
   startTime: string;
   isRecurring: boolean;
-}
-
-export enum DayOfWeek {
-  Sunday = "SUNDAY",
-  Monday = "MONDAY",
-  Tuesday = "TUESDAY",
-  Wednesday = "WEDNESDAY",
-  Thursday = "THURSDAY",
-  Friday = "FRIDAY",
-  Saturday = "SATURDAY",
 }
 
 export enum Sort {
@@ -61,7 +51,7 @@ export enum Sort {
 
 export interface FilterOptions {
   cuisine: string;
-  dayOfWeek: DayOfWeek[];
+  dayOfWeek: string[];
   discountType: string;
   promotionType: string[];
 }

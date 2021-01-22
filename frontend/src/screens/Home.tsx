@@ -6,7 +6,7 @@ import PromotionList from "../components/PromotionList";
 import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
 import { getEnum } from "../services/EnumService";
 import { Dropdown, DropdownType } from "../types/dropdown";
-import { DayOfWeek, Sort } from "../types/promotion";
+import { Sort } from "../types/promotion";
 import Routes from "../utils/routes";
 
 const mapWidth = 60;
@@ -14,11 +14,10 @@ const mapWidth = 60;
 export default function Home(): ReactElement {
   const [height, setHeight] = useState<string>("");
 
-  // Dropdown options for cuisine types
+  /* Options for each dropdown */
   const [cuisineTypes, setCuisineTypes] = useState<string[]>([]);
-  // Dropdown options for discount types
+  const [daysOfWeek, setDaysOfWeek] = useState<string[]>([]);
   const [discountTypes, setDiscountTypes] = useState<string[]>([]);
-  // Dropdown options for promotion types
   const [promotionTypes, setPromotionTypes] = useState<string[]>([]);
 
   const { dispatch } = usePromotionsList();
@@ -27,20 +26,25 @@ export default function Home(): ReactElement {
    * On component mount, load dropdown options
    */
   useEffect(() => {
-    [
-      {
-        endpoint: Routes.ENUMS.DISCOUNT_TYPES,
-        setOptions: setDiscountTypes,
-      },
+    const endpoints = [
       {
         endpoint: Routes.ENUMS.CUISINE_TYPES,
         setOptions: setCuisineTypes,
       },
       {
+        endpoint: Routes.ENUMS.DAYS_OF_WEEK,
+        setOptions: setDaysOfWeek,
+      },
+      {
+        endpoint: Routes.ENUMS.DISCOUNT_TYPES,
+        setOptions: setDiscountTypes,
+      },
+      {
         endpoint: Routes.ENUMS.PROMOTION_TYPES,
         setOptions: setPromotionTypes,
       },
-    ].forEach(({ endpoint, setOptions }) => {
+    ];
+    endpoints.forEach(({ endpoint, setOptions }) => {
       getEnum(endpoint)
         .then((options) => setOptions(options))
         .catch(() => setOptions([]));
@@ -56,7 +60,7 @@ export default function Home(): ReactElement {
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { cuisine } },
       }),
-    dayOfWeek: (dayOfWeek: DayOfWeek[]) =>
+    dayOfWeek: (dayOfWeek: string) =>
       dispatch({
         type: DispatchAction.UPDATE_FILTERS,
         payload: { filter: { dayOfWeek } },
@@ -124,38 +128,12 @@ export default function Home(): ReactElement {
       })),
     },
     {
-      text: "Day of the Week",
+      text: "Day of Week",
       type: DropdownType.MultiSelect,
-      options: [
-        {
-          action: actions.dayOfWeek,
-          text: "Sunday",
-        },
-        {
-          action: actions.dayOfWeek,
-          text: "Monday",
-        },
-        {
-          action: actions.dayOfWeek,
-          text: "Tuesday",
-        },
-        {
-          action: actions.dayOfWeek,
-          text: "Wednesday",
-        },
-        {
-          action: actions.dayOfWeek,
-          text: "Thursday",
-        },
-        {
-          action: actions.dayOfWeek,
-          text: "Friday",
-        },
-        {
-          action: actions.dayOfWeek,
-          text: "Saturday",
-        },
-      ],
+      options: daysOfWeek.map((dayOfWeek) => ({
+        action: actions.dayOfWeek,
+        text: dayOfWeek,
+      })),
     },
     {
       text: "Promotion Type",
@@ -170,10 +148,8 @@ export default function Home(): ReactElement {
   useEffect(() => {
     // Note: the following is not considered best practice, but it is used to calculate the height
     // of the header + dropdown so that we can use it as an offset
-    const headerHeight = document.getElementById("navigation-header")
-      ?.offsetHeight;
-    const dropdownMenuHeight = document.getElementById("dropdown-menu")
-      ?.offsetHeight;
+    const headerHeight = document.getElementById("navigation-header")?.offsetHeight;
+    const dropdownMenuHeight = document.getElementById("dropdown-menu")?.offsetHeight;
     setHeight(`calc(100vh - ${headerHeight}px - ${dropdownMenuHeight}px)`);
   }, []);
 
