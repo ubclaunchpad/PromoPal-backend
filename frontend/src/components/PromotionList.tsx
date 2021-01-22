@@ -1,7 +1,7 @@
 import React, { CSSProperties, ReactElement, useEffect, useState } from "react";
 
 import PromotionCard from "../components/promotion/PromotionCard";
-import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
+import { DispatchAction, usePromotionsList } from "../contexts/PromotionsListContext";
 import { filterPromotions, sortPromotions } from "../services/PromotionService";
 import { Promotion } from "../types/promotion";
 
@@ -34,9 +34,7 @@ export default function PromotionList({
   useEffect(() => {
     dispatch({ type: DispatchAction.DATA_LOADING });
     filterPromotions(state.filter)
-      .then((filteredPromotions) =>
-        sortPromotions(filteredPromotions, state.sort)
-      )
+      .then((filteredPromotions) => sortPromotions(filteredPromotions, state.sort))
       .then((sortedPromotions) => {
         dispatch({ type: DispatchAction.DATA_SUCCESS });
         setPromotions(sortedPromotions);

@@ -1,14 +1,8 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useState } from "react";
 import { Col, Dropdown, Radio } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-import { DispatchAction, useDropdown } from "../../contexts/Dropdown";
+import { DispatchAction, useDropdown } from "../../contexts/DropdownContext";
 import { Dropdown as DropdownType } from "../../types/dropdown";
 import { DropdownAction } from "../../types/dropdown";
 import "./Dropdown.css";
@@ -66,10 +60,7 @@ const styles: { [identifier: string]: CSSProperties } = {
  * @param text The text to display on the dropdown button
  * @param options The list of options for this dropdown
  */
-export default function DropdownSelect({
-  text,
-  options,
-}: DropdownType): ReactElement {
+export default function DropdownSelect({ text, options }: DropdownType): ReactElement {
   /**
    * The key of the currently selected option
    */
@@ -109,11 +100,7 @@ export default function DropdownSelect({
             key={index}
             style={{ height: description ? 50 : 30 }}
           >
-            <Radio
-              style={styles.radio}
-              value={index}
-              onClick={() => onClickHandler(action, text)}
-            >
+            <Radio style={styles.radio} value={index} onClick={() => onClickHandler(action, text)}>
               <Col
                 style={{
                   ...styles.option,
@@ -122,9 +109,7 @@ export default function DropdownSelect({
               >
                 {text}
               </Col>
-              {description && (
-                <Col style={styles.optionDescription}>{description}</Col>
-              )}
+              {description && <Col style={styles.optionDescription}>{description}</Col>}
             </Radio>
           </Col>
         ))}

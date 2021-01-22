@@ -1,4 +1,4 @@
-import { DispatchAction, DispatchParams, State } from "../contexts/Dropdown";
+import { DispatchAction, DispatchParams, State } from "../contexts/DropdownContext";
 
 export function dropdownReducer(
   state: State,

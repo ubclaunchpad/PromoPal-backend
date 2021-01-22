@@ -1,14 +1,8 @@
-import React, {
-  CSSProperties,
-  ReactElement,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { CSSProperties, ReactElement, useCallback, useEffect, useState } from "react";
 import { Checkbox, Col, Dropdown as DD, Row } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-import { DispatchAction, useDropdown } from "../../contexts/Dropdown";
+import { DispatchAction, useDropdown } from "../../contexts/DropdownContext";
 import { Dropdown as DropdownType, DropdownAction } from "../../types/dropdown";
 import "./Dropdown.css";
 
@@ -51,10 +45,7 @@ const styles: { [identifier: string]: CSSProperties } = {
  * @param text The text to display on the dropdown button
  * @param options The list of options for this dropdown
  */
-export default function DropdownMultiSelect({
-  text,
-  options,
-}: DropdownType): ReactElement {
+export default function DropdownMultiSelect({ text, options }: DropdownType): ReactElement {
   /**
    * The list of keys of the selected options
    */

@@ -31,7 +31,7 @@ export function filterPromotions(filters: FilterOptions): Promise<Promotion[]> {
     promotionQueryDTO.cuisine = cuisine;
   }
   if (discountType?.length > 0) {
-    // Handle case where filter is one of ["$ Off", "$ Off"]
+    // Handle case where filter is one of ["$ Off", "% Off"]
     let discount = discountType;
     if (discountType !== "Other") {
       discount = discountType.substring(0, 1);

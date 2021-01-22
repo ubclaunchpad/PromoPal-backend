@@ -4,7 +4,7 @@ import {
   DispatchAction,
   DispatchParams,
   State,
-} from "../contexts/PromotionsList";
+} from "../contexts/PromotionsListContext";
 import { Promotion, FilterOptions, Sort } from "../types/promotion";
 
 export function promotionsListReducer(

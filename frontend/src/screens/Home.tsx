@@ -3,7 +3,7 @@ import React, { ReactElement, useEffect, useState } from "react";
 import DropdownMenu from "../components/DropdownMenu";
 import MapContainer from "../components/MapContainer";
 import PromotionList from "../components/PromotionList";
-import { DispatchAction, usePromotionsList } from "../contexts/PromotionsList";
+import { DispatchAction, usePromotionsList } from "../contexts/PromotionsListContext";
 import { getEnum } from "../services/EnumService";
 import { Dropdown, DropdownType } from "../types/dropdown";
 import { Sort } from "../types/promotion";
