@@ -17,7 +17,13 @@ export class PromotionQueryValidation {
      * */
     discountValue: Joi.number().positive().precision(2),
     promotionType: Joi.string().valid(...Object.values(PromotionType)),
-    cuisine: Joi.string().valid(...Object.values(CuisineType)),
+    /** request.query needs to follow format in order to be automatically converted to array - https://stackoverflow.com/a/33086861 */
+    cuisine: Joi.alternatives(
+      Joi.string().valid(...Object.values(CuisineType)),
+      Joi.array()
+        .min(1)
+        .items(Joi.string().valid(...Object.values(CuisineType)))
+    ),
     /** note incoming format is a string, and Joi will automatically convert to type Date */
     expirationDate: Joi.date(),
     dayOfWeek: Joi.string().valid(...Object.values(Day)),
@@ -35,7 +41,7 @@ export interface PromotionQueryDTO {
   discountType?: DiscountType;
   discountValue?: number;
   promotionType?: PromotionType;
-  cuisine?: CuisineType;
+  cuisine?: CuisineType | CuisineType[];
   expirationDate?: Date;
   dayOfWeek?: Day;
 }

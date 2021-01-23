@@ -17,6 +17,7 @@ import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { UserFactory } from '../factory/UserFactory';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
+import { CuisineType } from '../../main/data/CuisineType';
 import { Day } from '../../main/data/Day';
 
 describe('Integration tests for all entities', function () {
@@ -720,6 +721,99 @@ describe('Integration tests for all entities', function () {
           )
         ).toBeDefined();
       }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Should be able to get all promotions that belong to either one of the specified cuisines', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      cuisine: [CuisineType.CAJUN, CuisineType.CARIBBEAN],
+    };
+
+    const user1 = new UserFactory().generate();
+    const user2 = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+    const promotion2 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+    const promotion3 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+
+    promotion1.cuisine = CuisineType.CAJUN;
+    promotion2.cuisine = CuisineType.CARIBBEAN;
+    promotion3.cuisine = CuisineType.CHECHEN;
+
+    await userRepository.save(user1);
+    await userRepository.save(user2);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(2);
+      for (const promotion of promotions) {
+        expect(promotionQueryDTO.cuisine).toContain(promotion.cuisine);
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Should get all promotions when querying an empty array of cuisines', async () => {
+    const promotionQueryDTO: PromotionQueryDTO = {
+      cuisine: [],
+    };
+
+    const user1 = new UserFactory().generate();
+    const user2 = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+    const promotion2 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+    const promotion3 = new PromotionFactory().generate(
+      user2,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
+
+    promotion1.cuisine = CuisineType.CAJUN;
+    promotion2.cuisine = CuisineType.CARIBBEAN;
+    promotion3.cuisine = CuisineType.CHECHEN;
+
+    await userRepository.save(user1);
+    await userRepository.save(user2);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(3);
     } catch (e) {
       fail('Should not have failed: ' + e);
     }

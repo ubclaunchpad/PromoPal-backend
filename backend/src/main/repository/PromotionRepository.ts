@@ -41,9 +41,18 @@ export class PromotionRepository extends Repository<Promotion> {
     }
 
     if (promotionQuery?.cuisine) {
-      queryBuilder.andWhere('promotion.cuisine = :cuisine', {
-        cuisine: promotionQuery.cuisine,
-      });
+      if (Array.isArray(promotionQuery.cuisine)) {
+        // https://github.com/typeorm/typeorm/issues/1239#issuecomment-366955628
+        if (promotionQuery.cuisine.length > 0) {
+          queryBuilder.andWhere('promotion.cuisine in (:...cuisine)', {
+            cuisine: promotionQuery.cuisine,
+          });
+        }
+      } else {
+        queryBuilder.andWhere('promotion.cuisine = :cuisine', {
+          cuisine: promotionQuery.cuisine,
+        });
+      }
     }
 
     if (promotionQuery?.discountType) {
