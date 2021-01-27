@@ -31,7 +31,7 @@ If you find an existing bug report that is missing information (such as if a bug
 # 🔀 Pull requests
 ## 🌿 Branch naming
 
-Branches should be named to refer to the component of Foodies the changes pertain to, as well as a related ticket. The component should correspond to the Labels that the issue is associated with:
+Branches should be named to refer to the component of PromoPal the changes pertain to, as well as a related ticket. The component should correspond to the Labels that the issue is associated with:
 
 <!--  `TODO: Component/Example-Branch` -->
 
