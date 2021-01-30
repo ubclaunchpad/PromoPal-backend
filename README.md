@@ -180,7 +180,6 @@ If you find that the cached lat/lon values are not displaying for your promotion
 
 ## Local development with Docker
 
-Follow the docker instructions on the global `README.md`.
 Please note that you must shut down the Docker containers if you intend on
 testing locally without Docker afterwards.
 
