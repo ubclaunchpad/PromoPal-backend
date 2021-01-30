@@ -19,10 +19,10 @@ services:
         ports:
           - "5432:5432"
     web:
-        build: ./backend
+        build: .
         image: foodies:latest
         volumes:
-          - ./backend:/foodies/backend
+          - .:/foodies
         ports:
           - "8000:8000"
         depends_on: 
