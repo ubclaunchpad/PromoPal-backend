@@ -1,5 +1,5 @@
 FROM node:15.0.1
-WORKDIR /foodies/backend
+WORKDIR /foodies
 COPY package.json ./
 COPY yarn.lock ./
 RUN yarn install

@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "foodies-backend",
   "version": "1.0.0",
   "description": "Finding the best restaurant promotions and deals while supporting local 🍔",
   "main": "src/main/Index.ts",
