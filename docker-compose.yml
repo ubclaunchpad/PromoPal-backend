@@ -1,32 +1,38 @@
 version: '3'
 
 volumes:
-    db:
+  db:
 
 services:
-    db:
-        image: postgres:12
-        tty: true
-        volumes:
-          - ./tmp/db:/var/lib/postgresql/data
-        environment:
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: foodies
-          POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
-        hostname: localhost
-        ports:
-          - "5432:5432"
-    web:
-        build: ./backend
-        image: foodies:latest
-        volumes:
-          - ./backend:/foodies/backend
-        ports:
-          - "8000:8000"
-        command: bash -c "yarn install && yarn start"
-        depends_on: 
-          - db
-        links: 
-          - db
+  db:
+    image: postgres:12
+    tty: true
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: foodies
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
+    hostname: localhost
+    ports:
+      - '5432:5432'
+  web:
+    build: .
+    image: foodies:latest
+    volumes:
+      - .:/foodies
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      DB_HOST: db
+      REDIS_HOST: redis-server
+  redis-server:
+    image: redis
+    ports:
+      - '6379:6379'
