@@ -2,12 +2,13 @@
 
 ## Requirements
 
-1. Postgres
+1. Yarn (https://classic.yarnpkg.com/en/docs/install/)
+2. Postgres (https://www.postgresql.org/download/)
    - when installing, use the default password "postgres"
    - for macOS users, suggested installation is through homebrew
-2. TypeORM Global Installation (`yarn add typeorm -g`)
+3. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
-3. Redis
+4. Local Redis Instance (https://redis.io/download)
 
 ## Before starting
 
@@ -15,9 +16,11 @@
 
 ## Configure environment variables
 
+Make a copy of `sample.env`, rename it to `.env`, and fill out the environment variables respectively.
+Likely:
 ```
-Make a copy of `sample.env` and rename it to `.env`.
-Fill out the environment variables respectively
+DB_HOST=localhost
+REDIS_HOST=localhost
 ```
 
 ## Setting up databases
@@ -42,23 +45,38 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO postgres;
 
 ALTER USER postgres CREATEDB;
 
-// repeat these two lines for both databases
 CREATE DATABASE foodies;
 
 GRANT ALL PRIVILEGES ON DATABASE foodies TO postgres;
+
+CREATE DATABASE foodies_test;
+
+GRANT ALL PRIVILEGES ON DATABASE foodies_test TO postgres;
 ```
 
 ## Unit/Integration tests
 
 Currently, all tests drop the schema after each test. Therefore, do not design tests to be reliant on data from previous tests.
 
-## Drop the database schema
+### Running unit tests in IntelliJ
+
+If you want to run all tests in IntelliJ, add this new configuration. It's very important you specify
+the working directory as specified because TypeORM config needs the correct directory to find all the entities, migrations, subcribers etc.
+![image](https://user-images.githubusercontent.com/49849754/99886688-66ff8080-2bf3-11eb-88b1-2cb9879988db.png)
+
+### Running unit tests in command line
+
+```
+yarn run test
+```
+
+### Drop the database schema
 
 ```
 yarn run dropSchema
 ```
 
-## Sync the database schema
+### Sync the database schema
 
 This will setup the schema, without any data.
 
@@ -66,24 +84,12 @@ This will setup the schema, without any data.
 yarn run syncSchema
 ```
 
-## Run migrations
+### Run migrations
 
 This will run any migrations in the `/migrations` folder. Currently `ormconfig.ts` is configured to run migrations when the application starts.
 
 ```
 yarn run run_migration
-```
-
-## Running unit tests
-
-If you want to run all tests in IntelliJ, add this new configuration. It's very important you specify
-the working directory as specified because TypeORM config needs the correct directory to find all the entities, migrations, subcribers etc.
-![image](https://user-images.githubusercontent.com/49849754/99886688-66ff8080-2bf3-11eb-88b1-2cb9879988db.png)
-
-You can also run tests using this command
-
-```
-yarn run test
 ```
 
 ## Local development
@@ -122,6 +128,17 @@ Stops containers and removes containers, networks, volumes, and images created b
 docker-compose down
 ```
 
+Removes everything and may help to fix misc Docker errors. WARNING! This will remove: 
+- all stopped containers
+- all networks not used by at least one container
+- all volumes not used by at least one container
+- all images without at least one container associated to them
+- all build cache
+
+```
+docker system prune -a --volumes
+```
+
 ### Using Intellij
 
 Make sure you created the databases first.
@@ -147,7 +164,6 @@ yarn run dropSchema
 yarn run syncSchema
 yarn run run_migration
 yarn run loadSqlData
-
 ```
 
 If this command does not work, clear everything inside the tables (delete all tuples in `user_profile` table and cascade delete should remove everything else).
