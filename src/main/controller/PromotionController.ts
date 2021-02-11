@@ -141,7 +141,8 @@ export class PromotionController {
           promotionDTO.description,
           promotionDTO.startDate,
           promotionDTO.expirationDate,
-          promotionDTO.restaurantName
+          promotionDTO.restaurantName,
+          promotionDTO.restaurantLocation
         );
 
         const result = await transactionalEntityManager

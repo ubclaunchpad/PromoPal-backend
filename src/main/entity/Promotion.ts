@@ -32,7 +32,8 @@ export class Promotion {
     description: string,
     startDate: Date,
     expirationDate: Date,
-    restaurantName: string
+    restaurantName: string,
+    restaurantLocation: string
   ) {
     this.user = user;
     this.discount = discount;
@@ -45,6 +46,7 @@ export class Promotion {
     this.startDate = startDate;
     this.expirationDate = expirationDate;
     this.restaurantName = restaurantName;
+    this.restaurantLocation = restaurantLocation;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -167,6 +169,9 @@ export class Promotion {
    * */
   @Column()
   restaurantName: string;
+
+  @Column()
+  restaurantLocation: string;
 
   /*
    * These are just temporary values due to caching restrictions for lat/lon
