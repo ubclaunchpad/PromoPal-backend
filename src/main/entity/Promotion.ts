@@ -170,6 +170,10 @@ export class Promotion {
   @Column()
   restaurantName: string;
 
+  /*
+   * Represents restaurant location from Google Places API
+   * Many promotions can come from the same restaurant and thus have the same restaurantLocation
+   * */
   @Column()
   restaurantLocation: string;
 
