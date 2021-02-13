@@ -27,3 +27,6 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# service account key of fireabse
+user-authentication*.json

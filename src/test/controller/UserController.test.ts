@@ -13,6 +13,8 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { RedisClient } from 'redis-mock';
+import { firebaseAdmin } from '../../main/service/FirebaseConfig';
+import * as rp from 'request-promise';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -20,6 +22,9 @@ describe('Unit tests for UserController', function () {
   let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
   let redisClient: RedisClient;
+  const uid = 'test-uid';
+  let customToken: any = null;
+  let idToken: any = null;
 
   beforeAll(async () => {
     await connection.create();
@@ -37,6 +42,20 @@ describe('Unit tests for UserController', function () {
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
     savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
+
+    // get custom token
+    customToken = await firebaseAdmin.auth().createCustomToken(uid);
+    // swap custom token for an idToken
+    const res = await rp.post({
+      url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/veriftyCustomToken?key=${process.env.FIREBASE_WEB_API_KEY}`,
+      method: 'POST',
+      body: {
+        token: customToken,
+        returnSecureToken: true,
+      },
+      json: true,
+    });
+    idToken = res.idToken;
   });
 
   test('GET /users', async (done) => {
@@ -44,6 +63,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .get('/users')
+      .set('Authorization', idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -54,11 +74,28 @@ describe('Unit tests for UserController', function () {
       });
   });
 
+  test('GET /users - invalid request without idToken on request header', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    await userRepository.save(expectedUser);
+    request(app)
+      .get('/users')
+      .expect(401)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toEqual(
+          'You are not authorized!'
+        );
+        done();
+      });
+  });
+
   test('GET /users/:id', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
     request(app)
       .get(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -72,6 +109,7 @@ describe('Unit tests for UserController', function () {
     const expectedUser: User = new UserFactory().generate();
     request(app)
       .post('/users')
+      .set('Authorization', idToken)
       .send(expectedUser)
       .expect(201)
       .end((err, res) => {
@@ -86,6 +124,7 @@ describe('Unit tests for UserController', function () {
     const expectedUser: User = new UserFactory().generate();
     request(app)
       .post('/users')
+      .set('Authorization', idToken)
       .send({
         ...expectedUser,
         id: undefined, // POST request to users should not contain id
@@ -113,6 +152,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .patch(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
       .send({
         ...changedProperties,
       })
@@ -143,6 +183,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .patch(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
       .send({
         ...changedProperties,
       })
@@ -163,6 +204,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .delete(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -185,6 +227,7 @@ describe('Unit tests for UserController', function () {
     const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
     request(app)
       .delete(`/users/${nonExistentUUID}`)
+      .set('Authorization', idToken)
       .expect(204)
       .end(async () => {
         // check that user no longer exists
@@ -212,6 +255,7 @@ describe('Unit tests for UserController', function () {
     );
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
+      .set('Authorization', idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -234,6 +278,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
+      .set('Authorization', idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -258,6 +303,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .post(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
+      .set('Authorization', idToken)
       .expect(201)
       .end((err, res) => {
         if (err) return done(err);
@@ -288,6 +334,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
+      .set('Authorization', idToken)
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -322,6 +369,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
+      .set('Authorization', idToken)
       .expect(204, done);
   });
 
@@ -331,6 +379,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${nonExistentUid}/savedPromotions/${nonExistentPid}`)
+      .set('Authorization', idToken)
       .expect(204, done);
   });
 
@@ -347,6 +396,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/uploadedPromotions`)
+      .set('Authorization', idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -369,6 +419,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/uploadedPromotions`)
+      .set('Authorization', idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
