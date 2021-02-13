@@ -49,7 +49,7 @@ export class PromotionValidation {
   }).required();
 }
 
-export class PromotionDTO {
+export interface PromotionDTO {
   userId: string;
   discount: DiscountDTO;
   schedules: ScheduleDTO[];

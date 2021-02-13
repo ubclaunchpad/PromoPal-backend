@@ -23,7 +23,7 @@ export class DTOConverter {
       return this.scheduleDTOtoSchedule(scheduleDTO);
     });
 
-    return new Promotion(
+    const promotion = new Promotion(
       user,
       discount,
       schedules,
@@ -36,6 +36,11 @@ export class DTOConverter {
       promotionDTO.expirationDate,
       promotionDTO.restaurantName
     );
+
+    promotion.lat = promotionDTO.lat;
+    promotion.lon = promotionDTO.lon;
+
+    return promotion;
   }
 
   /**

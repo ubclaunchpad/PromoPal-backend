@@ -126,8 +126,6 @@ export class PromotionController {
           promotionDTO.lat,
           promotionDTO.lon
         );
-        result.lat = promotionDTO.lat;
-        result.lon = promotionDTO.lon;
 
         return response.status(201).send(result);
       });
