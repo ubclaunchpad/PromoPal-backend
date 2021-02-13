@@ -3,8 +3,7 @@ import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { DiscountDTO, DiscountValidation } from './DiscountValidation';
 import { IdValidation } from './IdValidation';
-import { Schedule } from '../entity/Schedule';
-import { ScheduleValidation } from './ScheduleValidation';
+import { ScheduleDTO, ScheduleValidation } from './ScheduleValidation';
 
 /**
  * Checks the validity of a Promotion, used when we make a POST request to /promotions
@@ -50,10 +49,10 @@ export class PromotionValidation {
   }).required();
 }
 
-export interface PromotionDTO {
+export class PromotionDTO {
   userId: string;
   discount: DiscountDTO;
-  schedules: Schedule[];
+  schedules: ScheduleDTO[];
   placeId: string;
   promotionType: PromotionType;
   cuisine: CuisineType;
