@@ -8,7 +8,8 @@
    - for macOS users, suggested installation is through homebrew
 3. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
-4. Local Redis Instance (https://redis.io/download)
+4. Redis (https://redis.io/download)
+   - this is used for local development without Docker
 
 ## Before starting
 
