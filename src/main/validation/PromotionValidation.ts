@@ -47,7 +47,7 @@ export class PromotionValidation {
     lat: Joi.number().required().strict(true),
     lon: Joi.number().required().strict(true),
     restaurantName: Joi.string().required(),
-    restaurantLocation: Joi.string().required(),
+    restaurantAddress: Joi.string().required(),
   }).required();
 }
 
@@ -65,5 +65,5 @@ export interface PromotionDTO {
   lat: number;
   lon: number;
   restaurantName: string;
-  restaurantLocation: string;
+  restaurantAddress: string;
 }

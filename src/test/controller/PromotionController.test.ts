@@ -404,6 +404,7 @@ describe('Unit tests for PromotionController', function () {
       startDate: expectedPromotion.startDate.toISOString(),
       lat: expectedPromotion.lat,
       lon: expectedPromotion.lon,
+      restaurantAddress: expectedPromotion.restaurantAddress,
     };
 
     // since id is undefined in POST requests

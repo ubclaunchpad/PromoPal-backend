@@ -44,7 +44,7 @@ describe('Unit tests for PromotionValidation', function () {
       lat: 34.0,
       lon: -43.2,
       restaurantName: 'restaurantName',
-      restaurantLocation: '3041 Random Avenue, Vancouver BC',
+      restaurantAddress: '3041 Random Avenue, Vancouver BC',
     };
   });
 
@@ -374,16 +374,16 @@ describe('Unit tests for PromotionValidation', function () {
     }
   });
 
-  test('Should fail if restaurant location is undefined', async () => {
+  test('Should fail if restaurant address is undefined', async () => {
     try {
-      promotionDTO.restaurantLocation = undefined;
+      promotionDTO.restaurantAddress = undefined;
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"restaurantLocation" is required');
+      expect(e.details[0].message).toEqual('"restaurantAddress" is required');
     }
   });
 
@@ -403,7 +403,7 @@ describe('Unit tests for PromotionValidation', function () {
         lat: '34.0',
         lon: '-43.2',
         restaurantName: 4,
-        restaurantLocation: 2,
+        restaurantAddress: 2,
       };
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
@@ -428,7 +428,7 @@ describe('Unit tests for PromotionValidation', function () {
         '"restaurantName" must be a string'
       );
       expect(e.details[12].message).toEqual(
-        '"restaurantLocation" must be a string'
+        '"restaurantAddress" must be a string'
       );
     }
   });
