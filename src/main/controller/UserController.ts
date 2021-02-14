@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { EntityManager, getManager } from 'typeorm';
-import { User } from '../entity/User';
 import { UserRepository } from '../repository/UserRepository';
 import { IdValidation } from '../validation/IdValidation';
 import { UserDTO, UserValidation } from '../validation/UserValidation';
@@ -11,6 +10,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { PromotionRepository } from '../repository/PromotionRepository';
 import { SavedPromotionRepository } from '../repository/SavedPromotionRepository';
+import { DTOConverter } from '../validation/DTOConverter';
 
 export class UserController {
   /**
@@ -76,13 +76,7 @@ export class UserController {
           req.body,
           { abortEarly: false }
         );
-        const user = new User(
-          userDTO.firstName,
-          userDTO.lastName,
-          userDTO.email,
-          userDTO.username,
-          userDTO.password
-        );
+        const user = DTOConverter.userDTOtoUser(userDTO);
 
         // try to save, if fails, the username is already in use
         const userRepository = transactionalEntityManager.getCustomRepository(
