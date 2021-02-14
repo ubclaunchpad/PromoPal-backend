@@ -8,7 +8,10 @@ import { DiscountDTO } from './DiscountValidation';
 import { UserDTO } from './UserValidation';
 
 /**
- * Converts DTOs to entity's
+ * Converts Data Transfer Objects (DTO's) to entity's
+ * * Each DTO represents a contract for the format of data we receive in our request body or request parameters at
+ * the controller level
+ * * Once the DTO has been validated against its respective schema, then this class should be used.
  * */
 export class DTOConverter {
   /**
