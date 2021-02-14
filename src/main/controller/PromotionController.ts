@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { PromotionRepository } from '../repository/PromotionRepository';
 import { getManager } from 'typeorm';
-import { Promotion } from '../entity/Promotion';
 import { UserRepository } from '../repository/UserRepository';
-import { Discount } from '../entity/Discount';
 import {
   PromotionDTO,
   PromotionValidation,
@@ -13,10 +11,9 @@ import {
   PromotionQueryDTO,
   PromotionQueryValidation,
 } from '../validation/PromotionQueryValidation';
-import { ScheduleDTO } from '../validation/ScheduleValidation';
-import { Schedule } from '../entity/Schedule';
 import * as querystring from 'querystring';
 import { CachingService } from '../service/CachingService';
+import { DTOConverter } from '../validation/DTOConverter';
 
 export class PromotionController {
   private cachingService: CachingService;
@@ -115,34 +112,9 @@ export class PromotionController {
         const user = await transactionalEntityManager
           .getCustomRepository(UserRepository)
           .findOneOrFail(promotionDTO.userId);
-        const discount = new Discount(
-          promotionDTO.discount.discountType,
-          promotionDTO.discount.discountValue
-        );
-        const schedules = promotionDTO.schedules.map(
-          (scheduleDTO: ScheduleDTO) => {
-            return new Schedule(
-              scheduleDTO.startTime,
-              scheduleDTO.endTime,
-              scheduleDTO.dayOfWeek,
-              scheduleDTO.isRecurring
-            );
-          }
-        );
-
-        const promotion = new Promotion(
-          user,
-          discount,
-          schedules,
-          promotionDTO.placeId,
-          promotionDTO.promotionType,
-          promotionDTO.cuisine,
-          promotionDTO.name,
-          promotionDTO.description,
-          promotionDTO.startDate,
-          promotionDTO.expirationDate,
-          promotionDTO.restaurantName,
-          promotionDTO.restaurantAddress
+        const promotion = DTOConverter.promotionDTOtoPromotion(
+          promotionDTO,
+          user
         );
 
         const result = await transactionalEntityManager
@@ -154,8 +126,6 @@ export class PromotionController {
           promotionDTO.lat,
           promotionDTO.lon
         );
-        result.lat = promotionDTO.lat;
-        result.lon = promotionDTO.lon;
 
         return response.status(201).send(result);
       });
