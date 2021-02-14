@@ -17,7 +17,6 @@ export const isAuthorized = async (
 
     if (decodedToken) {
       req.body.uid = decodedToken.uid;
-
       return next();
     } else {
       return res.status(401).send('You are not authorized');
