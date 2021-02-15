@@ -7,14 +7,14 @@ export class UserFactory {
     lastName?: string,
     email?: string,
     username?: string,
-    password?: string
+    idFirebase?: string
   ): User {
     return new User(
       firstName ?? randomString(10),
       lastName ?? randomString(10),
       email ?? randomString(10) + '@gmail.com',
       username ?? randomString(10),
-      password ?? randomString(10)
+      idFirebase ?? randomString(20)
     );
   }
 }

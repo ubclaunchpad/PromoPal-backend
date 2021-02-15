@@ -9,7 +9,6 @@ export class UserUpdateValidation {
     firstName: Joi.string().allow(''),
     lastName: Joi.string().allow(''),
     email: Joi.string().email().allow(''),
-    password: Joi.string().min(8).allow(''),
   }).required();
 }
 
@@ -18,5 +17,4 @@ export interface UserUpdateDTO {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
 }

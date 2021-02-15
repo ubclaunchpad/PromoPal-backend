@@ -110,9 +110,6 @@ export class UserController {
           req.body,
           { abortEarly: false }
         );
-        if (userUpdateDTO.password) {
-          userUpdateDTO.password = bcrypt.hashSync(userUpdateDTO.password, 8);
-        }
         const result = await userRepository.update(id, userUpdateDTO);
         res.status(204).send(result);
       });

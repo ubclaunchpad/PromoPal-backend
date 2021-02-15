@@ -14,19 +14,23 @@ export class User {
     lastName: string,
     email: string,
     username: string,
-    password: string
+    idFirebase: string
   ) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
     this.username = username;
-    if (password) {
-      this.password = bcrypt.hashSync(password, 8);
-    }
+    this.idFirebase = idFirebase;
   }
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({
+    name: 'uid_firebase',
+    unique: true,
+  })
+  idFirebase: string;
 
   /*
    * OneToMany bidirectional relationship between User and Promotion
@@ -66,19 +70,4 @@ export class User {
     unique: true,
   })
   username: string;
-
-  // todo: we need something more secure
-  @Column({
-    unique: true,
-    select: false, // https://typeorm.io/#/select-query-builder/hidden-columns
-  })
-  password: string;
-
-  checkIfUnencryptedPasswordIsValid(unencryptedPassword: string): boolean {
-    return bcrypt.compareSync(unencryptedPassword, this.password);
-  }
-
-  setHashPassword(): void {
-    this.password = bcrypt.hashSync(this.password, 8);
-  }
 }

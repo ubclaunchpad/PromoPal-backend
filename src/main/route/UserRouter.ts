@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { UserController } from '../controller/UserController';
-import { isAuthorized } from '../middleware/Authentication';
+import {
+  isAuthorizedForNewUser,
+  isAuthorizedForProtection,
+} from '../middleware/Authentication';
 
 export class UserRouter {
   private userRouter = Router();
@@ -12,35 +15,51 @@ export class UserRouter {
 
   getRoutes(): Router {
     // profile endpoint
-    this.userRouter.get('/', isAuthorized, this.userController.listAll);
-    this.userRouter.get('/:id', isAuthorized, this.userController.getOneById);
-    this.userRouter.post('/', isAuthorized, this.userController.newUser);
-    this.userRouter.patch('/:id', isAuthorized, this.userController.editUser);
+    this.userRouter.get(
+      '/',
+      isAuthorizedForProtection,
+      this.userController.listAll
+    );
+    this.userRouter.get(
+      '/:id',
+      isAuthorizedForProtection,
+      this.userController.getOneById
+    );
+    this.userRouter.post(
+      '/',
+      isAuthorizedForNewUser,
+      this.userController.newUser
+    );
+    this.userRouter.patch(
+      '/:id',
+      isAuthorizedForProtection,
+      this.userController.editUser
+    );
     this.userRouter.delete(
       '/:id',
-      isAuthorized,
+      isAuthorizedForProtection,
       this.userController.deleteUser
     );
     // saved promotion endpoint
     this.userRouter.get(
       '/:id/savedPromotions/',
-      isAuthorized,
+      isAuthorizedForProtection,
       this.userController.getSaved
     );
     this.userRouter.post(
       '/:id/savedPromotions/:pid',
-      isAuthorized,
+      isAuthorizedForProtection,
       this.userController.newSaved
     );
     this.userRouter.delete(
       '/:id/savedPromotions/:pid',
-      isAuthorized,
+      isAuthorizedForProtection,
       this.userController.deleteSaved
     );
     // uploaded promotion endpoint
     this.userRouter.get(
       '/:id/uploadedPromotions/',
-      isAuthorized,
+      isAuthorizedForProtection,
       this.userController.getUploaded
     );
 
