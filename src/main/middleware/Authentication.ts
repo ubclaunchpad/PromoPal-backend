@@ -16,7 +16,7 @@ export const isAuthorizedForNewUser = async (
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
 
     if (decodedToken) {
-      req.body.idFireabase = decodedToken.uid;
+      req.body.idFirebase = decodedToken.uid;
       return next();
     } else {
       return res.status(401).send('You are not authorized');

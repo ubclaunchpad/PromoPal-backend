@@ -63,7 +63,7 @@ describe('Unit tests for UserRepository', function () {
       fail('Should  have failed');
     } catch (e) {
       expect(e.detail).toEqual(
-        `Key (idFirebase)=(${idFirebase}) already exists.`
+        `Key (uid_firebase)=(${idFirebase}) already exists.`
       );
     }
   });

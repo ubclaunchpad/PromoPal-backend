@@ -29,6 +29,7 @@ export class User {
   @Column({
     name: 'uid_firebase',
     unique: true,
+    select: false,
   })
   idFirebase: string;
 

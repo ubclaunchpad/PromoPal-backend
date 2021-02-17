@@ -83,7 +83,7 @@ export class UserController {
           UserRepository
         );
         const result = await userRepository.save(user);
-        return res.status(201).send({ ...result, password: undefined });
+        return res.status(201).send({ ...result, idFirebase: undefined });
       });
     } catch (e) {
       return next(e);

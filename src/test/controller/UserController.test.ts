@@ -14,7 +14,9 @@ import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRe
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { RedisClient } from 'redis-mock';
 import { firebaseAdmin } from '../../main/service/FirebaseConfig';
-import * as rp from 'request-promise';
+import * as axios from 'axios';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -24,7 +26,7 @@ describe('Unit tests for UserController', function () {
   let redisClient: RedisClient;
   const uid = 'test-uid';
   let customToken: any = null;
-  let idToken: any = null;
+  let idToken = '';
 
   beforeAll(async () => {
     await connection.create();
@@ -46,21 +48,25 @@ describe('Unit tests for UserController', function () {
     // get custom token
     customToken = await firebaseAdmin.auth().createCustomToken(uid);
     // swap custom token for an idToken
-    const res = await rp.post({
-      url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/veriftyCustomToken?key=${process.env.FIREBASE_WEB_API_KEY}`,
-      method: 'POST',
-      body: {
+    const res = await axios.default.post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${process.env.FIREBASE_WEB_API_KEY}`,
+      {
         token: customToken,
         returnSecureToken: true,
       },
-      json: true,
-    });
-    idToken = res.idToken;
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    idToken = res.data.idToken;
   });
 
   test('GET /users', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
+
     request(app)
       .get('/users')
       .set('Authorization', idToken)
@@ -68,6 +74,8 @@ describe('Unit tests for UserController', function () {
       .end((err, res) => {
         if (err) return done(err);
         const users = res.body;
+        // eslint-disable-next-line no-console
+        // console.log(users);
         expect(users).toHaveLength(1);
         compareUsers(users[0], expectedUser);
         done();
@@ -81,11 +89,8 @@ describe('Unit tests for UserController', function () {
       .get('/users')
       .expect(401)
       .end((err, res) => {
-        const frontEndErrorObject = res.body;
-        expect(frontEndErrorObject.message).toHaveLength(1);
-        expect(frontEndErrorObject.message[0]).toEqual(
-          'You are not authorized!'
-        );
+        expect(res.status).toEqual(401);
+        expect(res.text).toEqual('You are not authorized!');
         done();
       });
   });
@@ -107,10 +112,14 @@ describe('Unit tests for UserController', function () {
 
   test('POST /users', async (done) => {
     const expectedUser: User = new UserFactory().generate();
+    expectedUser.idFirebase = uid;
+    const sentObj: any = { ...expectedUser };
+    delete sentObj['idFirebase'];
+    delete sentObj['id'];
     request(app)
       .post('/users')
       .set('Authorization', idToken)
-      .send(expectedUser)
+      .send(sentObj)
       .expect(201)
       .end((err, res) => {
         if (err) return done(err);
@@ -129,6 +138,7 @@ describe('Unit tests for UserController', function () {
         ...expectedUser,
         id: undefined, // POST request to users should not contain id
         email: 'invalid email',
+        idFirebase: undefined,
       })
       .expect(400)
       .end((err, res) => {
@@ -435,19 +445,20 @@ describe('Unit tests for UserController', function () {
    * Compare actual user against expected user
    * */
   function compareUsers(actualUser: User, expectedUser: User) {
-    const expectedObject: any = { ...expectedUser };
+    const expectedObject: any = {
+      ...expectedUser,
+    };
 
-    if (actualUser.password) {
-      fail('Http request should not return password');
+    if (actualUser.idFirebase) {
+      fail('Http request should not return uid of firebase user');
     }
-    // since password isn't returned from http requests
-    delete expectedObject.password;
+    // since uid of firebase user isn't returned from http requests
+    delete expectedObject['idFirebase'];
 
     // since id is undefined in POST requests
     if (!expectedUser.id) {
       delete expectedObject.id;
     }
-
     expect(actualUser).toMatchObject(expectedObject);
   }
 });
