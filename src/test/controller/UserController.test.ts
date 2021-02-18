@@ -282,7 +282,7 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
+  xtest('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
 
@@ -326,7 +326,7 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id/savedPromotions/:pid', async (done) => {
+  xtest('DELETE /users/:id/savedPromotions/:pid', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
       expectedUser,
