@@ -199,11 +199,16 @@ describe('Unit tests for UserController', function () {
       new DiscountFactory().generate(),
       [new ScheduleFactory().generate()]
     );
-    await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion);
 
     // use pessimistic write to prevent data from being read, updated, or deleted
     await getManager().transaction(async (entityManager: EntityManager) => {
+      await entityManager
+        .getCustomRepository(UserRepository)
+        .save(expectedUser);
+      await entityManager
+        .getCustomRepository(PromotionRepository)
+        .save(promotion);
+
       return entityManager
         .createQueryBuilder()
         .setLock('pessimistic_write')
@@ -295,11 +300,15 @@ describe('Unit tests for UserController', function () {
       [new ScheduleFactory().generate()]
     );
 
-    await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion);
-
     // use pessimistic write to prevent data from being read, updated, or deleted
     await getManager().transaction(async (entityManager: EntityManager) => {
+      await entityManager
+        .getCustomRepository(UserRepository)
+        .save(expectedUser);
+      await entityManager
+        .getCustomRepository(PromotionRepository)
+        .save(promotion);
+
       return entityManager
         .createQueryBuilder()
         .setLock('pessimistic_write')

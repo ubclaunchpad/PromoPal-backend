@@ -158,9 +158,6 @@ export class UserController {
         const id = await IdValidation.schema.validateAsync(req.params.id, {
           abortEarly: false,
         });
-        const userRepository = transactionalEntityManager.getCustomRepository(
-          UserRepository
-        );
 
         // get all ids of promotions that user has saved
         const rawPromotionIds = await transactionalEntityManager
