@@ -1,4 +1,4 @@
-import { getManager, getCustomRepository } from 'typeorm';
+import { getManager, getCustomRepository, EntityManager } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from '../repository/BaseRepositoryTest';
@@ -10,14 +10,12 @@ import { PromotionFactory } from '../factory/PromotionFactory';
 import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
-import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
-import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { RedisClient } from 'redis-mock';
+import { SavedPromotion } from '../../main/entity/SavedPromotion';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
-  let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
   let redisClient: RedisClient;
 
@@ -36,7 +34,6 @@ describe('Unit tests for UserController', function () {
     await connection.clear();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
-    savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
   });
 
   test('GET /users', async (done) => {
@@ -202,45 +199,65 @@ describe('Unit tests for UserController', function () {
       new DiscountFactory().generate(),
       [new ScheduleFactory().generate()]
     );
-
     await userRepository.save(expectedUser);
     await promotionRepository.save(promotion);
 
-    // create saved promotions
-    await savedPromotionRepository.save(
-      new SavedPromotionFactory().generate(expectedUser, promotion)
-    );
+    // use pessimistic write to prevent data from being read, updated, or deleted
+    await getManager().transaction(async (entityManager: EntityManager) => {
+      return entityManager
+        .createQueryBuilder()
+        .setLock('pessimistic_write')
+        .insert()
+        .into(SavedPromotion)
+        .values([
+          {
+            promotionId: promotion.id,
+            userId: expectedUser.id,
+          },
+        ])
+        .execute();
+    });
+
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('savedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.savedPromotions).toHaveLength(1);
-        expect(user.savedPromotions[0]).toMatchObject({
-          userId: expectedUser.id,
-          promotionId: promotion.id,
-          promotion: { id: promotion.id, name: promotion.name },
-        });
+        const promotions = res.body;
+        expect(promotions).toHaveLength(1);
+        expect(promotions[0]).toHaveProperty('discount');
+        expect(promotions[0].id).toEqual(promotion.id);
         done();
       });
   });
 
   test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    await userRepository.save(expectedUser);
+
+    // use pessimistic write to prevent data from being read, updated, or deleted
+    const insertResult = await getManager().transaction(
+      async (entityManager: EntityManager) => {
+        return entityManager
+          .createQueryBuilder()
+          .setLock('pessimistic_write')
+          .insert()
+          .into(User)
+          .values([
+            {
+              ...expectedUser,
+            },
+          ])
+          .execute();
+      }
+    );
 
     request(app)
-      .get(`/users/${expectedUser.id}/savedPromotions`)
+      .get(`/users/${insertResult.identifiers[0].id}/savedPromotions`)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('savedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.savedPromotions).toHaveLength(0);
+        const promotions = res.body;
+        expect(promotions).toHaveLength(0);
         done();
       });
   });
@@ -277,36 +294,29 @@ describe('Unit tests for UserController', function () {
       new DiscountFactory().generate(),
       [new ScheduleFactory().generate()]
     );
-    const savedPromotion = new SavedPromotionFactory().generate(
-      expectedUser,
-      promotion
-    );
 
     await userRepository.save(expectedUser);
     await promotionRepository.save(promotion);
-    await savedPromotionRepository.save(savedPromotion);
+
+    // use pessimistic write to prevent data from being read, updated, or deleted
+    await getManager().transaction(async (entityManager: EntityManager) => {
+      return entityManager
+        .createQueryBuilder()
+        .setLock('pessimistic_write')
+        .insert()
+        .into(SavedPromotion)
+        .values([
+          {
+            promotionId: promotion.id,
+            userId: expectedUser.id,
+          },
+        ])
+        .execute();
+    });
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .expect(204)
-      .then(() => {
-        return getManager().transaction(
-          'READ UNCOMMITTED',
-          async (transactionalEntityManager) => {
-            // check that saved promotion no longer exists
-            const savedPromotionRepository = transactionalEntityManager.getCustomRepository(
-              SavedPromotionRepository
-            );
-            await expect(
-              savedPromotionRepository.findOneOrFail({
-                userId: expectedUser.id,
-                promotionId: promotion.id,
-              })
-            ).rejects.toThrowError();
-            done();
-          }
-        );
-      });
+      .expect(204, done);
   });
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion was never saved by user', async (done) => {

@@ -11,6 +11,8 @@ import * as bcrypt from 'bcryptjs';
 import { PromotionRepository } from '../repository/PromotionRepository';
 import { SavedPromotionRepository } from '../repository/SavedPromotionRepository';
 import { DTOConverter } from '../validation/DTOConverter';
+import { SavedPromotion } from '../entity/SavedPromotion';
+import { Promotion } from '../entity/Promotion';
 
 export class UserController {
   /**
@@ -159,12 +161,35 @@ export class UserController {
         const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
-        const savedPromotions = await userRepository.findOneOrFail(id, {
-          relations: ['savedPromotions', 'savedPromotions.promotion'],
-          cache: true,
-        });
 
-        res.status(200).send(savedPromotions);
+        // get all ids of promotions that user has saved
+        const rawPromotionIds = await transactionalEntityManager
+          .createQueryBuilder()
+          .select('savedPromotions.promotionId')
+          .from(SavedPromotion, 'savedPromotions')
+          .where('savedPromotions.userId = :id', { id })
+          .cache(true)
+          .getRawMany();
+        const promotionIds = rawPromotionIds.map(
+          (rawPromotion) => rawPromotion.savedPromotions_promotionId
+        );
+
+        let promotions: Promotion[] = [];
+
+        if (promotionIds.length !== 0) {
+          // get all promotions using the promotion id's
+          promotions = await transactionalEntityManager
+            .createQueryBuilder()
+            .select('promotion')
+            .from(Promotion, 'promotion')
+            .innerJoinAndSelect('promotion.discount', 'discount')
+            .innerJoinAndSelect('promotion.schedules', 'schedule')
+            .where('promotion.id IN (:...ids)', { ids: promotionIds })
+            .cache(true)
+            .getMany();
+        }
+
+        res.status(200).send(promotions);
       });
     } catch (e) {
       next(e);
