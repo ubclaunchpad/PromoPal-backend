@@ -12,6 +12,7 @@ import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { RedisClient } from 'redis-mock';
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
+import { Promotion } from '../../main/entity/Promotion';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -200,28 +201,7 @@ describe('Unit tests for UserController', function () {
       [new ScheduleFactory().generate()]
     );
 
-    // use pessimistic write to prevent data from being read, updated, or deleted
-    await getManager().transaction(async (entityManager: EntityManager) => {
-      await entityManager
-        .getCustomRepository(UserRepository)
-        .save(expectedUser);
-      await entityManager
-        .getCustomRepository(PromotionRepository)
-        .save(promotion);
-
-      return entityManager
-        .createQueryBuilder()
-        .setLock('pessimistic_write')
-        .insert()
-        .into(SavedPromotion)
-        .values([
-          {
-            promotionId: promotion.id,
-            userId: expectedUser.id,
-          },
-        ])
-        .execute();
-    });
+    await addSavedPromotion(expectedUser, promotion);
 
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
@@ -230,7 +210,6 @@ describe('Unit tests for UserController', function () {
         if (err) return done(err);
         const promotions = res.body;
         expect(promotions).toHaveLength(1);
-        expect(promotions[0]).toHaveProperty('discount');
         expect(promotions[0].id).toEqual(promotion.id);
         done();
       });
@@ -239,25 +218,10 @@ describe('Unit tests for UserController', function () {
   test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
 
-    // use pessimistic write to prevent data from being read, updated, or deleted
-    const insertResult = await getManager().transaction(
-      async (entityManager: EntityManager) => {
-        return entityManager
-          .createQueryBuilder()
-          .setLock('pessimistic_write')
-          .insert()
-          .into(User)
-          .values([
-            {
-              ...expectedUser,
-            },
-          ])
-          .execute();
-      }
-    );
+    await addSavedPromotion(expectedUser);
 
     request(app)
-      .get(`/users/${insertResult.identifiers[0].id}/savedPromotions`)
+      .get(`/users/${expectedUser.id}/savedPromotions`)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -300,28 +264,7 @@ describe('Unit tests for UserController', function () {
       [new ScheduleFactory().generate()]
     );
 
-    // use pessimistic write to prevent data from being read, updated, or deleted
-    await getManager().transaction(async (entityManager: EntityManager) => {
-      await entityManager
-        .getCustomRepository(UserRepository)
-        .save(expectedUser);
-      await entityManager
-        .getCustomRepository(PromotionRepository)
-        .save(promotion);
-
-      return entityManager
-        .createQueryBuilder()
-        .setLock('pessimistic_write')
-        .insert()
-        .into(SavedPromotion)
-        .values([
-          {
-            promotionId: promotion.id,
-            userId: expectedUser.id,
-          },
-        ])
-        .execute();
-    });
+    await addSavedPromotion(expectedUser, promotion);
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
@@ -342,6 +285,20 @@ describe('Unit tests for UserController', function () {
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
       .expect(204, done);
+  });
+
+  test('Adding a user, promotion, and savedPromotion should not deadlock', async () => {
+    for (let i = 0; i < 1000; i++) {
+      const expectedUser: User = new UserFactory().generate();
+      const promotion = new PromotionFactory().generate(
+        expectedUser,
+        new DiscountFactory().generate(),
+        [new ScheduleFactory().generate()]
+      );
+
+      await addSavedPromotion(expectedUser, promotion);
+      await connection.clear();
+    }
   });
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async (done) => {
@@ -417,5 +374,60 @@ describe('Unit tests for UserController', function () {
     }
 
     expect(actualUser).toMatchObject(expectedObject);
+  }
+
+  /**
+   * Save the promotion and user to the database. Also add the saved promotion into the database
+   * * Set transaction level to serializable and set lock level to pessimistic write to avoid deadlocks
+   * */
+  async function addSavedPromotion(user: User, promotion?: Promotion) {
+    await getManager().transaction(
+      'SERIALIZABLE',
+      async (entityManager: EntityManager) => {
+        return entityManager
+          .createQueryBuilder()
+          .setLock('pessimistic_write')
+          .insert()
+          .into(User)
+          .values(user)
+          .execute();
+      }
+    );
+
+    if (promotion) {
+      await getManager().transaction(
+        'SERIALIZABLE',
+        async (entityManager: EntityManager) => {
+          return entityManager
+            .createQueryBuilder()
+            .setLock('pessimistic_write')
+            .insert()
+            .into(Promotion)
+            .values(promotion)
+            .execute();
+        }
+      );
+
+      await getManager().transaction(
+        'SERIALIZABLE',
+        async (entityManager: EntityManager) => {
+          return entityManager
+            .createQueryBuilder()
+            .setLock('pessimistic_write')
+            .insert()
+            .into(SavedPromotion)
+            .values([
+              {
+                promotionId: promotion.id,
+                userId: user.id,
+              },
+            ])
+            .execute();
+        }
+      );
+    }
+
+    // This is an unfortunate hack...need to invest more time into this
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 });

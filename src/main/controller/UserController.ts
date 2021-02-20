@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { EntityManager, getManager } from 'typeorm';
+import { EntityManager, getManager, In } from 'typeorm';
 import { UserRepository } from '../repository/UserRepository';
 import { IdValidation } from '../validation/IdValidation';
 import { UserDTO, UserValidation } from '../validation/UserValidation';
@@ -174,16 +174,12 @@ export class UserController {
         let promotions: Promotion[] = [];
 
         if (promotionIds.length !== 0) {
-          // get all promotions using the promotion id's
+          // get all promotions using the promotion id's, DO NOT join to discount/schedules, we don't need all the information
           promotions = await transactionalEntityManager
-            .createQueryBuilder()
-            .select('promotion')
-            .from(Promotion, 'promotion')
-            .innerJoinAndSelect('promotion.discount', 'discount')
-            .innerJoinAndSelect('promotion.schedules', 'schedule')
-            .where('promotion.id IN (:...ids)', { ids: promotionIds })
-            .cache(true)
-            .getMany();
+            .getCustomRepository(PromotionRepository)
+            .find({
+              id: In(promotionIds),
+            });
         }
 
         res.status(200).send(promotions);
