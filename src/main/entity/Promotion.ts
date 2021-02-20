@@ -32,7 +32,8 @@ export class Promotion {
     description: string,
     startDate: Date,
     expirationDate: Date,
-    restaurantName: string
+    restaurantName: string,
+    restaurantAddress: string
   ) {
     this.user = user;
     this.discount = discount;
@@ -45,6 +46,7 @@ export class Promotion {
     this.startDate = startDate;
     this.expirationDate = expirationDate;
     this.restaurantName = restaurantName;
+    this.restaurantAddress = restaurantAddress;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -162,11 +164,18 @@ export class Promotion {
   tsVector: string;
 
   /*
-   * Represents restaurant name from Google Places API
+   * The restaurant name of the promotion
    * Many promotions can come from the same restaurant and thus have the same restaurantName
    * */
   @Column()
   restaurantName: string;
+
+  /*
+   * The restaurant address of the promotion
+   * Many promotions can come from the same restaurant and thus have the same restaurantAddress
+   * */
+  @Column()
+  restaurantAddress: string;
 
   /*
    * These are just temporary values due to caching restrictions for lat/lon

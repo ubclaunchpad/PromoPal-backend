@@ -18,7 +18,8 @@ export class PromotionFactory {
     description?: string,
     startDate?: Date,
     expirationDate?: Date,
-    restaurantName?: string
+    restaurantName?: string,
+    restaurantAddress?: string
   ): Promotion {
     const promotion = new Promotion(
       user,
@@ -31,7 +32,8 @@ export class PromotionFactory {
       description ?? randomString(100),
       startDate ?? new Date(),
       expirationDate ?? new Date(),
-      restaurantName ?? randomString(100)
+      restaurantName ?? randomString(100),
+      restaurantAddress ?? randomString(100)
     );
     promotion.lat = Math.random() * (-200.0 - 200.0) + 200.0;
     promotion.lon = Math.random() * (-200.0 - 200.0) + 200.0;
