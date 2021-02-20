@@ -288,7 +288,7 @@ describe('Unit tests for UserController', function () {
   });
 
   test('Adding a user, promotion, and savedPromotion should not deadlock', async () => {
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 10; i++) {
       const expectedUser: User = new UserFactory().generate();
       const promotion = new PromotionFactory().generate(
         expectedUser,
@@ -299,7 +299,7 @@ describe('Unit tests for UserController', function () {
       await addSavedPromotion(expectedUser, promotion);
       await connection.clear();
     }
-  });
+  }, 10000);
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async (done) => {
     const nonExistentPid = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
