@@ -37,7 +37,8 @@ export class DTOConverter {
       promotionDTO.description,
       promotionDTO.startDate,
       promotionDTO.expirationDate,
-      promotionDTO.restaurantName
+      promotionDTO.restaurantName,
+      promotionDTO.restaurantAddress
     );
 
     promotion.lat = promotionDTO.lat;

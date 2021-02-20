@@ -46,6 +46,7 @@ describe('Unit tests for DTOConverter', function () {
       schedules: [scheduleDTO],
       startDate: new Date(),
       userId: 'fake userId',
+      restaurantAddress: '3012 Sample Ave, Vancouver BC',
     };
 
     userDTO = {
