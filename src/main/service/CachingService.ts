@@ -51,13 +51,12 @@ export class CachingService {
    * @param placeId - place ID of the restaurant
    */
   async getLatLonValue(placeId: string): Promise<CachingObject> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       this.client.get(placeId, (err: Error | null, data: string | null) => {
-        if (err) {
-          // todo: https://github.com/ubclaunchpad/foodies/issues/89
-          reject(err);
+        if (err || !data) {
+          return resolve(JSON.parse('{}'));
         }
-        return resolve(JSON.parse(data ?? '{}'));
+        return resolve(JSON.parse(data));
       });
     });
   }
