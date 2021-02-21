@@ -26,6 +26,7 @@ import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
 import { CachingService } from './service/CachingService';
+import { firebaseAdmin } from './service/FirebaseConfig';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -39,7 +40,11 @@ export class App {
       const app = express();
 
       this.redisClient = await this.createRedisClient();
-      await this.registerHandlersAndRoutes(app, this.redisClient);
+      await this.registerHandlersAndRoutes(
+        app,
+        this.redisClient,
+        firebaseAdmin
+      );
 
       // load sample data and cache the lat/lon for existing data
       // await this.loadAndCacheSampleData();
@@ -60,7 +65,8 @@ export class App {
    * */
   async registerHandlersAndRoutes(
     app: Express,
-    redisClient: RedisClient
+    redisClient: RedisClient,
+    firebaseadmin: any
   ): Promise<void> {
     app.use(bodyParser.json());
 
@@ -76,7 +82,7 @@ export class App {
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
     const userController = new UserController();
-    const userRouter = new UserRouter(userController);
+    const userRouter = new UserRouter(userController, firebaseadmin);
     app.use(Route.USERS, userRouter.getRoutes());
 
     // middleware needs to be added at end
