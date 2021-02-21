@@ -26,13 +26,14 @@ import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
 import { CachingService } from './service/CachingService';
-import { firebaseAdmin } from './service/FirebaseConfig';
+import { initFirebaseAdmin } from './service/FirebaseConfig';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 //todo: ormconfig.ts should not have synchronize and drop schema as true for production
 export class App {
   private redisClient: RedisClient;
+  private firebaseAdmin: any;
 
   async init(): Promise<void> {
     try {
@@ -40,10 +41,11 @@ export class App {
       const app = express();
 
       this.redisClient = await this.createRedisClient();
+      this.firebaseAdmin = await initFirebaseAdmin();
       await this.registerHandlersAndRoutes(
         app,
         this.redisClient,
-        firebaseAdmin
+        this.firebaseAdmin
       );
 
       // load sample data and cache the lat/lon for existing data
