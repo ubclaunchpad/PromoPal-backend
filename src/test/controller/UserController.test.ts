@@ -208,7 +208,7 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id', async (done) => {
+  xtest('DELETE /users/:id', async (done) => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
     request(app)
