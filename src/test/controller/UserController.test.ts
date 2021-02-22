@@ -25,7 +25,7 @@ describe('Unit tests for UserController', function () {
   let promotionRepository: PromotionRepository;
   let app: Express;
   let redisClient: RedisClient;
-  let admin: any;
+  let firebaseAdmin: any;
   const uid = 'test-uid';
   let idToken = '';
 
@@ -34,14 +34,14 @@ describe('Unit tests for UserController', function () {
     redisClient = await connectRedisClient();
 
     // init mock firebase
-    admin = createFirebaseMock();
+    firebaseAdmin = createFirebaseMock();
 
-    app = await registerTestApplication(redisClient, admin);
+    app = await registerTestApplication(redisClient, firebaseAdmin);
 
-    admin.autoFlush();
+    firebaseAdmin.autoFlush();
 
     // create user
-    const user = await admin.createUser({
+    const user = await firebaseAdmin.createUser({
       uid: uid,
       email: 'test@gmail.com',
       password: 'testpassword',

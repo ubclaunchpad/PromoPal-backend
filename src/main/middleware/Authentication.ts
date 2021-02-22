@@ -9,8 +9,8 @@ import Auth = auth.Auth;
 export class FirebaseAuth {
   private admin: Auth;
 
-  constructor(firebaseadmin: Auth) {
-    this.admin = firebaseadmin;
+  constructor(firebaseAdmin: Auth) {
+    this.admin = firebaseAdmin;
   }
 
   isAuthorizedForNewUser = async (

@@ -9,9 +9,9 @@ export class UserRouter {
   private userController;
   private firebaseAuth: FirebaseAuth;
 
-  constructor(usercontroller: UserController, firebaseadmin: Auth) {
+  constructor(usercontroller: UserController, firebaseAdmin: Auth) {
     this.userController = usercontroller;
-    this.firebaseAuth = new FirebaseAuth(firebaseadmin);
+    this.firebaseAuth = new FirebaseAuth(firebaseAdmin);
   }
 
   getRoutes(): Router {

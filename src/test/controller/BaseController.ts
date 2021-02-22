@@ -4,7 +4,7 @@ import redisMock, { RedisClient } from 'redis-mock';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const firebasemock = require('firebase-mock');
+const firebaseMock = require('firebase-mock');
 
 /**
  * Creates an express app and registers all handlers and routes
@@ -12,11 +12,11 @@ const firebasemock = require('firebase-mock');
  * */
 export const registerTestApplication = async (
   redisClient: RedisClient,
-  firebaseadmin: Auth
+  firebaseAdmin: Auth
 ): Promise<Express> => {
   const app = new App();
   const expressApp = express();
-  await app.registerHandlersAndRoutes(expressApp, redisClient, firebaseadmin);
+  await app.registerHandlersAndRoutes(expressApp, redisClient, firebaseAdmin);
   return expressApp;
 };
 
@@ -26,32 +26,32 @@ export const connectRedisClient = async (): Promise<RedisClient> => {
 };
 
 export const createFirebaseMock = (): Auth => {
-  const mockauth = new firebasemock.MockAuthentication();
-  const mockdatabase = new firebasemock.MockFirebase();
-  const mockfirestore = new firebasemock.MockFirestore();
-  const mockstorage = new firebasemock.MockStorage();
-  const mockmessaging = new firebasemock.MockMessaging();
-  const mocksdk = new firebasemock.MockFirebaseSdk(
+  const mockAuth = new firebaseMock.MockAuthentication();
+  const mockDatabase = new firebaseMock.MockFirebase();
+  const mockFirestore = new firebaseMock.MockFirestore();
+  const mockStorage = new firebaseMock.MockStorage();
+  const mockMessaging = new firebaseMock.MockMessaging();
+  const mockSdk = new firebaseMock.MockFirebaseSdk(
     // use null if your code does not use RTDB
     (path: any) => {
-      return path ? mockdatabase.child(path) : mockdatabase;
+      return path ? mockDatabase.child(path) : mockDatabase;
     },
     // use null if your code does not use AUTHENTICATION
     () => {
-      return mockauth;
+      return mockAuth;
     },
     // use null if your code does not use FIRESTORE
     () => {
-      return mockfirestore;
+      return mockFirestore;
     },
     // use null if your code does not use STORAGE
     () => {
-      return mockstorage;
+      return mockStorage;
     },
     // use null if your code does not use MESSAGING
     () => {
-      return mockmessaging;
+      return mockMessaging;
     }
   );
-  return mocksdk.auth();
+  return mockSdk.auth();
 };

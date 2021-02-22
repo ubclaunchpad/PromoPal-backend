@@ -70,7 +70,7 @@ export class App {
   async registerHandlersAndRoutes(
     app: Express,
     redisClient: RedisClient,
-    firebaseadmin: Auth
+    firebaseAdmin: Auth
   ): Promise<void> {
     app.use(bodyParser.json());
 
@@ -86,7 +86,7 @@ export class App {
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
     const userController = new UserController();
-    const userRouter = new UserRouter(userController, firebaseadmin);
+    const userRouter = new UserRouter(userController, firebaseAdmin);
     app.use(Route.USERS, userRouter.getRoutes());
 
     // middleware needs to be added at end
