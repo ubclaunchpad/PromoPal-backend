@@ -27,13 +27,15 @@ import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
 import { CachingService } from './service/CachingService';
 import { initFirebaseAdmin } from './service/FirebaseConfig';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 //todo: ormconfig.ts should not have synchronize and drop schema as true for production
 export class App {
   private redisClient: RedisClient;
-  private firebaseAdmin: any;
+  private firebaseAdmin: Auth;
 
   async init(): Promise<void> {
     try {
@@ -68,7 +70,7 @@ export class App {
   async registerHandlersAndRoutes(
     app: Express,
     redisClient: RedisClient,
-    firebaseadmin: any
+    firebaseadmin: Auth
   ): Promise<void> {
     app.use(bodyParser.json());
 

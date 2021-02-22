@@ -1,7 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Promotion } from './Promotion';
 import { SavedPromotion } from './SavedPromotion';
-import * as bcrypt from 'bcryptjs';
 
 /*
  * Represents a user in our application.

@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import { UserController } from '../controller/UserController';
 import { FirebaseAuth } from '../middleware/Authentication';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 
 export class UserRouter {
   private userRouter = Router();
   private userController;
-  private firebaseAuth: any;
+  private firebaseAuth: FirebaseAuth;
 
-  constructor(usercontroller: UserController, firebaseadmin: any) {
+  constructor(usercontroller: UserController, firebaseadmin: Auth) {
     this.userController = usercontroller;
     this.firebaseAuth = new FirebaseAuth(firebaseadmin);
   }
