@@ -245,7 +245,7 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('GET /users/:id/savedPromotions', async () => {
+  xtest('GET /users/:id/savedPromotions', async () => {
     for (let i = 0; i < 100; i++) {
       const expectedUser: User = new UserFactory().generate();
       const promotion = new PromotionFactory().generate(
