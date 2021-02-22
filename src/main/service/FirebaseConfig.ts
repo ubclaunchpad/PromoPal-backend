@@ -1,8 +1,10 @@
 import * as admin from 'firebase-admin';
 import * as dotenv from 'dotenv';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 dotenv.config();
 
-export function initFirebaseAdmin() {
+export function initFirebaseAdmin(): Auth {
   admin.initializeApp({
     serviceAccountId: process.env.FIREBASE_SERVICE_ACCOUNT_ID,
     credential: admin.credential.cert({
@@ -11,5 +13,5 @@ export function initFirebaseAdmin() {
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     }),
   });
-  return admin;
+  return admin.auth();
 }

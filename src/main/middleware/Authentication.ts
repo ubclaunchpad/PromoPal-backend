@@ -1,13 +1,15 @@
 import { NextFunction } from 'express';
 import { Request, Response } from 'express';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 
 /**
  * Middleware function to check if the request has correct client header using fireabse-admin auth
  */
 export class FirebaseAuth {
-  private admin: any;
+  private admin: Auth;
 
-  constructor(firebaseadmin: any) {
+  constructor(firebaseadmin: Auth) {
     this.admin = firebaseadmin;
   }
 
@@ -19,7 +21,7 @@ export class FirebaseAuth {
     const idToken: string = req.headers.authorization!;
 
     try {
-      const decodedToken = await this.admin.auth().verifyIdToken(idToken);
+      const decodedToken = await this.admin.verifyIdToken(idToken);
 
       if (decodedToken) {
         req.body.idFirebase = decodedToken.uid;
@@ -40,7 +42,7 @@ export class FirebaseAuth {
     const idToken: string = req.headers.authorization!;
 
     try {
-      const decodedToken = await this.admin.auth().verifyIdToken(idToken);
+      const decodedToken = await this.admin.verifyIdToken(idToken);
 
       if (decodedToken) {
         return next();

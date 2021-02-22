@@ -1,6 +1,8 @@
 import express, { Express } from 'express';
 import { App } from '../../main/App';
 import redisMock, { RedisClient } from 'redis-mock';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const firebasemock = require('firebase-mock');
 
@@ -10,7 +12,7 @@ const firebasemock = require('firebase-mock');
  * */
 export const registerTestApplication = async (
   redisClient: RedisClient,
-  firebaseadmin: any
+  firebaseadmin: Auth
 ): Promise<Express> => {
   const app = new App();
   const expressApp = express();
@@ -23,7 +25,7 @@ export const connectRedisClient = async (): Promise<RedisClient> => {
   return redisMock.createClient();
 };
 
-export const createFirebaseMock = () => {
+export const createFirebaseMock = (): Auth => {
   const mockauth = new firebasemock.MockAuthentication();
   const mockdatabase = new firebasemock.MockFirebase();
   const mockfirestore = new firebasemock.MockFirestore();
@@ -51,5 +53,5 @@ export const createFirebaseMock = () => {
       return mockmessaging;
     }
   );
-  return mocksdk;
+  return mocksdk.auth();
 };
