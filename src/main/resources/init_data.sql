@@ -1,3 +1,5 @@
+SET CLIENT_ENCODING TO 'utf8';
+
 INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('8f8fc016-5bb2-4906-ad88-68932c438665', 'John', 'Smith', 'smith.j@sample.com', 'user1', '$2a$08$6PEeGWWVF1M8hU8Y8XCNfe/FAs4WGHXX/wB0znhC3O3TxYtWY/xxe');
 INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('66c34e55-9dec-483f-8458-1fc50e802415', 'Asa', 'Edward', 'edward.a@sample.com', 'user2', '$2a$08$gAG7ItEHUDaigRlfi9xreeK3zdbYvOsqF6x0Ic8gZpyVgK6d3j9Ba');
 INSERT INTO public.user_profile (id, first_name, last_name, email, username, password) VALUES ('60511f59-40d0-4b48-8131-9616621aecee', 'Harry', 'James', 'james.h@sample.com', 'user3', '$2a$08$2QY79Mgc1xJ.FpJgvXDNOumPxDBtfvGkGaoZfsqotTuHA1GT/6C8m');

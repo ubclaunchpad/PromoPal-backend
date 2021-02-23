@@ -30,3 +30,5 @@ yarn-error.log*
 
 # service account key of firebase
 user-authentication*.json
+# vscode
+/.vscode
