@@ -15,14 +15,14 @@ import { RedisClient } from 'redis-mock';
 describe('Unit tests for PromotionController', function () {
   let app: Express;
   let redisClient: RedisClient;
-  let admin: any;
+  let mockFireabseAdmin: any;
 
   beforeAll(async () => {
     await connection.create();
     redisClient = await connectRedisClient();
     // init mock firebase
-    admin = createFirebaseMock();
-    app = await registerTestApplication(redisClient, admin);
+    mockFireabseAdmin = createFirebaseMock();
+    app = await registerTestApplication(redisClient, mockFireabseAdmin);
   });
 
   afterAll(async () => {

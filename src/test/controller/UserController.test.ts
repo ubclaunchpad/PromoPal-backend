@@ -25,7 +25,7 @@ describe('Unit tests for UserController', function () {
   let promotionRepository: PromotionRepository;
   let app: Express;
   let redisClient: RedisClient;
-  let firebaseAdmin: any;
+  let mockFirebaseAdmin: any;
   const uid = 'test-uid';
   let idToken = '';
 
@@ -34,14 +34,14 @@ describe('Unit tests for UserController', function () {
     redisClient = await connectRedisClient();
 
     // init mock firebase
-    firebaseAdmin = createFirebaseMock();
+    mockFirebaseAdmin = createFirebaseMock();
 
-    app = await registerTestApplication(redisClient, firebaseAdmin);
+    app = await registerTestApplication(redisClient, mockFirebaseAdmin);
 
-    firebaseAdmin.autoFlush();
+    mockFirebaseAdmin.autoFlush();
 
     // create user
-    const user = await firebaseAdmin.createUser({
+    const user = await mockFirebaseAdmin.createUser({
       uid: uid,
       email: 'test@gmail.com',
       password: 'testpassword',
@@ -71,8 +71,6 @@ describe('Unit tests for UserController', function () {
       .end((err, res) => {
         if (err) return done(err);
         const users = res.body;
-        // eslint-disable-next-line no-console
-        // console.log(users);
         expect(users).toHaveLength(1);
         compareUsers(users[0], expectedUser);
         done();
@@ -245,29 +243,26 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  xtest('GET /users/:id/savedPromotions', async () => {
-    for (let i = 0; i < 100; i++) {
-      const expectedUser: User = new UserFactory().generate();
-      const promotion = new PromotionFactory().generate(
-        expectedUser,
-        new DiscountFactory().generate(),
-        [new ScheduleFactory().generate()]
-      );
+  test('GET /users/:id/savedPromotions', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      expectedUser,
+      new DiscountFactory().generate(),
+      [new ScheduleFactory().generate()]
+    );
 
-      await addSavedPromotion(expectedUser, promotion);
+    await addSavedPromotion(expectedUser, promotion);
 
-      await request(app)
-        .get(`/users/${expectedUser.id}/savedPromotions`)
-        .set('Authorization', idToken)
-        .expect(200)
-        .then((res) => {
-          const promotions = res.body;
-          expect(promotions).toHaveLength(1);
-          expect(promotions[0].id).toEqual(promotion.id);
-        });
-
-      await connection.clear();
-    }
+    request(app)
+      .get(`/users/${expectedUser.id}/savedPromotions`)
+      .set('Authorization', idToken)
+      .expect(200)
+      .then((res) => {
+        const promotions = res.body;
+        expect(promotions).toHaveLength(1);
+        expect(promotions[0].id).toEqual(promotion.id);
+        done();
+      });
   });
 
   test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {

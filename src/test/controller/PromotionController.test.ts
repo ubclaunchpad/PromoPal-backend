@@ -24,7 +24,7 @@ describe('Unit tests for PromotionController', function () {
   let promotionRepository: PromotionRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
-  let admin: any;
+  let mockFirebaseAdmin: any;
   let cachingService: CachingService;
 
   beforeAll(async () => {
@@ -32,8 +32,8 @@ describe('Unit tests for PromotionController', function () {
     mockRedisClient = await connectRedisClient();
     cachingService = new CachingService(mockRedisClient);
     // init mock firebase
-    admin = createFirebaseMock();
-    app = await registerTestApplication(mockRedisClient, admin);
+    mockFirebaseAdmin = createFirebaseMock();
+    app = await registerTestApplication(mockRedisClient, mockFirebaseAdmin);
   });
 
   afterAll(async () => {

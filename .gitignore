@@ -28,5 +28,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# service account key of fireabse
+# service account key of firebase
 user-authentication*.json

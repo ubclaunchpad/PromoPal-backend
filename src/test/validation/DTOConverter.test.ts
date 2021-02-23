@@ -74,8 +74,6 @@ describe('Unit tests for DTOConverter', function () {
     const user = DTOConverter.userDTOtoUser(userDTO);
     expect(user).toBeInstanceOf(User);
 
-    // PP-29 workaround sync we use bycrypt to hash password
-    // userDTO.password = user.password;
     expect(user).toEqual(userDTO);
   });
 
