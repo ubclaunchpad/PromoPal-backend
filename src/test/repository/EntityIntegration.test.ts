@@ -19,6 +19,8 @@ import { UserFactory } from '../factory/UserFactory';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { CuisineType } from '../../main/data/CuisineType';
 import { Day } from '../../main/data/Day';
+import { RestaurantFactory } from '../factory/RestaurantFactory';
+import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 
 describe('Integration tests for all entities', function () {
   const SAMPLE_SEARCH_QUERY = 'beef cafe';
@@ -26,6 +28,7 @@ describe('Integration tests for all entities', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let discountRepository: DiscountRepository;
+  let restaurantRepository: RestaurantRepository;
   let savedPromotionRepository: SavedPromotionRepository;
   let scheduleRepository: ScheduleRepository;
 
@@ -42,15 +45,15 @@ describe('Integration tests for all entities', function () {
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
     discountRepository = getCustomRepository(DiscountRepository);
+    restaurantRepository = getCustomRepository(RestaurantRepository);
     savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
     scheduleRepository = getCustomRepository(ScheduleRepository);
   });
 
   test('Should not be able to save a promotion if user is not saved', async () => {
-    const promotion = new PromotionFactory().generate(
-      new UserFactory().generate(),
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const unSavedUser = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      unSavedUser
     );
 
     // check that no user exists first
@@ -67,11 +70,7 @@ describe('Integration tests for all entities', function () {
 
   test('Cascade delete - deleting a promotion should delete its discount', async () => {
     const user = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      []
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     // persist into db
     await userRepository.save(user);
@@ -91,18 +90,30 @@ describe('Integration tests for all entities', function () {
     }
   });
 
+  test('Cascade delete - deleting a promotion should delete its restaurant', async () => {
+    const user = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    // persist into db
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    try {
+      const restaurants = await restaurantRepository.find();
+      expect(restaurants).toBeDefined();
+      expect(restaurants[0].address).toEqual(promotion.restaurant.address);
+      await promotionRepository.delete(promotion.id);
+      expect(await promotionRepository.find()).toEqual([]);
+      expect(await restaurantRepository.find()).toEqual([]);
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
   test('Cascade delete - deleting a user should delete any of the users uploaded promotions', async () => {
     const user = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      []
-    );
-    const promotion2 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      []
-    );
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
 
     // persist into db
     await userRepository.save(user);
@@ -122,15 +133,11 @@ describe('Integration tests for all entities', function () {
   test("Cascade delete - deleting a user should not delete saved promotions that aren't uploaded by the user", async () => {
     const user1 = new UserFactory().generate();
     const user2 = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user1,
-      new DiscountFactory().generate(),
-      []
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(
+      user1
     );
-    const promotion2 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      []
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(
+      user2
     );
     const savedPromotion = new SavedPromotionFactory().generate(
       user1,
@@ -170,15 +177,11 @@ describe('Integration tests for all entities', function () {
   test('Cascade delete - deleting a promotion should remove it from any users saved and uploaded promotions', async () => {
     const user1 = new UserFactory().generate();
     const user2 = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user1,
-      new DiscountFactory().generate(),
-      []
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(
+      user1
     );
-    const promotion2 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      []
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(
+      user2
     );
 
     // persist into db & configure such that user1 has created uploaded promotion1 and saved promotion1 & promotion2
@@ -209,16 +212,8 @@ describe('Integration tests for all entities', function () {
 
   test("Should be able to remove a user's saved promotion without deleting the promotion and user", async () => {
     const user = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      []
-    );
-    const promotion2 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      []
-    );
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
 
     // persist into db & configure such that user1 has saved promotion1 and promotion2
     await userRepository.save(user);
@@ -258,12 +253,14 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user1,
       new DiscountFactory().generate(),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()]
     );
     promotion1.name = SAMPLE_SEARCH_QUERY;
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -321,6 +318,7 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -328,6 +326,7 @@ describe('Integration tests for all entities', function () {
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -369,6 +368,7 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -376,6 +376,7 @@ describe('Integration tests for all entities', function () {
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -412,6 +413,7 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -421,6 +423,7 @@ describe('Integration tests for all entities', function () {
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -454,11 +457,7 @@ describe('Integration tests for all entities', function () {
 
   test('When apply search query, should return the promotion with bolded names and descriptions for relevant areas that match the search query', async () => {
     const user = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     promotion.name =
       'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card';
     promotion.description =
@@ -487,11 +486,7 @@ describe('Integration tests for all entities', function () {
 
   test('Cascade delete - deleting a promotion will delete its schedules', async () => {
     const user = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     // persist into db
     await userRepository.save(user);
@@ -517,6 +512,7 @@ describe('Integration tests for all entities', function () {
     const promotion = new PromotionFactory().generate(
       user,
       new DiscountFactory().generate(),
+      new RestaurantFactory().generate(),
       [schedule1, schedule2]
     );
 
@@ -536,25 +532,14 @@ describe('Integration tests for all entities', function () {
       discountType: DiscountType.PERCENTAGE,
     };
 
-    const user1 = new UserFactory().generate();
-    const user2 = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()],
-      '',
-      PromotionType.BOGO
-    );
-    const promotion2 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()],
-      '',
-      PromotionType.BOGO
-    );
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
 
-    await userRepository.save(user1);
-    await userRepository.save(user2);
+    promotion1.discount.discountType = DiscountType.PERCENTAGE;
+    promotion2.discount.discountType = DiscountType.PERCENTAGE;
+
+    await userRepository.save(user);
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
 
@@ -586,16 +571,14 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE, 18),
-      [new ScheduleFactory().generate()],
-      '',
-      PromotionType.BOGO
+      new RestaurantFactory().generate(),
+      [new ScheduleFactory().generate()]
     );
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.PERCENTAGE, 4.9),
-      [new ScheduleFactory().generate()],
-      '',
-      PromotionType.BOGO
+      new RestaurantFactory().generate(),
+      [new ScheduleFactory().generate()]
     );
 
     await userRepository.save(user1);
@@ -632,6 +615,7 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.AMOUNT, 18),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -639,6 +623,7 @@ describe('Integration tests for all entities', function () {
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(DiscountType.AMOUNT, 4.9),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
       '',
       PromotionType.BOGO
@@ -677,17 +662,20 @@ describe('Integration tests for all entities', function () {
     const promotion1 = new PromotionFactory().generate(
       user1,
       new DiscountFactory().generate(),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate('8:00', '9:00', Day.MONDAY)]
     );
     const promotion2 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(),
+      new RestaurantFactory().generate(),
       [new ScheduleFactory().generate('8:00', '9:00', Day.TUESDAY)]
     );
 
     const promotion3 = new PromotionFactory().generate(
       user2,
       new DiscountFactory().generate(),
+      new RestaurantFactory().generate(),
       [
         new ScheduleFactory().generate('8:00', '9:00', Day.FRIDAY),
         new ScheduleFactory().generate('8:00', '9:00', Day.MONDAY),
@@ -733,20 +721,14 @@ describe('Integration tests for all entities', function () {
 
     const user1 = new UserFactory().generate();
     const user2 = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(
+      user1
     );
-    const promotion2 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(
+      user2
     );
-    const promotion3 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(
+      user2
     );
 
     promotion1.cuisine = CuisineType.CAJUN;
@@ -779,30 +761,16 @@ describe('Integration tests for all entities', function () {
       cuisine: [],
     };
 
-    const user1 = new UserFactory().generate();
-    const user2 = new UserFactory().generate();
-    const promotion1 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion2 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion3 = new PromotionFactory().generate(
-      user2,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
-    );
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
 
     promotion1.cuisine = CuisineType.CAJUN;
     promotion2.cuisine = CuisineType.CARIBBEAN;
     promotion3.cuisine = CuisineType.CHECHEN;
 
-    await userRepository.save(user1);
-    await userRepository.save(user2);
+    await userRepository.save(user);
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
     await promotionRepository.save(promotion3);
