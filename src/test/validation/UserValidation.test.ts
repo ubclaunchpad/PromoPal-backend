@@ -9,7 +9,7 @@ describe('Unit tests for UserValidation', function () {
       firstName: 'testfirstname',
       lastName: 'testlastname',
       email: 'test@sample.com',
-      idFirebase: 'testidfirebase',
+      firebaseId: 'testidfirebase',
     };
   });
 

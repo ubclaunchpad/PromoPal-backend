@@ -19,7 +19,7 @@ export class User {
     this.lastName = lastName;
     this.email = email;
     this.username = username;
-    this.idFirebase = idFirebase;
+    this.firebaseId = idFirebase;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -30,7 +30,7 @@ export class User {
     unique: true,
     select: false,
   })
-  idFirebase: string;
+  firebaseId: string;
 
   /*
    * OneToMany bidirectional relationship between User and Promotion

@@ -53,7 +53,7 @@ describe('Unit tests for DTOConverter', function () {
       email: 'test@gmail.com',
       firstName: 'A',
       lastName: 'B',
-      idFirebase: 'test',
+      firebaseId: 'test',
       username: 'AB',
     };
   });

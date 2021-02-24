@@ -84,7 +84,7 @@ export class UserController {
           UserRepository
         );
         const result = await userRepository.save(user);
-        return res.status(201).send({ ...result, idFirebase: undefined });
+        return res.status(201).send({ ...result, firebaseId: undefined });
       });
     } catch (e) {
       return next(e);
@@ -169,7 +169,7 @@ export class UserController {
 
         let promotions: Promotion[] = [];
 
-        if (promotionIds.length !== 0) {
+        if (promotionIds.length) {
           // get all promotions using the promotion id's, DO NOT join to discount/schedules, we don't need all the information
           promotions = await transactionalEntityManager
             .getCustomRepository(PromotionRepository)

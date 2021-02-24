@@ -9,7 +9,7 @@ export class UserValidation {
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
     email: Joi.string().email().required(),
-    idFirebase: Joi.string().required(),
+    firebaseId: Joi.string().required(),
   }).required();
 }
 
@@ -18,5 +18,5 @@ export interface UserDTO {
   firstName: string;
   lastName: string;
   email: string;
-  idFirebase: string;
+  firebaseId: string;
 }

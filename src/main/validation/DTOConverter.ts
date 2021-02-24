@@ -75,7 +75,7 @@ export class DTOConverter {
       userDTO.lastName,
       userDTO.email,
       userDTO.username,
-      userDTO.idFirebase
+      userDTO.firebaseId
     );
   }
 }

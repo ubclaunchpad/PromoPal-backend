@@ -31,7 +31,7 @@ describe('Unit tests for UserRepository', function () {
   test('Should be able to store a user and successfully retrieve by id firebase', async () => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
-    const user = await userRepository.findByIdFirebase(expectedUser.idFirebase);
+    const user = await userRepository.findByFirebaseId(expectedUser.firebaseId);
     expect(user).toBeDefined();
     expect(user!.id).toEqual(expectedUser.id);
   });
@@ -52,18 +52,18 @@ describe('Unit tests for UserRepository', function () {
   });
 
   test('Should not be able to add two users with the same id firebase', async () => {
-    const idFirebase = 'testidfirebase';
+    const firebaseId = 'testidfirebase';
     const user1 = new UserFactory().generate();
     const user2 = new UserFactory().generate();
-    user1.idFirebase = idFirebase;
-    user2.idFirebase = idFirebase;
+    user1.firebaseId = firebaseId;
+    user2.firebaseId = firebaseId;
     await userRepository.save(user1);
     try {
       await userRepository.save(user2);
       fail('Should  have failed');
     } catch (e) {
       expect(e.detail).toEqual(
-        `Key (uid_firebase)=(${idFirebase}) already exists.`
+        `Key (uid_firebase)=(${firebaseId}) already exists.`
       );
     }
   });

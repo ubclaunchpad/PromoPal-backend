@@ -107,9 +107,9 @@ describe('Unit tests for UserController', function () {
 
   test('POST /users', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    expectedUser.idFirebase = uid;
+    expectedUser.firebaseId = uid;
     const sentObj: any = { ...expectedUser };
-    delete sentObj['idFirebase'];
+    delete sentObj['firebaseId'];
     delete sentObj['id'];
     request(app)
       .post('/users')
@@ -133,7 +133,7 @@ describe('Unit tests for UserController', function () {
         ...expectedUser,
         id: undefined, // POST request to users should not contain id
         email: 'invalid email',
-        idFirebase: undefined,
+        firebaseId: undefined,
       })
       .expect(400)
       .end((err, res) => {
@@ -406,11 +406,11 @@ describe('Unit tests for UserController', function () {
       ...expectedUser,
     };
 
-    if (actualUser.idFirebase) {
+    if (actualUser.firebaseId) {
       fail('Http request should not return uid of firebase user');
     }
     // since uid of firebase user isn't returned from http requests
-    delete expectedObject['idFirebase'];
+    delete expectedObject['firebaseId'];
 
     // since id is undefined in POST requests
     if (!expectedUser.id) {
