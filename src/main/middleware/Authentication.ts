@@ -13,27 +13,6 @@ export class FirebaseAuth {
     this.admin = firebaseAdmin;
   }
 
-  isAuthorizedForNewUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    const idToken: string = req.headers.authorization!;
-
-    try {
-      const decodedToken = await this.admin.verifyIdToken(idToken);
-
-      if (decodedToken) {
-        req.body.firebaseId = decodedToken.uid;
-        return next();
-      } else {
-        return res.status(401).send('You are not authorized');
-      }
-    } catch (e) {
-      return res.status(401).send('You are not authorized!');
-    }
-  };
-
   isAuthorizedForProtection = async (
     req: Request,
     res: Response,

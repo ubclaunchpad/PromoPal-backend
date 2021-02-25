@@ -109,7 +109,6 @@ describe('Unit tests for UserController', function () {
     const expectedUser: User = new UserFactory().generate();
     expectedUser.firebaseId = uid;
     const sentObj: any = { ...expectedUser };
-    delete sentObj['firebaseId'];
     delete sentObj['id'];
     request(app)
       .post('/users')
@@ -133,7 +132,6 @@ describe('Unit tests for UserController', function () {
         ...expectedUser,
         id: undefined, // POST request to users should not contain id
         email: 'invalid email',
-        firebaseId: undefined,
       })
       .expect(400)
       .end((err, res) => {

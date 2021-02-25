@@ -9,8 +9,8 @@ export class UserRouter {
   private userController;
   private firebaseAuth: FirebaseAuth;
 
-  constructor(usercontroller: UserController, firebaseAdmin: Auth) {
-    this.userController = usercontroller;
+  constructor(userController: UserController, firebaseAdmin: Auth) {
+    this.userController = userController;
     this.firebaseAuth = new FirebaseAuth(firebaseAdmin);
   }
 
@@ -28,7 +28,7 @@ export class UserRouter {
     );
     this.userRouter.post(
       '/',
-      this.firebaseAuth.isAuthorizedForNewUser,
+      this.firebaseAuth.isAuthorizedForProtection,
       this.userController.newUser
     );
     this.userRouter.patch(
