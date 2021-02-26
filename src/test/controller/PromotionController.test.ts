@@ -11,17 +11,22 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
+import { CustomAxiosMockAdapter } from '../mock/CustomAxiosMockAdapter';
+import axios from 'axios';
+import { Place } from '@googlemaps/google-maps-services-js';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
+  let customAxiosMockAdapter: CustomAxiosMockAdapter;
 
   beforeAll(async () => {
     await connection.create();
     mockRedisClient = await connectRedisClient();
     app = await registerTestApplication(mockRedisClient);
+    customAxiosMockAdapter = new CustomAxiosMockAdapter(axios);
   });
 
   afterAll(async () => {
@@ -319,6 +324,27 @@ describe('Unit tests for PromotionController', function () {
             done();
           }
         );
+      });
+  });
+
+  test('GET /promotions/:id/restaurantDetails/:placeId', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    customAxiosMockAdapter.mockSuccessfulPlaceDetails(promotion.placeId);
+
+    request(app)
+      .get(`/promotions/${promotion.id}/restaurantDetails/${promotion.placeId}`)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const restaurantDetails = res.body as Place;
+        expect(restaurantDetails.place_id).toEqual(promotion.placeId);
+        expect(restaurantDetails.name).toEqual('MOCK NAME');
+        done();
       });
   });
 

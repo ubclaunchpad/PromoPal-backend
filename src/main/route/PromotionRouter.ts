@@ -24,6 +24,10 @@ export class PromotionRouter {
       '/:id/downVote',
       this.promotionController.downVotePromotion
     );
+    this.promotionRouter.get(
+      '/:id/restaurantDetails/:placeId',
+      this.promotionController.getRestaurantDetails
+    );
     return this.promotionRouter;
   }
 }

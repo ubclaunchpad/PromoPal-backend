@@ -27,6 +27,8 @@ import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
 import { RestaurantRepository } from './repository/RestaurantRepository';
 import { Restaurant } from './entity/Restaurant';
+import { GooglePlaceService } from './service/GooglePlaceService';
+import { Client } from '@googlemaps/google-maps-services-js';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -67,7 +69,9 @@ export class App {
 
     app.get('/', (req, res) => res.send('Hello World'));
 
-    const promotionController = new PromotionController();
+    const client = new Client();
+    const googlePlaceService = new GooglePlaceService(client);
+    const promotionController = new PromotionController(googlePlaceService);
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 

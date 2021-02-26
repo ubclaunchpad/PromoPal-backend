@@ -13,8 +13,14 @@ import {
 } from '../validation/PromotionQueryValidation';
 import * as querystring from 'querystring';
 import { DTOConverter } from '../validation/DTOConverter';
+import { GooglePlaceService } from '../service/GooglePlaceService';
 
 export class PromotionController {
+  private googlePlaceService: GooglePlaceService;
+
+  constructor(googlePlaceService: GooglePlaceService) {
+    this.googlePlaceService = googlePlaceService;
+  }
   /**
    * Retrieves all promotions and their discounts
    * * First we need to validate the query params and cast that into a PromotionQueryDTO
@@ -184,6 +190,33 @@ export class PromotionController {
           .getCustomRepository(PromotionRepository)
           .decrement({ id }, 'votes', 1);
         return response.status(204).send();
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  /**
+   * Get the restaurant details for a promotion
+   */
+  getRestaurantDetails = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+        const placeId = request.params.placeId;
+
+        const restaurantDetails = await this.googlePlaceService.getRestaurantDetails(
+          placeId
+        );
+
+        // todo: handle case for NOT_FOUND and INVALID_REQUEST through restaurantDetails.status
+        return response.status(200).send(restaurantDetails);
       });
     } catch (e) {
       return next(e);
