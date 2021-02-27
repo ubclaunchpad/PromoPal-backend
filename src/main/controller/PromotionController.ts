@@ -14,6 +14,7 @@ import {
 import * as querystring from 'querystring';
 import { DTOConverter } from '../validation/DTOConverter';
 import { GooglePlaceService } from '../service/GooglePlaceService';
+import { Place, Status } from '@googlemaps/google-maps-services-js';
 
 export class PromotionController {
   private googlePlaceService: GooglePlaceService;
@@ -205,21 +206,48 @@ export class PromotionController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      await getManager().transaction(async (transactionalEntityManager) => {
-        const id = await IdValidation.schema.validateAsync(request.params.id, {
-          abortEarly: false,
-        });
-        const placeId = request.params.placeId;
-
-        const restaurantDetails = await this.googlePlaceService.getRestaurantDetails(
-          placeId
-        );
-
-        // todo: handle case for NOT_FOUND and INVALID_REQUEST through restaurantDetails.status
-        return response.status(200).send(restaurantDetails);
+      let result: Place;
+      const id = await IdValidation.schema.validateAsync(request.params.id, {
+        abortEarly: false,
       });
+      const placeId = request.params.placeId;
+
+      const placeDetailsResponseData = await this.googlePlaceService.getRestaurantDetails(
+        placeId
+      );
+      result = placeDetailsResponseData.result ?? {};
+
+      if (placeDetailsResponseData.status === Status.NOT_FOUND) {
+        result = await this.handlePlaceIdNotFound(placeId, id);
+      }
+
+      return response.status(200).send(result);
     } catch (e) {
       return next(e);
     }
   };
+
+  /**
+   * Handle NOT_FOUND case for getting restaurant details of a placeId for a promotion
+   * 1. Issue refresh request for the placeId
+   * 2. Store new placeId in DB, even if placeId is empty string
+   * @param placeId the placeId of the promotion
+   * @param id the id of the promotion
+   * @return Place - the restaurant details which may be empty
+   * */
+  private async handlePlaceIdNotFound(
+    placeId: string,
+    id: string
+  ): Promise<Place> {
+    const refreshResult = await this.googlePlaceService.refreshPlaceId(placeId);
+
+    // update DB with new placeId, even if placeId is empty string
+    await getManager().transaction(async (transactionalEntityManager) => {
+      await transactionalEntityManager
+        .getCustomRepository(PromotionRepository)
+        .update({ id }, { placeId: refreshResult.placeId });
+    });
+
+    return refreshResult.restaurantDetails;
+  }
 }

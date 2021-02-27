@@ -29,6 +29,7 @@ import { RestaurantRepository } from './repository/RestaurantRepository';
 import { Restaurant } from './entity/Restaurant';
 import { GooglePlaceService } from './service/GooglePlaceService';
 import { Client } from '@googlemaps/google-maps-services-js';
+import { AxiosInstance } from 'axios';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -63,13 +64,14 @@ export class App {
    * */
   async registerHandlersAndRoutes(
     app: Express,
-    redisClient: RedisClient
+    redisClient: RedisClient,
+    axiosInstance?: AxiosInstance
   ): Promise<void> {
     app.use(bodyParser.json());
 
     app.get('/', (req, res) => res.send('Hello World'));
 
-    const client = new Client();
+    const client = axiosInstance ? new Client({ axiosInstance }) : new Client();
     const googlePlaceService = new GooglePlaceService(client);
     const promotionController = new PromotionController(googlePlaceService);
     const promotionRouter = new PromotionRouter(promotionController);

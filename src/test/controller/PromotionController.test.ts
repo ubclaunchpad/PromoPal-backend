@@ -12,7 +12,7 @@ import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
 import { CustomAxiosMockAdapter } from '../mock/CustomAxiosMockAdapter';
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 import { Place } from '@googlemaps/google-maps-services-js';
 
 describe('Unit tests for PromotionController', function () {
@@ -21,12 +21,13 @@ describe('Unit tests for PromotionController', function () {
   let app: Express;
   let mockRedisClient: RedisClient;
   let customAxiosMockAdapter: CustomAxiosMockAdapter;
+  let axiosInstance: AxiosInstance;
 
   beforeAll(async () => {
     await connection.create();
     mockRedisClient = await connectRedisClient();
-    app = await registerTestApplication(mockRedisClient);
-    customAxiosMockAdapter = new CustomAxiosMockAdapter(axios);
+    axiosInstance = axios.create();
+    app = await registerTestApplication(mockRedisClient, axiosInstance);
   });
 
   afterAll(async () => {
@@ -38,6 +39,7 @@ describe('Unit tests for PromotionController', function () {
     await connection.clear();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
+    customAxiosMockAdapter = new CustomAxiosMockAdapter(axiosInstance);
   });
 
   test('GET /promotions', async (done) => {
@@ -344,6 +346,69 @@ describe('Unit tests for PromotionController', function () {
         const restaurantDetails = res.body as Place;
         expect(restaurantDetails.place_id).toEqual(promotion.placeId);
         expect(restaurantDetails.name).toEqual('MOCK NAME');
+        done();
+      });
+  });
+
+  test('GET /promotions/:id/restaurantDetails/:placeId should refresh placeId if not found', async (done) => {
+    const expectedRefreshedPlaceId = 'new refreshed placeId';
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    customAxiosMockAdapter.mockNotFoundPlaceDetails(promotion.placeId);
+    customAxiosMockAdapter.mockSuccessfulRefreshRequest(
+      promotion.placeId,
+      expectedRefreshedPlaceId
+    );
+    customAxiosMockAdapter.mockSuccessfulPlaceDetails(expectedRefreshedPlaceId);
+
+    request(app)
+      .get(`/promotions/${promotion.id}/restaurantDetails/${promotion.placeId}`)
+      .expect(200)
+      .end(async (err, res) => {
+        if (err) return done(err);
+        // should be able to get promotion details with new placeId
+        const restaurantDetails = res.body as Place;
+        expect(restaurantDetails.place_id).toEqual(expectedRefreshedPlaceId);
+        expect(restaurantDetails.name).toEqual('MOCK NAME');
+
+        // placeId should be updated in the repository
+        const actualPromotion = await promotionRepository.findOneOrFail(
+          promotion.id
+        );
+        expect(actualPromotion.placeId).toEqual(expectedRefreshedPlaceId);
+        done();
+      });
+  });
+
+  test('GET /promotions/:id/restaurantDetails/:placeId should not fail if refresh placeId results in not found', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    customAxiosMockAdapter.mockNotFoundPlaceDetails(promotion.placeId);
+    // configure so that refresh request results in not found
+    customAxiosMockAdapter.mockNotFoundRefreshRequest(promotion.placeId);
+
+    request(app)
+      .get(`/promotions/${promotion.id}/restaurantDetails/${promotion.placeId}`)
+      .expect(200)
+      .end(async (err, res) => {
+        if (err) return done(err);
+        // should be able to get promotion details with new placeId
+        const restaurantDetails = res.body as Place;
+        expect(restaurantDetails).toEqual({});
+
+        // placeId should be updated in the repository
+        const actualPromotion = await promotionRepository.findOneOrFail(
+          promotion.id
+        );
+        expect(actualPromotion.placeId).toEqual('');
         done();
       });
   });

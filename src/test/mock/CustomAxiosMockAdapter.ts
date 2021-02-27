@@ -1,6 +1,8 @@
 import { defaultUrl } from '@googlemaps/google-maps-services-js/dist/places/details';
 import MockAdapter from 'axios-mock-adapter';
 import { Status } from '@googlemaps/google-maps-services-js';
+import { restaurantDetailsFields } from '../../main/service/GooglePlaceService';
+import { PlaceField } from '../../main/data/PlaceField';
 
 /**
  * Wrapper class around MockAdapter to set custom mocking behaviour
@@ -11,8 +13,14 @@ export class CustomAxiosMockAdapter extends MockAdapter {
   /**
    * Mock the response for placeDetails
    * */
-  mockSuccessfulPlaceDetails(place_id: string) {
-    this.onGet(defaultUrl).reply(
+  mockSuccessfulPlaceDetails(place_id: string): void {
+    this.onGet(defaultUrl, {
+      params: {
+        place_id,
+        key: undefined,
+        fields: restaurantDetailsFields,
+      },
+    }).reply(
       200,
       //region Mocked PlaceDetailsResponseData
       {
@@ -351,12 +359,71 @@ export class CustomAxiosMockAdapter extends MockAdapter {
 
   /**
    * Mock invalid request response for place Details
-   * * Note: Invalid Request response are still status code 200
+   * * Note: Invalid Request responses are still status code 200
    * */
-  mockInvalidRequestPlaceDetails() {
+  mockInvalidRequestPlaceDetails(): void {
     this.onGet(defaultUrl).reply(200, {
       html_attributions: [],
       status: Status.INVALID_REQUEST,
+    });
+  }
+
+  /**
+   * Mock not found request response for place Details
+   * * Note: Not Found responses are still status code 200
+   * */
+  mockNotFoundPlaceDetails(invalidPlaceId: string): void {
+    // invalid place id will return not found
+    this.onGet(defaultUrl, {
+      params: {
+        place_id: invalidPlaceId,
+        key: undefined,
+        fields: restaurantDetailsFields,
+      },
+    }).reply(200, {
+      html_attributions: [],
+      status: Status.NOT_FOUND,
+    });
+  }
+
+  /**
+   * Mock refresh request returning new placeId
+   * */
+  mockSuccessfulRefreshRequest(
+    invalidPlaceId: string,
+    validPlaceId: string
+  ): void {
+    // refresh request with invalid place id will return new place id
+    this.onGet(defaultUrl, {
+      params: {
+        place_id: invalidPlaceId,
+        key: undefined,
+        fields: [PlaceField.PLACE_ID],
+      },
+    }).reply(200, {
+      html_attributions: [],
+      result: {
+        place_id: validPlaceId,
+      },
+      status: Status.OK,
+      error_message: '',
+    });
+  }
+
+  /**
+   * Mock refresh request resulting in NOT_FOUND still
+   * */
+  mockNotFoundRefreshRequest(invalidPlaceId: string): void {
+    this.onGet(defaultUrl, {
+      params: {
+        place_id: invalidPlaceId,
+        key: undefined,
+        fields: [PlaceField.PLACE_ID],
+      },
+    }).reply(200, {
+      html_attributions: [],
+      status: Status.NOT_FOUND,
+      error_message: '',
     });
   }
 }
