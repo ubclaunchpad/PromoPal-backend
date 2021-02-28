@@ -12,25 +12,25 @@ import {
   PromotionQueryValidation,
 } from '../validation/PromotionQueryValidation';
 import * as querystring from 'querystring';
-import { CachingService } from '../service/CachingService';
 import { DTOConverter } from '../validation/DTOConverter';
+import { GooglePlaceService } from '../service/GooglePlaceService';
+import { Place, Status } from '@googlemaps/google-maps-services-js';
 import { GeocodingService } from '../service/GeocodingService';
 import { GeocodingObject } from '../data/GeocodingObject';
 
 export class PromotionController {
-  private cachingService: CachingService;
+  private googlePlaceService: GooglePlaceService;
   private geocodingService: GeocodingService;
 
-  constructor(cachingService: CachingService) {
-    this.cachingService = cachingService;
+  constructor(googlePlaceService: GooglePlaceService) {
+    this.googlePlaceService = googlePlaceService;
     this.geocodingService = new GeocodingService();
   }
-
   /**
    * Retrieves all promotions and their discounts
    * * First we need to validate the query params and cast that into a PromotionQueryDTO
    * * Then we apply the query options into the query builder depending on which properties are present
-   * * Now we execute the query builder, get the lat/lon values per promotion from cache and return its results
+   * * Now we execute the query builder and return its results
    *
    * Note: if request.query contains searchQuery property, result returned back will have new property rank and will be sorted by rank non-ascending.
    * Rank represents how relevant the search query applies to the promotion
@@ -59,7 +59,6 @@ export class PromotionController {
           .getCustomRepository(PromotionRepository)
           .getAllPromotions(promotionQuery);
 
-        await this.cachingService.setLatLonForPromotions(promotions);
         return response.send(promotions);
       });
     } catch (e) {
@@ -68,7 +67,7 @@ export class PromotionController {
   };
 
   /**
-   * Retrieves a single promotion, its discount, and lat/lon values of associated restaurant
+   * Retrieves a single promotion and its associated entities
    */
   getPromotion = async (
     request: Request,
@@ -83,11 +82,10 @@ export class PromotionController {
         const promotion = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .findOneOrFail(id, {
-            relations: ['discount', 'schedules'],
+            relations: ['discount', 'restaurant', 'schedules'],
             cache: true,
           });
 
-        await this.cachingService.setLatLonForPromotion(promotion);
         return response.send(promotion);
       });
     } catch (e) {
@@ -98,8 +96,8 @@ export class PromotionController {
   /**
    * Adds a promotion to the database
    * * First, we need to validate the contents of request body and then cast that into PromotionDTO
-   * * Then we construct a new Promotion using user, discount, and promotionDTO. (Note user and discount depend on promotionDTO)
-   * * Lastly, we cache the lat/lon values of the promotion's restaurant
+   * * Then we construct a new Promotion along with its associated entities and the user
+   * * Lastly, save promotion along with associated entities in DB and return result
    */
   addPromotion = async (
     request: Request,
@@ -132,12 +130,6 @@ export class PromotionController {
         const result = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .save(promotion);
-
-        await this.cachingService.cacheLatLonValues(
-          promotion.placeId,
-          promotionDTO.lat,
-          promotionDTO.lon
-        );
 
         return response.status(201).send(result);
       });
@@ -216,4 +208,58 @@ export class PromotionController {
       return next(e);
     }
   };
+
+  /**
+   * Get the restaurant details for a promotion
+   */
+  getRestaurantDetails = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      let result: Place;
+      const id = await IdValidation.schema.validateAsync(request.params.id, {
+        abortEarly: false,
+      });
+      const placeId = request.params.placeId;
+
+      const placeDetailsResponseData = await this.googlePlaceService.getRestaurantDetails(
+        placeId
+      );
+      result = placeDetailsResponseData.result ?? {};
+
+      if (placeDetailsResponseData.status === Status.NOT_FOUND) {
+        result = await this.handlePlaceIdNotFound(placeId, id);
+      }
+
+      return response.status(200).send(result);
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  /**
+   * Handle NOT_FOUND case for getting restaurant details of a placeId for a promotion
+   * 1. Issue refresh request for the placeId
+   * 2. Store new placeId in DB, even if placeId is empty string
+   * @param placeId the placeId of the promotion
+   * @param id the id of the promotion
+   * @return Place - the restaurant details which may be empty
+   * */
+  private async handlePlaceIdNotFound(
+    placeId: string,
+    id: string
+  ): Promise<Place> {
+    const refreshResult = await this.googlePlaceService.refreshPlaceId(placeId);
+
+    // update DB with new placeId, even if placeId is empty string
+    await getManager().transaction(async (transactionalEntityManager) => {
+      await transactionalEntityManager
+        .getCustomRepository(PromotionRepository)
+        .update({ id }, { placeId: refreshResult.placeId });
+    });
+
+    return refreshResult.restaurantDetails;
+  }
 }

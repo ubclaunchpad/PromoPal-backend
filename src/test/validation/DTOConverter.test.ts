@@ -12,10 +12,13 @@ import { Discount } from '../../main/entity/Discount';
 import { User } from '../../main/entity/User';
 import { UserFactory } from '../factory/UserFactory';
 import { Promotion } from '../../main/entity/Promotion';
+import { RestaurantDTO } from '../../main/validation/RestaurantValidation';
+import { Restaurant } from '../../main/entity/Restaurant';
 
 describe('Unit tests for DTOConverter', function () {
   let scheduleDTO: ScheduleDTO;
   let discountDTO: DiscountDTO;
+  let restaurantDTO: RestaurantDTO;
   let promotionDTO: PromotionDTO;
   let userDTO: UserDTO;
 
@@ -32,21 +35,25 @@ describe('Unit tests for DTOConverter', function () {
       discountValue: 100.01,
     };
 
+    restaurantDTO = {
+      name: 'Sample restaurant name',
+      address: '3012 Sample Ave, Vancouver BC',
+      lat: 0.99,
+      lon: 0.11,
+    };
+
     promotionDTO = {
       cuisine: CuisineType.CHECHEN,
       description: 'Sample description',
       discount: discountDTO,
+      restaurant: restaurantDTO,
       expirationDate: new Date(),
-      lat: 0.99,
-      lon: 0.11,
       name: 'Sample name',
       placeId: 'Sample placeId',
       promotionType: PromotionType.BOGO,
-      restaurantName: 'Sample restaurantName',
       schedules: [scheduleDTO],
       startDate: new Date(),
       userId: 'fake userId',
-      restaurantAddress: '3012 Sample Ave, Vancouver BC',
     };
 
     userDTO = {
@@ -68,6 +75,12 @@ describe('Unit tests for DTOConverter', function () {
     const discount = DTOConverter.discountDTOtoDiscount(discountDTO);
     expect(discount).toBeInstanceOf(Discount);
     expect(discount).toEqual(discountDTO);
+  });
+
+  it('Should be able to convert RestaurantDTO to Restaurant', () => {
+    const restaurant = DTOConverter.restaurantDTOtoRestaurant(restaurantDTO);
+    expect(restaurant).toBeInstanceOf(Restaurant);
+    expect(restaurant).toEqual(restaurantDTO);
   });
 
   it('Should be able to convert UserDTO to User', () => {

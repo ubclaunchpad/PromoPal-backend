@@ -7,8 +7,6 @@ import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
 import { connectRedisClient, registerTestApplication } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
-import { DiscountFactory } from '../factory/DiscountFactory';
-import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
@@ -197,10 +195,8 @@ describe('Unit tests for UserController', function () {
 
   test('GET /users/:id/savedPromotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
     );
 
     await userRepository.save(expectedUser);
@@ -247,10 +243,8 @@ describe('Unit tests for UserController', function () {
 
   test('POST /users/:id/savedPromotions/:pid', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
     );
 
     await userRepository.save(expectedUser);
@@ -272,10 +266,8 @@ describe('Unit tests for UserController', function () {
 
   test('DELETE /users/:id/savedPromotions/:pid', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
     );
     const savedPromotion = new SavedPromotionFactory().generate(
       expectedUser,
@@ -311,10 +303,8 @@ describe('Unit tests for UserController', function () {
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion was never saved by user', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
     );
 
     await userRepository.save(expectedUser);
@@ -336,10 +326,8 @@ describe('Unit tests for UserController', function () {
 
   test('GET /users/:id/uploadedPromotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      expectedUser,
-      new DiscountFactory().generate(),
-      [new ScheduleFactory().generate()]
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
     );
 
     await userRepository.save(expectedUser);

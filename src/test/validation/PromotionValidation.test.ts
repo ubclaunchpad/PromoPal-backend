@@ -9,12 +9,19 @@ describe('Unit tests for PromotionValidation', function () {
   // mark these types as any so that we can make them improper
   let promotionDTO: any;
   let discountDTO: any;
+  let restaurantDTO: any;
   let schedulesDTO: any;
 
   beforeEach(() => {
     discountDTO = {
       discountValue: 12.99,
       discountType: DiscountType.AMOUNT,
+    };
+    restaurantDTO = {
+      name: 'Sample restaurant name',
+      address: '3012 Sample Ave, Vancouver BC',
+      lat: 0.99,
+      lon: 0.11,
     };
     schedulesDTO = [
       {
@@ -35,16 +42,13 @@ describe('Unit tests for PromotionValidation', function () {
       cuisine: CuisineType.VIETNAMESE,
       description: 'description',
       discount: discountDTO,
+      restaurant: restaurantDTO,
       schedules: schedulesDTO,
       startDate: '2020-11-09 03:39:40.395843',
       expirationDate: '2020-11-09 03:39:40.395843',
       name: 'name',
       placeId: '123123123',
       userId: '56588b66-7bc3-4245-98c2-5e3d4e3bd2a6',
-      lat: 34.0,
-      lon: -43.2,
-      restaurantName: 'restaurantName',
-      restaurantAddress: '3041 Random Avenue, Vancouver BC',
     };
   });
 
@@ -374,16 +378,29 @@ describe('Unit tests for PromotionValidation', function () {
     }
   });
 
-  test('Should fail if restaurant address is undefined', async () => {
+  test('Should fail if restaurant is undefined', async () => {
     try {
-      promotionDTO.restaurantAddress = undefined;
+      promotionDTO.restaurant = undefined;
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"restaurantAddress" is required');
+      expect(e.details[0].message).toEqual('"restaurant" is required');
+    }
+  });
+
+  test('Should fail if restaurant address is undefined', async () => {
+    try {
+      promotionDTO.restaurant.address = undefined;
+      await PromotionValidation.schema.validateAsync(promotionDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual('"restaurant.address" is required');
     }
   });
 
@@ -394,23 +411,20 @@ describe('Unit tests for PromotionValidation', function () {
         cuisine: 'string',
         description: 1,
         discount: discountDTO,
+        restaurant: restaurantDTO,
         schedules: '1231823',
         startDate: true,
         expirationDate: true,
         name: 3,
         placeId: 4,
         userId: false,
-        lat: '34.0',
-        lon: '-43.2',
-        restaurantName: 4,
-        restaurantAddress: 2,
       };
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(13);
+      expect(e.details.length).toEqual(9);
       expect(e.details[0].message).toEqual('"userId" must be a string');
       expect(e.details[1].message).toEqual('"placeId" must be a string');
       expect(e.details[2].message).toEqual('"schedules" must be an array');
@@ -422,14 +436,6 @@ describe('Unit tests for PromotionValidation', function () {
         '"expirationDate" must be a valid date'
       );
       expect(e.details[8].message).toEqual('"startDate" must be a valid date');
-      expect(e.details[9].message).toEqual('"lat" must be a number');
-      expect(e.details[10].message).toEqual('"lon" must be a number');
-      expect(e.details[11].message).toEqual(
-        '"restaurantName" must be a string'
-      );
-      expect(e.details[12].message).toEqual(
-        '"restaurantAddress" must be a string'
-      );
     }
   });
 });

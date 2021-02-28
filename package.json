@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/ubclaunchpad/foodies#readme",
   "dependencies": {
+    "@googlemaps/google-maps-services-js": "3.1.16",
     "@types/bcrypt": "^3.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/node-geocoder": "^3.24.1",
@@ -47,6 +48,7 @@
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "4.14.2",
     "@typescript-eslint/parser": "4.14.2",
+    "axios-mock-adapter": "1.19.0",
     "body-parser": "^1.19.0",
     "eslint": "7.19.0",
     "eslint-config-prettier": "^7.2.0",

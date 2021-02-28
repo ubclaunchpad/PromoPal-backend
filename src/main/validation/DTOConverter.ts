@@ -6,6 +6,8 @@ import { Schedule } from '../entity/Schedule';
 import { Discount } from '../entity/Discount';
 import { DiscountDTO } from './DiscountValidation';
 import { UserDTO } from './UserValidation';
+import { RestaurantDTO } from './RestaurantValidation';
+import { Restaurant } from '../entity/Restaurant';
 
 /**
  * Converts Data Transfer Objects (DTO's) to entity's
@@ -22,13 +24,15 @@ export class DTOConverter {
     user: User
   ): Promotion {
     const discount = this.discountDTOtoDiscount(promotionDTO.discount);
+    const restaurant = this.restaurantDTOtoRestaurant(promotionDTO.restaurant);
     const schedules = promotionDTO.schedules.map((scheduleDTO: ScheduleDTO) => {
       return this.scheduleDTOtoSchedule(scheduleDTO);
     });
 
-    const promotion = new Promotion(
+    return new Promotion(
       user,
       discount,
+      restaurant,
       schedules,
       promotionDTO.placeId,
       promotionDTO.promotionType,
@@ -36,15 +40,8 @@ export class DTOConverter {
       promotionDTO.name,
       promotionDTO.description,
       promotionDTO.startDate,
-      promotionDTO.expirationDate,
-      promotionDTO.restaurantName,
-      promotionDTO.restaurantAddress
+      promotionDTO.expirationDate
     );
-
-    promotion.lat = promotionDTO.lat;
-    promotion.lon = promotionDTO.lon;
-
-    return promotion;
   }
 
   /**
@@ -64,6 +61,18 @@ export class DTOConverter {
    */
   static discountDTOtoDiscount(discountDTO: DiscountDTO): Discount {
     return new Discount(discountDTO.discountType, discountDTO.discountValue);
+  }
+
+  /**
+   * Convert RestaurantDTO to Restaurant
+   */
+  static restaurantDTOtoRestaurant(restaurantDTO: RestaurantDTO): Restaurant {
+    return new Restaurant(
+      restaurantDTO.name,
+      restaurantDTO.address,
+      restaurantDTO.lat,
+      restaurantDTO.lon
+    );
   }
 
   /**
