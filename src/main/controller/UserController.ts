@@ -181,7 +181,7 @@ export class UserController {
               where: {
                 id: In(promotionIds),
               },
-              relations: ['discount', 'schedules'],
+              relations: ['discount', 'schedules', 'restaurant'],
             });
         }
 

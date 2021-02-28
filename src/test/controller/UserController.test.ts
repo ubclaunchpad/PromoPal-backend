@@ -280,10 +280,8 @@ describe('Unit tests for UserController', function () {
   test('Adding a user, promotion, and savedPromotion should not deadlock', async () => {
     for (let i = 0; i < 10; i++) {
       const expectedUser: User = new UserFactory().generate();
-      const promotion = new PromotionFactory().generate(
-        expectedUser,
-        new DiscountFactory().generate(),
-        [new ScheduleFactory().generate()]
+      const promotion = new PromotionFactory().generateWithRelatedEntities(
+        expectedUser
       );
 
       await addSavedPromotion(expectedUser, promotion);
