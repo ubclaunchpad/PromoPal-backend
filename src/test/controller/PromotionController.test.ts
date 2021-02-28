@@ -339,7 +339,7 @@ describe('Unit tests for PromotionController', function () {
     customAxiosMockAdapter.mockSuccessfulPlaceDetails(promotion.placeId);
 
     request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails/${promotion.placeId}`)
+      .get(`/promotions/${promotion.id}/restaurantDetails`)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -366,7 +366,7 @@ describe('Unit tests for PromotionController', function () {
     customAxiosMockAdapter.mockSuccessfulPlaceDetails(expectedRefreshedPlaceId);
 
     request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails/${promotion.placeId}`)
+      .get(`/promotions/${promotion.id}/restaurantDetails`)
       .expect(200)
       .end(async (err, res) => {
         if (err) return done(err);
@@ -396,7 +396,7 @@ describe('Unit tests for PromotionController', function () {
     customAxiosMockAdapter.mockNotFoundRefreshRequest(promotion.placeId);
 
     request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails/${promotion.placeId}`)
+      .get(`/promotions/${promotion.id}/restaurantDetails`)
       .expect(200)
       .end(async (err, res) => {
         if (err) return done(err);
@@ -409,6 +409,26 @@ describe('Unit tests for PromotionController', function () {
           promotion.id
         );
         expect(actualPromotion.placeId).toEqual('');
+        done();
+      });
+  });
+
+  test('GET /promotions/:id/restaurantDetails/:placeId should return empty object if placeId is empty string', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+    promotion.placeId = '';
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    request(app)
+      .get(`/promotions/${promotion.id}/restaurantDetails`)
+      .expect(200)
+      .end(async (err, res) => {
+        if (err) return done(err);
+        // should be able to get promotion details with new placeId
+        const restaurantDetails = res.body as Place;
+        expect(restaurantDetails).toEqual({});
         done();
       });
   });

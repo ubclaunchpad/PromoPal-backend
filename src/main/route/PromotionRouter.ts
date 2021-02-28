@@ -25,7 +25,7 @@ export class PromotionRouter {
       this.promotionController.downVotePromotion
     );
     this.promotionRouter.get(
-      '/:id/restaurantDetails/:placeId',
+      '/:id/restaurantDetails/',
       this.promotionController.getRestaurantDetails
     );
     return this.promotionRouter;
