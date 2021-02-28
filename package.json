@@ -28,6 +28,7 @@
   "dependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/bcryptjs": "^2.4.2",
+    "@types/node-geocoder": "^3.24.1",
     "@types/redis": "^2.8.28",
     "@types/redis-mock": "^0.17.0",
     "axios": "^0.21.0",
@@ -35,6 +36,7 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "joi": "^17.3.0",
+    "node-geocoder": "^3.27.0",
     "redis": "^3.0.2",
     "redis-mock": "^0.56.3"
   },

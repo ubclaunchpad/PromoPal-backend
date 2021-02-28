@@ -14,12 +14,16 @@ import {
 import * as querystring from 'querystring';
 import { CachingService } from '../service/CachingService';
 import { DTOConverter } from '../validation/DTOConverter';
+import { GeocodingService } from '../service/GeocodingService';
+import { GeocodingObject } from '../data/GeocodingObject';
 
 export class PromotionController {
   private cachingService: CachingService;
+  private geocodingService: GeocodingService;
 
   constructor(cachingService: CachingService) {
     this.cachingService = cachingService;
+    this.geocodingService = new GeocodingService();
   }
 
   /**
@@ -116,6 +120,14 @@ export class PromotionController {
           promotionDTO,
           user
         );
+
+        const geocodingData: GeocodingObject = await this.geocodingService.getLatLonFromRestaurantAddress(
+          promotionDTO.restaurantAddress
+        );
+        promotion.lat = geocodingData.lat;
+        promotion.lon = geocodingData.lon;
+
+        // todo: need to add lat/lon to DB columns, and remove lat/lon from DTO
 
         const result = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
