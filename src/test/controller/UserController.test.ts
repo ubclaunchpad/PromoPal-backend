@@ -1,4 +1,4 @@
-import { getManager, getCustomRepository } from 'typeorm';
+import { getManager, getCustomRepository, EntityManager } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from '../repository/BaseRepositoryTest';
@@ -10,14 +10,13 @@ import { PromotionFactory } from '../factory/PromotionFactory';
 import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
-import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
-import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { RedisClient } from 'redis-mock';
+import { SavedPromotion } from '../../main/entity/SavedPromotion';
+import { Promotion } from '../../main/entity/Promotion';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
-  let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
   let redisClient: RedisClient;
 
@@ -36,7 +35,6 @@ describe('Unit tests for UserController', function () {
     await connection.clear();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
-    savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
   });
 
   test('GET /users', async (done) => {
@@ -203,44 +201,32 @@ describe('Unit tests for UserController', function () {
       [new ScheduleFactory().generate()]
     );
 
-    await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion);
+    await addSavedPromotion(expectedUser, promotion);
 
-    // create saved promotions
-    await savedPromotionRepository.save(
-      new SavedPromotionFactory().generate(expectedUser, promotion)
-    );
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('savedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.savedPromotions).toHaveLength(1);
-        expect(user.savedPromotions[0]).toMatchObject({
-          userId: expectedUser.id,
-          promotionId: promotion.id,
-          promotion: { id: promotion.id, name: promotion.name },
-        });
+        const promotions = res.body;
+        expect(promotions).toHaveLength(1);
+        expect(promotions[0].id).toEqual(promotion.id);
         done();
       });
   });
 
   test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    await userRepository.save(expectedUser);
+
+    await addSavedPromotion(expectedUser);
 
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('savedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.savedPromotions).toHaveLength(0);
+        const promotions = res.body;
+        expect(promotions).toHaveLength(0);
         done();
       });
   });
@@ -277,36 +263,12 @@ describe('Unit tests for UserController', function () {
       new DiscountFactory().generate(),
       [new ScheduleFactory().generate()]
     );
-    const savedPromotion = new SavedPromotionFactory().generate(
-      expectedUser,
-      promotion
-    );
 
-    await userRepository.save(expectedUser);
-    await promotionRepository.save(promotion);
-    await savedPromotionRepository.save(savedPromotion);
+    await addSavedPromotion(expectedUser, promotion);
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .expect(204)
-      .then(() => {
-        return getManager().transaction(
-          'READ UNCOMMITTED',
-          async (transactionalEntityManager) => {
-            // check that saved promotion no longer exists
-            const savedPromotionRepository = transactionalEntityManager.getCustomRepository(
-              SavedPromotionRepository
-            );
-            await expect(
-              savedPromotionRepository.findOneOrFail({
-                userId: expectedUser.id,
-                promotionId: promotion.id,
-              })
-            ).rejects.toThrowError();
-            done();
-          }
-        );
-      });
+      .expect(204, done);
   });
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion was never saved by user', async (done) => {
@@ -324,6 +286,20 @@ describe('Unit tests for UserController', function () {
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
       .expect(204, done);
   });
+
+  test('Adding a user, promotion, and savedPromotion should not deadlock', async () => {
+    for (let i = 0; i < 10; i++) {
+      const expectedUser: User = new UserFactory().generate();
+      const promotion = new PromotionFactory().generate(
+        expectedUser,
+        new DiscountFactory().generate(),
+        [new ScheduleFactory().generate()]
+      );
+
+      await addSavedPromotion(expectedUser, promotion);
+      await connection.clear();
+    }
+  }, 10000);
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async (done) => {
     const nonExistentPid = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
@@ -398,5 +374,60 @@ describe('Unit tests for UserController', function () {
     }
 
     expect(actualUser).toMatchObject(expectedObject);
+  }
+
+  /**
+   * Save the promotion and user to the database. Also add the saved promotion into the database
+   * * Set transaction level to serializable and set lock level to pessimistic write to avoid deadlocks
+   * */
+  async function addSavedPromotion(user: User, promotion?: Promotion) {
+    await getManager().transaction(
+      'SERIALIZABLE',
+      async (entityManager: EntityManager) => {
+        return entityManager
+          .createQueryBuilder()
+          .setLock('pessimistic_write')
+          .insert()
+          .into(User)
+          .values(user)
+          .execute();
+      }
+    );
+
+    if (promotion) {
+      await getManager().transaction(
+        'SERIALIZABLE',
+        async (entityManager: EntityManager) => {
+          return entityManager
+            .createQueryBuilder()
+            .setLock('pessimistic_write')
+            .insert()
+            .into(Promotion)
+            .values(promotion)
+            .execute();
+        }
+      );
+
+      await getManager().transaction(
+        'SERIALIZABLE',
+        async (entityManager: EntityManager) => {
+          return entityManager
+            .createQueryBuilder()
+            .setLock('pessimistic_write')
+            .insert()
+            .into(SavedPromotion)
+            .values([
+              {
+                promotionId: promotion.id,
+                userId: user.id,
+              },
+            ])
+            .execute();
+        }
+      );
+    }
+
+    // This is an unfortunate hack...need to invest more time into this
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 });
