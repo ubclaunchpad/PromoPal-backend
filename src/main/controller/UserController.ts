@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { EntityManager, getManager } from 'typeorm';
+import { EntityManager, getManager, In } from 'typeorm';
 import { UserRepository } from '../repository/UserRepository';
 import { IdValidation } from '../validation/IdValidation';
 import { UserDTO, UserValidation } from '../validation/UserValidation';
@@ -11,6 +11,8 @@ import * as bcrypt from 'bcryptjs';
 import { PromotionRepository } from '../repository/PromotionRepository';
 import { SavedPromotionRepository } from '../repository/SavedPromotionRepository';
 import { DTOConverter } from '../validation/DTOConverter';
+import { SavedPromotion } from '../entity/SavedPromotion';
+import { Promotion } from '../entity/Promotion';
 
 export class UserController {
   /**
@@ -156,15 +158,34 @@ export class UserController {
         const id = await IdValidation.schema.validateAsync(req.params.id, {
           abortEarly: false,
         });
-        const userRepository = transactionalEntityManager.getCustomRepository(
-          UserRepository
-        );
-        const savedPromotions = await userRepository.findOneOrFail(id, {
-          relations: ['savedPromotions', 'savedPromotions.promotion'],
-          cache: true,
-        });
 
-        res.status(200).send(savedPromotions);
+        // get all ids of promotions that user has saved
+        const rawPromotionIds = await transactionalEntityManager
+          .createQueryBuilder()
+          .select('savedPromotions.promotionId')
+          .from(SavedPromotion, 'savedPromotions')
+          .where('savedPromotions.userId = :id', { id })
+          .cache(true)
+          .getRawMany();
+        const promotionIds = rawPromotionIds.map(
+          (rawPromotion) => rawPromotion.savedPromotions_promotionId
+        );
+
+        let promotions: Promotion[] = [];
+
+        if (promotionIds.length !== 0) {
+          // get all promotions using the promotion id's, DO NOT join to discount/schedules, we don't need all the information
+          promotions = await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .find({
+              where: {
+                id: In(promotionIds),
+              },
+              relations: ['discount', 'schedules'],
+            });
+        }
+
+        res.status(200).send(promotions);
       });
     } catch (e) {
       next(e);
