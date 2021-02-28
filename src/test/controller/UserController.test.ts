@@ -15,10 +15,8 @@ import { DiscountFactory } from '../factory/DiscountFactory';
 import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { RedisClient } from 'redis-mock';
-import * as dotenv from 'dotenv';
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
-dotenv.config();
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -255,7 +253,8 @@ describe('Unit tests for UserController', function () {
       .get(`/users/${expectedUser.id}/savedPromotions`)
       .set('Authorization', idToken)
       .expect(200)
-      .then((res) => {
+      .end((err, res) => {
+        if (err) return done(err);
         const promotions = res.body;
         expect(promotions).toHaveLength(1);
         expect(promotions[0].id).toEqual(promotion.id);
@@ -265,6 +264,7 @@ describe('Unit tests for UserController', function () {
 
   test('GET /users/:id/savedPromotions - should return empty list if user has no saved promotions', async (done) => {
     const expectedUser: User = new UserFactory().generate();
+
     await addSavedPromotion(expectedUser);
 
     request(app)
@@ -337,6 +337,20 @@ describe('Unit tests for UserController', function () {
       .set('Authorization', idToken)
       .expect(204, done);
   });
+
+  test('Adding a user, promotion, and savedPromotion should not deadlock', async () => {
+    for (let i = 0; i < 10; i++) {
+      const expectedUser: User = new UserFactory().generate();
+      const promotion = new PromotionFactory().generate(
+        expectedUser,
+        new DiscountFactory().generate(),
+        [new ScheduleFactory().generate()]
+      );
+
+      await addSavedPromotion(expectedUser, promotion);
+      await connection.clear();
+    }
+  }, 10000);
 
   test('DELETE /users/:id/savedPromotions/:pid - should not fail if promotion and user do not exist', async (done) => {
     const nonExistentPid = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';

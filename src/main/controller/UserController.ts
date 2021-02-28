@@ -10,8 +10,8 @@ import {
 import { PromotionRepository } from '../repository/PromotionRepository';
 import { SavedPromotionRepository } from '../repository/SavedPromotionRepository';
 import { DTOConverter } from '../validation/DTOConverter';
-import { Promotion } from '../entity/Promotion';
 import { SavedPromotion } from '../entity/SavedPromotion';
+import { Promotion } from '../entity/Promotion';
 
 export class UserController {
   /**
@@ -174,7 +174,10 @@ export class UserController {
           promotions = await transactionalEntityManager
             .getCustomRepository(PromotionRepository)
             .find({
-              id: In(promotionIds),
+              where: {
+                id: In(promotionIds),
+              },
+              relations: ['discount', 'schedules'],
             });
         }
 
