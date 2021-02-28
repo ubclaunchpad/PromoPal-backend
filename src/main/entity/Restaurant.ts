@@ -12,9 +12,7 @@ import { Promotion } from './Promotion';
  * */
 @Entity()
 export class Restaurant {
-  constructor(name: string, address: string, lat: number, lon: number) {
-    this.name = name;
-    this.address = address;
+  constructor(lat: number, lon: number) {
     this.lat = lat;
     this.lon = lon;
   }
@@ -33,20 +31,6 @@ export class Restaurant {
   })
   @JoinColumn()
   promotion: Promotion;
-
-  /*
-   * The restaurant name
-   * Many promotions can come from the same restaurant and thus have the same restaurant name
-   * */
-  @Column()
-  name: string;
-
-  /*
-   * The restaurant address
-   * Many promotions can come from the same restaurant and thus have the same address
-   * */
-  @Column()
-  address: string;
 
   /**
    * Latitude coordinates of restaurant

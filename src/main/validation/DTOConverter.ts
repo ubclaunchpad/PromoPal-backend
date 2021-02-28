@@ -67,12 +67,7 @@ export class DTOConverter {
    * Convert RestaurantDTO to Restaurant
    */
   static restaurantDTOtoRestaurant(restaurantDTO: RestaurantDTO): Restaurant {
-    return new Restaurant(
-      restaurantDTO.name,
-      restaurantDTO.address,
-      restaurantDTO.lat,
-      restaurantDTO.lon
-    );
+    return new Restaurant(restaurantDTO.lat, restaurantDTO.lon);
   }
 
   /**

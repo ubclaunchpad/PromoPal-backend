@@ -6,8 +6,6 @@ describe('Unit tests for RestaurantValidation', function () {
 
   beforeEach(() => {
     restaurantDTO = {
-      name: 'Sample restaurant name',
-      address: '3012 Sample Ave, Vancouver BC',
       lat: 0.99,
       lon: 0.11,
     };
@@ -32,32 +30,6 @@ describe('Unit tests for RestaurantValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"value" is required');
-    }
-  });
-
-  test('Should fail if address is undefined', async () => {
-    try {
-      restaurantDTO.address = undefined;
-      await RestaurantValidation.schema.validateAsync(restaurantDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"address" is required');
-    }
-  });
-
-  test('Should fail if name is undefined', async () => {
-    try {
-      restaurantDTO.name = undefined;
-      await RestaurantValidation.schema.validateAsync(restaurantDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"name" is required');
     }
   });
 
@@ -172,8 +144,6 @@ describe('Unit tests for RestaurantValidation', function () {
   test('Should fail if any fields are the wrong type', async () => {
     try {
       restaurantDTO = {
-        name: 1,
-        address: true,
         lat: 'hello',
         lon: '0.11',
       };
@@ -182,11 +152,9 @@ describe('Unit tests for RestaurantValidation', function () {
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(4);
+      expect(e.details.length).toEqual(2);
       expect(e.details[0].message).toEqual('"lat" must be a number');
       expect(e.details[1].message).toEqual('"lon" must be a number');
-      expect(e.details[2].message).toEqual('"name" must be a string');
-      expect(e.details[3].message).toEqual('"address" must be a string');
     }
   });
 });

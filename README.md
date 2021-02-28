@@ -19,6 +19,7 @@
 
 Make a copy of `sample.env`, rename it to `.env`, and fill out the environment variables respectively.
 Likely:
+
 ```
 DB_HOST=localhost
 REDIS_HOST=localhost
@@ -129,7 +130,8 @@ Stops containers and removes containers, networks, volumes, and images created b
 docker-compose down
 ```
 
-Removes everything and may help to fix misc Docker errors. WARNING! This will remove: 
+Removes everything and may help to fix misc Docker errors. WARNING! This will remove:
+
 - all stopped containers
 - all networks not used by at least one container
 - all volumes not used by at least one container

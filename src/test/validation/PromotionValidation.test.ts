@@ -18,8 +18,6 @@ describe('Unit tests for PromotionValidation', function () {
       discountType: DiscountType.AMOUNT,
     };
     restaurantDTO = {
-      name: 'Sample restaurant name',
-      address: '3012 Sample Ave, Vancouver BC',
       lat: 0.99,
       lon: 0.11,
     };
@@ -391,16 +389,18 @@ describe('Unit tests for PromotionValidation', function () {
     }
   });
 
-  test('Should fail if restaurant address is undefined', async () => {
+  test('Should fail if restaurant lat is invalid', async () => {
     try {
-      promotionDTO.restaurant.address = undefined;
+      promotionDTO.restaurant.lat = 91;
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"restaurant.address" is required');
+      expect(e.details[0].message).toEqual(
+        '"restaurant.lat" must be less than or equal to 90'
+      );
     }
   });
 

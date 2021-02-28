@@ -212,6 +212,7 @@ export class PromotionController {
       });
       const placeId = request.params.placeId;
 
+      // todo: handle empty string
       const placeDetailsResponseData = await this.googlePlaceService.getRestaurantDetails(
         placeId
       );

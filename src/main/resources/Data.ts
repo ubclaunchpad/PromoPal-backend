@@ -26,102 +26,22 @@ const discount14 = new Discount(DiscountType.PERCENTAGE, 14);
 const discount15 = new Discount(DiscountType.AMOUNT, 15);
 const discount16 = new Discount(DiscountType.AMOUNT, 16);
 
-const restaurant1 = new Restaurant(
-  'A&W',
-  '5778 University Blvd, Vancouver, BC V6T 1K6',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant2 = new Restaurant(
-  'Pearl Castle Cafe',
-  '6060 Minoru Blvd #1782, Richmond, BC V6Y 2V7',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant3 = new Restaurant(
-  'Wendys',
-  '480 W 8th Ave, Vancouver, BC V5Y 1N9',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant4 = new Restaurant(
-  'Saffron Indian Cuisine',
-  '4300 Kingsway #5, Burnaby, BC V5H 1Z8',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant5 = new Restaurant(
-  '54th Cafe Restaurant',
-  '7088 Kerr St, Vancouver, BC V5S 4W2',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant6 = new Restaurant(
-  'McDonalds',
-  '5728 University Blvd #101, Vancouver, BC V6T 1K6',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant7 = new Restaurant(
-  'Starbucks',
-  'UBC @ Life, 6138 Student Union Blvd, Vancouver, BC V6T 1Z1',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant8 = new Restaurant(
-  'A&W',
-  '467 W Broadway, Vancouver, BC V5Y 1R4',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant9 = new Restaurant(
-  'Dominos',
-  '4298 Dunbar St, Vancouver, BC V6S 2E9',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant10 = new Restaurant(
-  'Quesada',
-  '4297 Hastings St, Burnaby, BC V5C 2J5',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant11 = new Restaurant(
-  'Katsuya',
-  '555 Clarke Rd #8, Coquitlam, BC V3J 3X4',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant12 = new Restaurant(
-  '7 Eleven',
-  '2415 E 1st Ave, Vancouver, BC V5M 1A2',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant13 = new Restaurant(
-  'Swiss Chalet',
-  '3860 Lougheed Hwy, Burnaby, BC V5C 6N4',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant14 = new Restaurant(
-  'Tea18',
-  '6285 Kingsway, Burnaby, BC V5J 0H4',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant15 = new Restaurant(
-  'The Old Spaghetti Factory',
-  '53 Water St, Vancouver, BC V6B 1A1',
-  randomLatitude(),
-  randomLongitude()
-);
-const restaurant16 = new Restaurant(
-  'Starbucks',
-  '6200 University Blvd, Vancouver, BC V6T 1Z3',
-  randomLatitude(),
-  randomLongitude()
-);
+const restaurant1 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant2 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant3 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant4 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant5 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant6 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant7 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant8 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant9 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant10 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant11 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant12 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant13 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant14 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant15 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant16 = new Restaurant(randomLatitude(), randomLongitude());
 
 const schedule1 = new Schedule('8:00', '11:00', Day.MONDAY, false);
 const schedule2 = new Schedule('9:00', '12:00', Day.TUESDAY, false);

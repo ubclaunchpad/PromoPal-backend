@@ -36,8 +36,6 @@ describe('Unit tests for DTOConverter', function () {
     };
 
     restaurantDTO = {
-      name: 'Sample restaurant name',
-      address: '3012 Sample Ave, Vancouver BC',
       lat: 0.99,
       lon: 0.11,
     };

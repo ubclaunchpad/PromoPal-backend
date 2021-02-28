@@ -101,7 +101,7 @@ describe('Integration tests for all entities', function () {
     try {
       const restaurants = await restaurantRepository.find();
       expect(restaurants).toBeDefined();
-      expect(restaurants[0].address).toEqual(promotion.restaurant.address);
+      expect(restaurants[0].lat).toEqual(promotion.restaurant.lat);
       await promotionRepository.delete(promotion.id);
       expect(await promotionRepository.find()).toEqual([]);
       expect(await restaurantRepository.find()).toEqual([]);
