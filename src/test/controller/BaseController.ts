@@ -41,17 +41,19 @@ export const createFirebaseMock = (): Auth => {
       return mockAuth;
     },
     // use null if your code does not use FIRESTORE
-    () => {
-      return mockFirestore;
-    },
+    // () => {
+    //   return mockFirestore;
+    // },
+    null,
     // use null if your code does not use STORAGE
     () => {
       return mockStorage;
     },
     // use null if your code does not use MESSAGING
-    () => {
-      return mockMessaging;
-    }
+    // () => {
+    //   return mockMessaging;
+    // }
+    null
   );
   return mockSdk.auth();
 };

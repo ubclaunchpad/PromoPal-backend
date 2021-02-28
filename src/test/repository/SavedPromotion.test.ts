@@ -45,19 +45,19 @@ describe('Unit tests for SavedPromotionRepository', function () {
     await promotionRepository.save(promotion);
 
     // save the promotion
-    const saved_user: User = new UserFactory().generate();
-    await userRepository.save(saved_user);
+    const savedUser: User = new UserFactory().generate();
+    await userRepository.save(savedUser);
     const savedPromotion = savedPromotionRepository.create({
-      userId: saved_user.id,
+      userId: savedUser.id,
       promotionId: promotion.id,
     });
     await savedPromotionRepository.save(savedPromotion);
     const savedpromotion = await savedPromotionRepository.findOne({
-      user: saved_user,
+      user: savedUser,
       promotion: promotion,
     });
     expect(savedpromotion).toBeDefined();
-    expect(savedpromotion!.userId).toEqual(saved_user.id);
+    expect(savedpromotion!.userId).toEqual(savedUser.id);
     expect(savedpromotion!.promotionId).toEqual(promotion.id);
   });
 
@@ -74,15 +74,15 @@ describe('Unit tests for SavedPromotionRepository', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     // save the promotion
-    const saved_user: User = new UserFactory().generate();
-    await userRepository.save(saved_user);
-    await savedPromotionRepository.addSavedPromotion(saved_user, promotion);
+    const savedUser: User = new UserFactory().generate();
+    await userRepository.save(savedUser);
+    await savedPromotionRepository.addSavedPromotion(savedUser, promotion);
     try {
-      await savedPromotionRepository.addSavedPromotion(saved_user, promotion);
+      await savedPromotionRepository.addSavedPromotion(savedUser, promotion);
       fail('Should have failed');
     } catch (e) {
       expect(e.detail).toEqual(
-        `Key ("userId", "promotionId")=(${saved_user.id}, ${promotion.id}) already exists.`
+        `Key ("userId", "promotionId")=(${savedUser.id}, ${promotion.id}) already exists.`
       );
     }
   });
@@ -100,21 +100,18 @@ describe('Unit tests for SavedPromotionRepository', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     // save the promotion
-    const saved_user: User = new UserFactory().generate();
-    await userRepository.save(saved_user);
-    await savedPromotionRepository.addSavedPromotion(saved_user, promotion);
+    const savedUser: User = new UserFactory().generate();
+    await userRepository.save(savedUser);
+    await savedPromotionRepository.addSavedPromotion(savedUser, promotion);
     try {
-      await savedPromotionRepository.deleteSavedPromotion(
-        saved_user,
-        promotion
-      );
+      await savedPromotionRepository.deleteSavedPromotion(savedUser, promotion);
     } catch (e) {
       fail('Should have succeeded to delete');
     }
     try {
       expect(
         await savedPromotionRepository.find({
-          user: saved_user,
+          user: savedUser,
           promotion: promotion,
         })
       ).toEqual([]);

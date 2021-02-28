@@ -13,13 +13,13 @@ export class User {
     lastName: string,
     email: string,
     username: string,
-    idFirebase: string
+    firebaseId: string
   ) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.email = email;
     this.username = username;
-    this.firebaseId = idFirebase;
+    this.firebaseId = firebaseId;
   }
 
   @PrimaryGeneratedColumn('uuid')

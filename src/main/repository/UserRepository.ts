@@ -9,8 +9,8 @@ export class UserRepository extends Repository<User> {
     return this.findOne({ firstName, lastName });
   }
 
-  findByFirebaseId(idFirebase: string): Promise<User | undefined> {
-    return this.findOne({ firebaseId: idFirebase });
+  findByFirebaseId(firebaseId: string): Promise<User | undefined> {
+    return this.findOne({ firebaseId });
   }
 
   /**
