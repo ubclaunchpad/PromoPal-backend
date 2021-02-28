@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { UserController } from '../controller/UserController';
-import { FirebaseAuth } from '../middleware/Authentication';
+import { FirebaseAuth } from '../middleware/FirebaseAuth';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 

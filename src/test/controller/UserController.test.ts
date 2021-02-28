@@ -26,7 +26,7 @@ describe('Unit tests for UserController', function () {
   let app: Express;
   let redisClient: RedisClient;
   let mockFirebaseAdmin: any;
-  const uid = 'test-uid';
+  let uid = '';
   let idToken = '';
 
   beforeAll(async () => {
@@ -42,11 +42,11 @@ describe('Unit tests for UserController', function () {
 
     // create user
     const user = await mockFirebaseAdmin.createUser({
-      uid: uid,
       email: 'test@gmail.com',
       password: 'testpassword',
     });
     idToken = await user.getIdToken();
+    uid = user.uid;
   });
 
   afterAll(async () => {

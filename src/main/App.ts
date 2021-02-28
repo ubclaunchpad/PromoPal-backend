@@ -26,7 +26,7 @@ import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
 import { CachingService } from './service/CachingService';
-import { initFirebaseAdmin } from './service/FirebaseConfig';
+import { initFirebaseAdmin } from './FirebaseConfig';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 

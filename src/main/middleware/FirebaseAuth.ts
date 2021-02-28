@@ -13,6 +13,8 @@ export class FirebaseAuth {
     this.admin = firebaseAdmin;
   }
 
+  // see if the idToken in request header is valid. Decode the idToken then return next instruction if there
+  // exists decodedToken
   isAuthorizedForProtection = async (
     req: Request,
     res: Response,
