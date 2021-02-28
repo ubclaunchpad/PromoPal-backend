@@ -178,7 +178,10 @@ export class UserController {
           promotions = await transactionalEntityManager
             .getCustomRepository(PromotionRepository)
             .find({
-              id: In(promotionIds),
+              where: {
+                id: In(promotionIds),
+              },
+              relations: ['discount', 'schedules'],
             });
         }
 
