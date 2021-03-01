@@ -153,10 +153,20 @@ describe('Unit tests for PromotionController', function () {
       user
     );
 
+    // todo: https://promopal.atlassian.net/browse/PP-82 uncommented
+    // expectedPromotion.restaurant.lat = <insert expected lat>
+    // expectedPromotion.restaurant.lon = <insert expected lon>
+    // - do same as above for respective tests
+
     await userRepository.save(user);
     request(app)
       .post('/promotions')
-      .send({ ...expectedPromotion, user: undefined, userId: user.id })
+      .send({
+        ...expectedPromotion,
+        user: undefined,
+        userId: user.id,
+        restaurant: undefined,
+      })
       .expect(201)
       .end((err, res) => {
         if (err) return done(err);
@@ -178,6 +188,7 @@ describe('Unit tests for PromotionController', function () {
         user: undefined,
         userId: user.id,
         cuisine: 'nonexistentcuisinetype',
+        restaurant: undefined,
       })
       .expect(400)
       .end((err, res) => {
@@ -191,34 +202,6 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('POST /promotions/ - should not be able to add promotion if a restaurants lat/lon do not exist', async (done) => {
-    const user: User = new UserFactory().generate();
-    const expectedPromotion = new PromotionFactory().generateWithRelatedEntities(
-      user
-    ) as any;
-
-    delete expectedPromotion.restaurant.lat;
-    delete expectedPromotion.restaurant.lon;
-
-    await userRepository.save(user);
-    request(app)
-      .post('/promotions')
-      .send({ ...expectedPromotion, user: undefined, userId: user.id })
-      .expect(400)
-      .end((err, res) => {
-        const frontEndErrorObject = res.body;
-        expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
-        expect(frontEndErrorObject.message).toHaveLength(2);
-        expect(frontEndErrorObject.message[0]).toContain(
-          '"restaurant.lat" is required'
-        );
-        expect(frontEndErrorObject.message[1]).toContain(
-          '"restaurant.lon" is required'
-        );
-        done();
-      });
-  });
-
   test('POST /promotions/ - should not be able to add promotion if user does not exist', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
@@ -227,6 +210,7 @@ describe('Unit tests for PromotionController', function () {
       .post('/promotions')
       .send({
         ...promotion,
+        restaurant: undefined,
         user: undefined,
         userId: '65d7bc0a-6490-4e09-82e0-cb835a64e1b8', // non-existent user UUID
       })
@@ -467,14 +451,15 @@ describe('Unit tests for PromotionController', function () {
       expect(actualPromotion.discount).toMatchObject(discountObject);
     }
 
-    if (expectedPromotion.restaurant) {
-      const restaurantObject: any = { ...expectedPromotion.restaurant };
-
-      if (!expectedPromotion.restaurant.id) {
-        delete restaurantObject.id;
-      }
-      expect(actualPromotion.restaurant).toMatchObject(restaurantObject);
-    }
+    // todo: uncomment this once https://promopal.atlassian.net/browse/PP-82 has been implemented
+    // if (expectedPromotion.restaurant) {
+    //   const restaurantObject: any = { ...expectedPromotion.restaurant };
+    //
+    //   if (!expectedPromotion.restaurant.id) {
+    //     delete restaurantObject.id;
+    //   }
+    //   expect(actualPromotion.restaurant).toMatchObject(restaurantObject);
+    // }
 
     if (expectedPromotion.schedules && expectedPromotion.schedules.length > 0) {
       const result = [];

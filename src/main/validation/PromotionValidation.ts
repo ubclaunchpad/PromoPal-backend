@@ -4,7 +4,6 @@ import { CuisineType } from '../data/CuisineType';
 import { DiscountDTO, DiscountValidation } from './DiscountValidation';
 import { IdValidation } from './IdValidation';
 import { ScheduleDTO, ScheduleValidation } from './ScheduleValidation';
-import { RestaurantDTO, RestaurantValidation } from './RestaurantValidation';
 
 /**
  * Checks the validity of a Promotion, used when we make a POST request to /promotions
@@ -14,7 +13,6 @@ export class PromotionValidation {
     userId: IdValidation.schema,
     placeId: Joi.string().required(),
     discount: DiscountValidation.schema,
-    restaurant: RestaurantValidation.schema,
     /**
      * A promotion must have at least one schedule and can have at most seven (each representing one day of the week)
      * Will validate each item in array with ScheduleValidation's schema
@@ -51,7 +49,6 @@ export class PromotionValidation {
 export interface PromotionDTO {
   userId: string;
   discount: DiscountDTO;
-  restaurant: RestaurantDTO;
   schedules: ScheduleDTO[];
   placeId: string;
   promotionType: PromotionType;

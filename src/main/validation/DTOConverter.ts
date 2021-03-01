@@ -6,7 +6,6 @@ import { Schedule } from '../entity/Schedule';
 import { Discount } from '../entity/Discount';
 import { DiscountDTO } from './DiscountValidation';
 import { UserDTO } from './UserValidation';
-import { RestaurantDTO } from './RestaurantValidation';
 import { Restaurant } from '../entity/Restaurant';
 
 /**
@@ -24,7 +23,6 @@ export class DTOConverter {
     user: User
   ): Promotion {
     const discount = this.discountDTOtoDiscount(promotionDTO.discount);
-    const restaurant = this.restaurantDTOtoRestaurant(promotionDTO.restaurant);
     const schedules = promotionDTO.schedules.map((scheduleDTO: ScheduleDTO) => {
       return this.scheduleDTOtoSchedule(scheduleDTO);
     });
@@ -32,7 +30,7 @@ export class DTOConverter {
     return new Promotion(
       user,
       discount,
-      restaurant,
+      new Restaurant(123, 123), // todo https://promopal.atlassian.net/browse/PP-82. Should probably make this method take in a restaurant or find a way so we don't end up adding the restaurant creation logic inside of here
       schedules,
       promotionDTO.placeId,
       promotionDTO.promotionType,
@@ -61,13 +59,6 @@ export class DTOConverter {
    */
   static discountDTOtoDiscount(discountDTO: DiscountDTO): Discount {
     return new Discount(discountDTO.discountType, discountDTO.discountValue);
-  }
-
-  /**
-   * Convert RestaurantDTO to Restaurant
-   */
-  static restaurantDTOtoRestaurant(restaurantDTO: RestaurantDTO): Restaurant {
-    return new Restaurant(restaurantDTO.lat, restaurantDTO.lon);
   }
 
   /**

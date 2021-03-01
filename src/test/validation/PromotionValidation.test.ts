@@ -9,17 +9,12 @@ describe('Unit tests for PromotionValidation', function () {
   // mark these types as any so that we can make them improper
   let promotionDTO: any;
   let discountDTO: any;
-  let restaurantDTO: any;
   let schedulesDTO: any;
 
   beforeEach(() => {
     discountDTO = {
       discountValue: 12.99,
       discountType: DiscountType.AMOUNT,
-    };
-    restaurantDTO = {
-      lat: 0.99,
-      lon: 0.11,
     };
     schedulesDTO = [
       {
@@ -40,7 +35,6 @@ describe('Unit tests for PromotionValidation', function () {
       cuisine: CuisineType.VIETNAMESE,
       description: 'description',
       discount: discountDTO,
-      restaurant: restaurantDTO,
       schedules: schedulesDTO,
       startDate: '2020-11-09 03:39:40.395843',
       expirationDate: '2020-11-09 03:39:40.395843',
@@ -376,34 +370,6 @@ describe('Unit tests for PromotionValidation', function () {
     }
   });
 
-  test('Should fail if restaurant is undefined', async () => {
-    try {
-      promotionDTO.restaurant = undefined;
-      await PromotionValidation.schema.validateAsync(promotionDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"restaurant" is required');
-    }
-  });
-
-  test('Should fail if restaurant lat is invalid', async () => {
-    try {
-      promotionDTO.restaurant.lat = 91;
-      await PromotionValidation.schema.validateAsync(promotionDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"restaurant.lat" must be less than or equal to 90'
-      );
-    }
-  });
-
   test('Should fail if any fields are the wrong type', async () => {
     try {
       promotionDTO = {
@@ -411,7 +377,6 @@ describe('Unit tests for PromotionValidation', function () {
         cuisine: 'string',
         description: 1,
         discount: discountDTO,
-        restaurant: restaurantDTO,
         schedules: '1231823',
         startDate: true,
         expirationDate: true,
