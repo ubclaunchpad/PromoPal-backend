@@ -313,7 +313,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('GET /promotions/:id/restaurantDetails/:placeId', async (done) => {
+  test('GET /promotions/:id/restaurantDetails/', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
@@ -334,7 +334,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('GET /promotions/:id/restaurantDetails/:placeId should refresh placeId if not found', async (done) => {
+  test('GET /promotions/:id/restaurantDetails/ should refresh placeId if not found', async (done) => {
     const expectedRefreshedPlaceId = 'new refreshed placeId';
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
@@ -368,7 +368,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('GET /promotions/:id/restaurantDetails/:placeId should not fail if refresh placeId results in not found', async (done) => {
+  test('GET /promotions/:id/restaurantDetails/ should not fail if refresh placeId results in not found', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
@@ -397,7 +397,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('GET /promotions/:id/restaurantDetails/:placeId should return empty object if placeId is empty string', async (done) => {
+  test('GET /promotions/:id/restaurantDetails/ should return empty object if placeId is empty string', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     promotion.placeId = '';

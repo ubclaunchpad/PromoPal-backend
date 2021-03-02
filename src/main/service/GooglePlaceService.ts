@@ -7,6 +7,16 @@ import { PlaceField } from '../data/PlaceField';
 import { PlaceDetailsResponseData } from '@googlemaps/google-maps-services-js/dist/places/details';
 
 /**
+ * Refresh result when refreshing placeId
+ * @property placeId the new placeId
+ * @property restaurantDetails the result of place details request with the new placeId, or undefined if placeId refresh unsuccessful
+ * */
+interface RefreshResult {
+  placeId: string;
+  restaurantDetails: Place;
+}
+
+/**
  * The data fields for place details request
  * */
 export const restaurantDetailsFields = [
@@ -88,14 +98,4 @@ export class GooglePlaceService {
 
     return refreshResult;
   }
-}
-
-/**
- * Refresh result when refreshing placeId
- * @property placeId the new placeId
- * @property restaurantDetails the result of place details request with the new placeId, or undefined if placeId refresh unsuccessful
- * */
-interface RefreshResult {
-  placeId: string;
-  restaurantDetails: Place;
 }
