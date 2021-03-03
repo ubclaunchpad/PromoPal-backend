@@ -53,7 +53,7 @@ describe('Unit tests for DTOConverter', function () {
       email: 'test@gmail.com',
       firstName: 'A',
       lastName: 'B',
-      password: 'test',
+      firebaseId: 'test',
       username: 'AB',
     };
   });
@@ -74,8 +74,6 @@ describe('Unit tests for DTOConverter', function () {
     const user = DTOConverter.userDTOtoUser(userDTO);
     expect(user).toBeInstanceOf(User);
 
-    // PP-29 workaround sync we use bycrypt to hash password
-    userDTO.password = user.password;
     expect(user).toEqual(userDTO);
   });
 

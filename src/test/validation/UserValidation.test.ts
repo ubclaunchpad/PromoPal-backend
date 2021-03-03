@@ -9,7 +9,7 @@ describe('Unit tests for UserValidation', function () {
       firstName: 'testfirstname',
       lastName: 'testlastname',
       email: 'test@sample.com',
-      password: 'testpassword',
+      firebaseId: 'testidfirebase',
     };
   });
 
@@ -32,21 +32,6 @@ describe('Unit tests for UserValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"value" is required');
-    }
-  });
-
-  test('Should fail if invalid password', async () => {
-    try {
-      userDTO.password = 'none';
-      await UserValidation.schema.validateAsync(userDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"password" length must be at least 8 characters long'
-      );
     }
   });
 

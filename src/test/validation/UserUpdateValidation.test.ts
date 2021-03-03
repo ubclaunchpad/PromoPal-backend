@@ -9,7 +9,6 @@ describe('Unit tests for UserUpdateValidation', function () {
       firstName: '',
       lastName: '',
       email: '',
-      password: '',
     };
   });
 
@@ -33,20 +32,6 @@ describe('Unit tests for UserUpdateValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"value" is required');
-    }
-  });
-  test('Should fail if invalid password', async () => {
-    try {
-      userUpdateDTO.password = 'none';
-      await UserUpdateValidation.schema.validateAsync(userUpdateDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual(
-        '"password" length must be at least 8 characters long'
-      );
     }
   });
 

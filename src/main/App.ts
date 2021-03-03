@@ -26,12 +26,16 @@ import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
 import { CachingService } from './service/CachingService';
+import { initFirebaseAdmin } from './FirebaseConfig';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 //todo: ormconfig.ts should not have synchronize and drop schema as true for production
 export class App {
   private redisClient: RedisClient;
+  private firebaseAdmin: Auth;
 
   async init(): Promise<void> {
     try {
@@ -39,7 +43,12 @@ export class App {
       const app = express();
 
       this.redisClient = await this.createRedisClient();
-      await this.registerHandlersAndRoutes(app, this.redisClient);
+      this.firebaseAdmin = await initFirebaseAdmin();
+      await this.registerHandlersAndRoutes(
+        app,
+        this.redisClient,
+        this.firebaseAdmin
+      );
 
       // load sample data and cache the lat/lon for existing data
       // await this.loadAndCacheSampleData();
@@ -60,7 +69,8 @@ export class App {
    * */
   async registerHandlersAndRoutes(
     app: Express,
-    redisClient: RedisClient
+    redisClient: RedisClient,
+    firebaseAdmin: Auth
   ): Promise<void> {
     app.use(bodyParser.json());
 
@@ -76,7 +86,7 @@ export class App {
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
     const userController = new UserController();
-    const userRouter = new UserRouter(userController);
+    const userRouter = new UserRouter(userController, firebaseAdmin);
     app.use(Route.USERS, userRouter.getRoutes());
 
     // middleware needs to be added at end
