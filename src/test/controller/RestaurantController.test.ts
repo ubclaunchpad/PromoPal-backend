@@ -5,7 +5,11 @@ import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
-import { connectRedisClient, registerTestApplication } from './BaseController';
+import {
+  connectRedisClient,
+  createFirebaseMock,
+  registerTestApplication,
+} from './BaseController';
 import { RedisClient } from 'redis-mock';
 import { CustomAxiosMockAdapter } from '../mock/CustomAxiosMockAdapter';
 import axios, { AxiosInstance } from 'axios';
@@ -18,6 +22,7 @@ describe('Unit tests for RestaurantController', function () {
   let restaurantRepository: RestaurantRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
+  let mockFirebaseAdmin: any;
   let customAxiosMockAdapter: CustomAxiosMockAdapter;
   let axiosInstance: AxiosInstance;
 
@@ -25,7 +30,12 @@ describe('Unit tests for RestaurantController', function () {
     await connection.create();
     mockRedisClient = await connectRedisClient();
     axiosInstance = axios.create();
-    app = await registerTestApplication(mockRedisClient, axiosInstance);
+    mockFirebaseAdmin = createFirebaseMock();
+    app = await registerTestApplication(
+      mockRedisClient,
+      mockFirebaseAdmin,
+      axiosInstance
+    );
   });
 
   afterAll(async () => {

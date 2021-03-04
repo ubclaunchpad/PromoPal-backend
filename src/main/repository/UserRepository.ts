@@ -9,6 +9,10 @@ export class UserRepository extends Repository<User> {
     return this.findOne({ firstName, lastName });
   }
 
+  findByFirebaseId(firebaseId: string): Promise<User | undefined> {
+    return this.findOne({ firebaseId });
+  }
+
   /**
    * adds to user's saved promotions with the given promotions.
    * NOTE: this is only used for loading sample data. This is a very inefficient way of adding promotions, because we have to

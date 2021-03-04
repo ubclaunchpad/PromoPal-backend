@@ -5,7 +5,11 @@ import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
-import { connectRedisClient, registerTestApplication } from './BaseController';
+import {
+  connectRedisClient,
+  registerTestApplication,
+  createFirebaseMock,
+} from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
@@ -19,11 +23,14 @@ describe('Unit tests for PromotionController', function () {
   let restaurantRepository: RestaurantRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
+  let mockFirebaseAdmin: any;
 
   beforeAll(async () => {
     await connection.create();
     mockRedisClient = await connectRedisClient();
-    app = await registerTestApplication(mockRedisClient);
+    // init mock firebase
+    mockFirebaseAdmin = createFirebaseMock();
+    app = await registerTestApplication(mockRedisClient, mockFirebaseAdmin);
   });
 
   afterAll(async () => {

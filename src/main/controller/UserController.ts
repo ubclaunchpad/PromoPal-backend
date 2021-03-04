@@ -7,7 +7,6 @@ import {
   UserUpdateValidation,
   UserUpdateDTO,
 } from '../validation/UserUpdateValidation';
-import * as bcrypt from 'bcryptjs';
 import { PromotionRepository } from '../repository/PromotionRepository';
 import { SavedPromotionRepository } from '../repository/SavedPromotionRepository';
 import { DTOConverter } from '../validation/DTOConverter';
@@ -85,7 +84,7 @@ export class UserController {
           UserRepository
         );
         const result = await userRepository.save(user);
-        return res.status(201).send({ ...result, password: undefined });
+        return res.status(201).send({ ...result, firebaseId: undefined });
       });
     } catch (e) {
       return next(e);
@@ -112,9 +111,6 @@ export class UserController {
           req.body,
           { abortEarly: false }
         );
-        if (userUpdateDTO.password) {
-          userUpdateDTO.password = bcrypt.hashSync(userUpdateDTO.password, 8);
-        }
         const result = await userRepository.update(id, userUpdateDTO);
         res.status(204).send(result);
       });
@@ -173,7 +169,7 @@ export class UserController {
 
         let promotions: Promotion[] = [];
 
-        if (promotionIds.length !== 0) {
+        if (promotionIds.length) {
           // get all promotions using the promotion id's, DO NOT join to discount/schedules, we don't need all the information
           promotions = await transactionalEntityManager
             .getCustomRepository(PromotionRepository)

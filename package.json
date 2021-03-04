@@ -26,18 +26,24 @@
   },
   "homepage": "https://github.com/ubclaunchpad/foodies#readme",
   "dependencies": {
+    "@firebase/app-types": "0.x",
     "@googlemaps/google-maps-services-js": "3.1.16",
     "@types/bcrypt": "^3.0.0",
     "@types/bcryptjs": "^2.4.2",
     "@types/redis": "^2.8.28",
     "@types/redis-mock": "^0.17.0",
-    "axios": "^0.21.0",
-    "bcryptjs": "^2.4.3",
+    "@types/request-promise": "^4.1.47",
+    "@firebase/app-types": "0.6.1",
+    "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "firebase-admin": "^9.4.2",
+    "firebase-mock": "^2.3.2",
     "joi": "^17.3.0",
     "redis": "^3.0.2",
-    "redis-mock": "^0.56.3"
+    "redis-mock": "^0.56.3",
+    "request": "^2.34",
+    "request-promise": "^4.2.6"
   },
   "devDependencies": {
     "@types/express": "^4.17.8",

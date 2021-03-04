@@ -25,6 +25,7 @@ import { ScheduleRepository } from './repository/ScheduleRepository';
 import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
+import { initFirebaseAdmin } from './FirebaseConfig';
 import { RestaurantRepository } from './repository/RestaurantRepository';
 import { Restaurant } from './entity/Restaurant';
 import { GooglePlaceService } from './service/GooglePlaceService';
@@ -32,12 +33,15 @@ import { Client } from '@googlemaps/google-maps-services-js';
 import { AxiosInstance } from 'axios';
 import { RestaurantController } from './controller/RestaurantController';
 import { RestaurantRouter } from './route/RestaurantRouter';
+import { auth } from 'firebase-admin/lib/auth';
+import Auth = auth.Auth;
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 //todo: ormconfig.ts should not have synchronize and drop schema as true for production
 export class App {
   private redisClient: RedisClient;
+  private firebaseAdmin: Auth;
 
   async init(): Promise<void> {
     try {
@@ -45,7 +49,12 @@ export class App {
       const app = express();
 
       this.redisClient = await this.createRedisClient();
-      await this.registerHandlersAndRoutes(app, this.redisClient);
+      this.firebaseAdmin = await initFirebaseAdmin();
+      await this.registerHandlersAndRoutes(
+        app,
+        this.redisClient,
+        this.firebaseAdmin
+      );
 
       // load sample data
       // await this.loadSampleDBData();
@@ -67,6 +76,7 @@ export class App {
   async registerHandlersAndRoutes(
     app: Express,
     redisClient: RedisClient,
+    firebaseAdmin: Auth,
     axiosInstance?: AxiosInstance
   ): Promise<void> {
     app.use(bodyParser.json());
@@ -88,7 +98,7 @@ export class App {
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
     const userController = new UserController();
-    const userRouter = new UserRouter(userController);
+    const userRouter = new UserRouter(userController, firebaseAdmin);
     app.use(Route.USERS, userRouter.getRoutes());
 
     // middleware needs to be added at end

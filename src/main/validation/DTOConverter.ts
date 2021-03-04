@@ -70,7 +70,7 @@ export class DTOConverter {
       userDTO.lastName,
       userDTO.email,
       userDTO.username,
-      userDTO.password
+      userDTO.firebaseId
     );
   }
 }
