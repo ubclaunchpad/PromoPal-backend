@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  JoinColumn,
-  OneToOne,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Promotion } from './Promotion';
 
 /*
@@ -12,7 +6,8 @@ import { Promotion } from './Promotion';
  * */
 @Entity()
 export class Restaurant {
-  constructor(lat: number, lon: number) {
+  constructor(placeId: string, lat: number, lon: number) {
+    this.placeId = placeId;
     this.lat = lat;
     this.lon = lon;
   }
@@ -21,16 +16,19 @@ export class Restaurant {
   id: string;
 
   /*
-   * OneToOne bidirectional relationship between Restaurant and Promotion
-   * On delete cascade on foreign key promotionId
+   * OneToMany bidirectional relationship between Restaurant and Promotion
    * Bidirectional for search query purposes (find promotions related to a restaurant)
+   * Each restaurant can be associated with multiple promotions
    * */
-  @OneToOne(() => Promotion, (promotion) => promotion.restaurant, {
-    nullable: false,
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn()
+  @OneToMany(() => Promotion, (promotion) => promotion.restaurant)
   promotion: Promotion;
+
+  /*
+   * Represents Google Places API place_id
+   * Many promotions can come from the same restaurant and thus have the same placeId
+   * */
+  @Column()
+  placeId: string;
 
   /**
    * Latitude coordinates of restaurant

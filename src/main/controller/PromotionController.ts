@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { PromotionRepository } from '../repository/PromotionRepository';
-import { EntityManager, getManager } from 'typeorm';
+import { getManager } from 'typeorm';
 import { UserRepository } from '../repository/UserRepository';
 import {
   PromotionDTO,
@@ -13,15 +13,11 @@ import {
 } from '../validation/PromotionQueryValidation';
 import * as querystring from 'querystring';
 import { DTOConverter } from '../validation/DTOConverter';
-import { GooglePlaceService } from '../service/GooglePlaceService';
-import { Place, Status } from '@googlemaps/google-maps-services-js';
+import { RestaurantRepository } from '../repository/RestaurantRepository';
+import { Restaurant } from '../entity/Restaurant';
+import { randomLatitude, randomLongitude } from '../../test/utility/Utility';
 
 export class PromotionController {
-  private googlePlaceService: GooglePlaceService;
-
-  constructor(googlePlaceService: GooglePlaceService) {
-    this.googlePlaceService = googlePlaceService;
-  }
   /**
    * Retrieves all promotions and their discounts
    * * First we need to validate the query params and cast that into a PromotionQueryDTO
@@ -107,12 +103,23 @@ export class PromotionController {
           { abortEarly: false }
         );
 
+        // find existing restaurant
+        const restaurant = await transactionalEntityManager
+          .getCustomRepository(RestaurantRepository)
+          .findOne({ placeId: promotionDTO.placeId });
         const user = await transactionalEntityManager
           .getCustomRepository(UserRepository)
           .findOneOrFail(promotionDTO.userId);
         const promotion = DTOConverter.promotionDTOtoPromotion(
           promotionDTO,
-          user
+          user,
+          // todo PP-82 if restaurant does not exist create a new one with correct lat and lon
+          restaurant ??
+            new Restaurant(
+              promotionDTO.placeId,
+              randomLatitude(),
+              randomLongitude()
+            )
         );
 
         const result = await transactionalEntityManager
@@ -196,70 +203,4 @@ export class PromotionController {
       return next(e);
     }
   };
-
-  /**
-   * Get the restaurant details for a promotion
-   */
-  getRestaurantDetails = async (
-    request: Request,
-    response: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    try {
-      await getManager().transaction(async (transactionalEntityManager) => {
-        let result: Place = {};
-        const id = await IdValidation.schema.validateAsync(request.params.id, {
-          abortEarly: false,
-        });
-
-        const promotion = await transactionalEntityManager
-          .getCustomRepository(PromotionRepository)
-          .findOneOrFail(id);
-
-        // placeId may be empty string if this promotion has previously resulted in a NOT_FOUND even after refresh request
-        if (promotion.placeId) {
-          const placeDetailsResponseData = await this.googlePlaceService.getRestaurantDetails(
-            promotion.placeId
-          );
-          result = placeDetailsResponseData.result ?? {};
-
-          if (placeDetailsResponseData.status === Status.NOT_FOUND) {
-            result = await this.handlePlaceIdNotFound(
-              promotion.placeId,
-              id,
-              transactionalEntityManager
-            );
-          }
-        }
-
-        return response.status(200).send(result);
-      });
-    } catch (e) {
-      return next(e);
-    }
-  };
-
-  /**
-   * Handle NOT_FOUND case for getting restaurant details of a placeId for a promotion
-   * 1. Issue refresh request for the placeId
-   * 2. Store new placeId in DB, even if placeId is empty string
-   * @param placeId the placeId of the promotion
-   * @param id the id of the promotion
-   * @param transactionalEntityManager
-   * @return Place - the restaurant details which may be empty
-   * */
-  private async handlePlaceIdNotFound(
-    placeId: string,
-    id: string,
-    transactionalEntityManager: EntityManager
-  ): Promise<Place> {
-    const refreshResult = await this.googlePlaceService.refreshPlaceId(placeId);
-
-    // update DB with new placeId, even if placeId is empty string
-    await transactionalEntityManager
-      .getCustomRepository(PromotionRepository)
-      .update({ id }, { placeId: refreshResult.placeId });
-
-    return refreshResult.restaurantDetails;
-  }
 }

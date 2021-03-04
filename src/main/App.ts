@@ -30,6 +30,8 @@ import { Restaurant } from './entity/Restaurant';
 import { GooglePlaceService } from './service/GooglePlaceService';
 import { Client } from '@googlemaps/google-maps-services-js';
 import { AxiosInstance } from 'axios';
+import { RestaurantController } from './controller/RestaurantController';
+import { RestaurantRouter } from './route/RestaurantRouter';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -73,7 +75,11 @@ export class App {
 
     const client = axiosInstance ? new Client({ axiosInstance }) : new Client();
     const googlePlaceService = new GooglePlaceService(client);
-    const promotionController = new PromotionController(googlePlaceService);
+    const restaurantController = new RestaurantController(googlePlaceService);
+    const restaurantRouter = new RestaurantRouter(restaurantController);
+    app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
+
+    const promotionController = new PromotionController();
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 

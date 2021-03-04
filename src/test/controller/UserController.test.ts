@@ -11,6 +11,7 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { RedisClient } from 'redis-mock';
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
+import { Restaurant } from '../../main/entity/Restaurant';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -381,6 +382,19 @@ describe('Unit tests for UserController', function () {
     );
 
     if (promotion) {
+      await getManager().transaction(
+        'SERIALIZABLE',
+        async (entityManager: EntityManager) => {
+          return entityManager
+            .createQueryBuilder()
+            .setLock('pessimistic_write')
+            .insert()
+            .into(Restaurant)
+            .values(promotion.restaurant)
+            .execute();
+        }
+      );
+
       await getManager().transaction(
         'SERIALIZABLE',
         async (entityManager: EntityManager) => {

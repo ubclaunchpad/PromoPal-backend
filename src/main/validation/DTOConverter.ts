@@ -20,7 +20,8 @@ export class DTOConverter {
    */
   static promotionDTOtoPromotion(
     promotionDTO: PromotionDTO,
-    user: User
+    user: User,
+    restaurant: Restaurant
   ): Promotion {
     const discount = this.discountDTOtoDiscount(promotionDTO.discount);
     const schedules = promotionDTO.schedules.map((scheduleDTO: ScheduleDTO) => {
@@ -30,9 +31,8 @@ export class DTOConverter {
     return new Promotion(
       user,
       discount,
-      new Restaurant(123, 123), // todo https://promopal.atlassian.net/browse/PP-82. Should probably make this method take in a restaurant or find a way so we don't end up adding the restaurant creation logic inside of here
+      restaurant,
       schedules,
-      promotionDTO.placeId,
       promotionDTO.promotionType,
       promotionDTO.cuisine,
       promotionDTO.name,

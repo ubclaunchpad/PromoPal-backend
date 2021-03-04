@@ -26,22 +26,46 @@ const discount14 = new Discount(DiscountType.PERCENTAGE, 14);
 const discount15 = new Discount(DiscountType.AMOUNT, 15);
 const discount16 = new Discount(DiscountType.AMOUNT, 16);
 
-const restaurant1 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant2 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant3 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant4 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant5 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant6 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant7 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant8 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant9 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant10 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant11 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant12 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant13 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant14 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant15 = new Restaurant(randomLatitude(), randomLongitude());
-const restaurant16 = new Restaurant(randomLatitude(), randomLongitude());
+const restaurant1 = new Restaurant(
+  'ChIJ68aBlEKuEmsRHUA9oME5Zh0',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant2 = new Restaurant(
+  'ChIJA-0OPKQKhlQR8WB-1dOiRaw',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant3 = new Restaurant(
+  'ChIJGZm5K6wKhlQRCkwz2xsWlYI',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant4 = new Restaurant(
+  'ChIJyX2BLCDghVQRDtzP0tgGZqU',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant5 = new Restaurant(
+  'ChIJefz2wrUKhlQRQJO62qB-ZCg',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant6 = new Restaurant(
+  'ChIJITIhNqwKhlQR6FbiZeiU2AE',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant7 = new Restaurant(
+  'ChIJd1W_niiCC0ERUiedphae1hE',
+  randomLatitude(),
+  randomLongitude()
+);
+const restaurant8 = new Restaurant(
+  'ChIJi6dre991hlQRLtGHwrL-Jos',
+  randomLatitude(),
+  randomLongitude()
+);
 
 const schedule1 = new Schedule('8:00', '11:00', Day.MONDAY, false);
 const schedule2 = new Schedule('9:00', '12:00', Day.TUESDAY, false);
@@ -126,7 +150,6 @@ const promotion1 = new Promotion(
   discount1,
   restaurant1,
   [schedule1, schedule2],
-  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.CARIBBEAN,
   'Fries for Good - November 10th - 30th',
@@ -139,9 +162,8 @@ const promotion1 = new Promotion(
 const promotion2 = new Promotion(
   user2,
   discount2,
-  restaurant2,
+  restaurant1,
   [schedule3, schedule4],
-  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.VIETNAMESE,
   'Happy Hour At Pearl Castle Cafe',
@@ -152,9 +174,8 @@ const promotion2 = new Promotion(
 const promotion3 = new Promotion(
   user2,
   discount3,
-  restaurant3,
+  restaurant1,
   [schedule5, schedule6],
-  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.KOREAN,
   'Thanksgiving Promotion Right Now!',
@@ -165,9 +186,8 @@ const promotion3 = new Promotion(
 const promotion4 = new Promotion(
   user2,
   discount4,
-  restaurant4,
+  restaurant2,
   [schedule7, schedule8],
-  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.JAPANESE,
   'Saffron Indian Cuisine: 10% off pickup orders over $20',
@@ -178,9 +198,8 @@ const promotion4 = new Promotion(
 const promotion5 = new Promotion(
   user3,
   discount5,
-  restaurant5,
+  restaurant2,
   [schedule9, schedule10],
-  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.OTHER,
   '54th Cafe Restaurant: Free items with pick-up orders',
@@ -191,9 +210,8 @@ const promotion5 = new Promotion(
 const promotion6 = new Promotion(
   user4,
   discount6,
-  restaurant6,
+  restaurant3,
   [schedule11],
-  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.CARIBBEAN,
   'McDonalds $1.00 Coffee any size starting Monday Nov. 30th',
@@ -204,9 +222,8 @@ const promotion6 = new Promotion(
 const promotion7 = new Promotion(
   user5,
   discount7,
-  restaurant7,
+  restaurant4,
   [schedule12],
-  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.VIETNAMESE,
   'Starbucks Free drink when ordering through the app',
@@ -217,9 +234,8 @@ const promotion7 = new Promotion(
 const promotion8 = new Promotion(
   user5,
   discount8,
-  restaurant8,
+  restaurant5,
   [schedule13],
-  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.KOREAN,
   'A&W Free Coffee: One Per Day Per Person until November 30th',
@@ -230,9 +246,8 @@ const promotion8 = new Promotion(
 const promotion9 = new Promotion(
   user6,
   discount9,
-  restaurant9,
+  restaurant5,
   [schedule14],
-  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.JAPANESE,
   "50% off Domino's on Mon, Tues, Wed",
@@ -243,9 +258,8 @@ const promotion9 = new Promotion(
 const promotion10 = new Promotion(
   user6,
   discount10,
-  restaurant10,
+  restaurant5,
   [schedule15, schedule16, schedule17],
-  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.OTHER,
   'Quesada - 50% off 2nd large ground beef burrito until Nov 22',
@@ -256,9 +270,8 @@ const promotion10 = new Promotion(
 const promotion11 = new Promotion(
   user7,
   discount11,
-  restaurant11,
+  restaurant5,
   [schedule18],
-  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.CARIBBEAN,
   'Katsuya 30% off Takeout @ North York, Scarborough, Yorkdale, Downtown Toronto',
@@ -269,9 +282,8 @@ const promotion11 = new Promotion(
 const promotion12 = new Promotion(
   user7,
   discount12,
-  restaurant12,
+  restaurant6,
   [schedule19],
-  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.VIETNAMESE,
   '7 Eleven $5 meal deal',
@@ -282,9 +294,8 @@ const promotion12 = new Promotion(
 const promotion13 = new Promotion(
   user7,
   discount13,
-  restaurant13,
+  restaurant7,
   [schedule20],
-  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.KOREAN,
   'Swiss Chalet festive special returns, now includes $10 Chalet Cash voucher. Also BOGO 591ml Pepsi products',
@@ -295,9 +306,8 @@ const promotion13 = new Promotion(
 const promotion14 = new Promotion(
   user7,
   discount14,
-  restaurant14,
+  restaurant7,
   [schedule21, schedule22],
-  'ChIJ5xQ7szeuEmsRs6Kj7YFZE9k',
   PromotionType.HAPPY_HOUR,
   CuisineType.JAPANESE,
   'Tea18 $2 Bubble Tea',
@@ -308,9 +318,8 @@ const promotion14 = new Promotion(
 const promotion15 = new Promotion(
   user7,
   discount15,
-  restaurant15,
+  restaurant8,
   [schedule23],
-  'ChIJb0n5cWl3hlQRIbVGYLiTEgE',
   PromotionType.OTHER,
   CuisineType.OTHER,
   'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card',
@@ -321,9 +330,8 @@ const promotion15 = new Promotion(
 const promotion16 = new Promotion(
   user7,
   discount16,
-  restaurant16,
+  restaurant8,
   [schedule24, schedule25, schedule26, schedule27],
-  'ChIJIfBAsjeuEmsRdgu9Pl1Ps48',
   PromotionType.BOGO,
   CuisineType.CARIBBEAN,
   'Starbucks Happy Hour – Thursdays are twice as nice',
@@ -361,15 +369,6 @@ export const restaurants_sample = [
   restaurant6,
   restaurant7,
   restaurant8,
-  restaurant9,
-  restaurant10,
-  restaurant11,
-  restaurant12,
-  restaurant13,
-  restaurant14,
-  restaurant14,
-  restaurant15,
-  restaurant16,
 ];
 
 export const schedules_sample = [

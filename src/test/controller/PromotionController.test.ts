@@ -11,23 +11,19 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
-import { CustomAxiosMockAdapter } from '../mock/CustomAxiosMockAdapter';
-import axios, { AxiosInstance } from 'axios';
-import { Place } from '@googlemaps/google-maps-services-js';
+import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
+  let restaurantRepository: RestaurantRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
-  let customAxiosMockAdapter: CustomAxiosMockAdapter;
-  let axiosInstance: AxiosInstance;
 
   beforeAll(async () => {
     await connection.create();
     mockRedisClient = await connectRedisClient();
-    axiosInstance = axios.create();
-    app = await registerTestApplication(mockRedisClient, axiosInstance);
+    app = await registerTestApplication(mockRedisClient);
   });
 
   afterAll(async () => {
@@ -39,7 +35,7 @@ describe('Unit tests for PromotionController', function () {
     await connection.clear();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
-    customAxiosMockAdapter = new CustomAxiosMockAdapter(axiosInstance);
+    restaurantRepository = getCustomRepository(RestaurantRepository);
   });
 
   test('GET /promotions', async (done) => {
@@ -153,11 +149,6 @@ describe('Unit tests for PromotionController', function () {
       user
     );
 
-    // todo: https://promopal.atlassian.net/browse/PP-82 uncommented
-    // expectedPromotion.restaurant.lat = <insert expected lat>
-    // expectedPromotion.restaurant.lon = <insert expected lon>
-    // - do same as above for respective tests
-
     await userRepository.save(user);
     request(app)
       .post('/promotions')
@@ -166,6 +157,7 @@ describe('Unit tests for PromotionController', function () {
         user: undefined,
         userId: user.id,
         restaurant: undefined,
+        placeId: expectedPromotion.restaurant.placeId,
       })
       .expect(201)
       .end((err, res) => {
@@ -189,6 +181,7 @@ describe('Unit tests for PromotionController', function () {
         userId: user.id,
         cuisine: 'nonexistentcuisinetype',
         restaurant: undefined,
+        placeId: promotion.restaurant.placeId,
       })
       .expect(400)
       .end((err, res) => {
@@ -213,6 +206,7 @@ describe('Unit tests for PromotionController', function () {
         restaurant: undefined,
         user: undefined,
         userId: '65d7bc0a-6490-4e09-82e0-cb835a64e1b8', // non-existent user UUID
+        placeId: promotion.restaurant.placeId,
       })
       .expect(400)
       .end((err, res) => {
@@ -222,6 +216,64 @@ describe('Unit tests for PromotionController', function () {
         expect(frontEndErrorObject.message[0]).toContain(
           'Could not find any entity of type "User"'
         );
+        done();
+      });
+  });
+
+  test('POST /promotions/ - if restaurant with same placeId exists in DB, promotion should reference that restaurant', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    // save a promotion with a restaurant
+    const existingPromotion = new PromotionFactory().generateWithRelatedEntities(
+      user
+    );
+    const existingRestaurant = existingPromotion.restaurant;
+
+    await userRepository.save(user);
+    await promotionRepository.save(existingPromotion);
+
+    request(app)
+      .post('/promotions')
+      .send({
+        ...promotion,
+        restaurant: undefined,
+        user: undefined,
+        userId: user.id,
+        placeId: existingRestaurant.placeId,
+      })
+      .expect(201)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotion = res.body as Promotion;
+        expect(promotion.restaurant).toEqual(existingRestaurant);
+        done();
+      });
+  });
+
+  test('POST /promotions/ - if restaurant with placeId does not exist in DB, promotion should create new restaurant', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+
+    request(app)
+      .post('/promotions')
+      .send({
+        ...promotion,
+        restaurant: undefined,
+        user: undefined,
+        userId: user.id,
+        placeId: promotion.restaurant.placeId,
+      })
+      .expect(201)
+      .end(async (err, res) => {
+        if (err) return done(err);
+        const restaurants = await restaurantRepository.find();
+        expect(restaurants).toHaveLength(1);
+
+        const actualPromotion = res.body;
+        comparePromotions(actualPromotion, promotion);
         done();
       });
   });
@@ -313,110 +365,6 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('GET /promotions/:id/restaurantDetails/', async (done) => {
-    const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
-
-    await userRepository.save(user);
-    await promotionRepository.save(promotion);
-
-    customAxiosMockAdapter.mockSuccessfulPlaceDetails(promotion.placeId);
-
-    request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails`)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        const restaurantDetails = res.body as Place;
-        expect(restaurantDetails.place_id).toEqual(promotion.placeId);
-        expect(restaurantDetails.name).toEqual('MOCK NAME');
-        done();
-      });
-  });
-
-  test('GET /promotions/:id/restaurantDetails/ should refresh placeId if not found', async (done) => {
-    const expectedRefreshedPlaceId = 'new refreshed placeId';
-    const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
-
-    await userRepository.save(user);
-    await promotionRepository.save(promotion);
-
-    customAxiosMockAdapter.mockNotFoundPlaceDetails(promotion.placeId);
-    customAxiosMockAdapter.mockSuccessfulRefreshRequest(
-      promotion.placeId,
-      expectedRefreshedPlaceId
-    );
-    customAxiosMockAdapter.mockSuccessfulPlaceDetails(expectedRefreshedPlaceId);
-
-    request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails`)
-      .expect(200)
-      .end(async (err, res) => {
-        if (err) return done(err);
-        // should be able to get promotion details with new placeId
-        const restaurantDetails = res.body as Place;
-        expect(restaurantDetails.place_id).toEqual(expectedRefreshedPlaceId);
-        expect(restaurantDetails.name).toEqual('MOCK NAME');
-
-        // placeId should be updated in the repository
-        const actualPromotion = await promotionRepository.findOneOrFail(
-          promotion.id
-        );
-        expect(actualPromotion.placeId).toEqual(expectedRefreshedPlaceId);
-        done();
-      });
-  });
-
-  test('GET /promotions/:id/restaurantDetails/ should not fail if refresh placeId results in not found', async (done) => {
-    const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
-
-    await userRepository.save(user);
-    await promotionRepository.save(promotion);
-
-    customAxiosMockAdapter.mockNotFoundPlaceDetails(promotion.placeId);
-    // configure so that refresh request results in not found
-    customAxiosMockAdapter.mockNotFoundRefreshRequest(promotion.placeId);
-
-    request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails`)
-      .expect(200)
-      .end(async (err, res) => {
-        if (err) return done(err);
-        // should be able to get promotion details with new placeId
-        const restaurantDetails = res.body as Place;
-        expect(restaurantDetails).toEqual({});
-
-        // placeId should be updated in the repository
-        const actualPromotion = await promotionRepository.findOneOrFail(
-          promotion.id
-        );
-        expect(actualPromotion.placeId).toEqual('');
-        done();
-      });
-  });
-
-  test('GET /promotions/:id/restaurantDetails/ should return empty object if placeId is empty string', async (done) => {
-    const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
-    promotion.placeId = '';
-
-    await userRepository.save(user);
-    await promotionRepository.save(promotion);
-
-    request(app)
-      .get(`/promotions/${promotion.id}/restaurantDetails`)
-      .expect(200)
-      .end(async (err, res) => {
-        if (err) return done(err);
-        // should be able to get promotion details with new placeId
-        const restaurantDetails = res.body as Place;
-        expect(restaurantDetails).toEqual({});
-        done();
-      });
-  });
-
   /**
    * Compare actual promotion against expected promotion
    * */
@@ -427,7 +375,6 @@ describe('Unit tests for PromotionController', function () {
     const promotionObject: any = {
       name: expectedPromotion.name,
       description: expectedPromotion.description,
-      placeId: expectedPromotion.placeId,
       expirationDate: expectedPromotion.expirationDate.toISOString(),
       startDate: expectedPromotion.startDate.toISOString(),
     };

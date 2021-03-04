@@ -19,13 +19,12 @@ describe('Unit tests for RestaurantRepository', function () {
     restaurantRepository = getCustomRepository(RestaurantRepository);
   });
 
-  test('Should not be able to create restaurant without promotion', async () => {
+  test('Should be able to save restaurant without promotion', async () => {
     const restaurant = new RestaurantFactory().generate();
     try {
       await restaurantRepository.save(restaurant);
-      fail('Should have failed');
     } catch (e) {
-      expect(e.message).toContain('violates not-null constraint');
+      fail('Should have failed');
     }
   });
 });

@@ -262,7 +262,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
 
@@ -320,7 +319,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
     const promotion2 = new PromotionFactory().generate(
@@ -328,7 +326,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
 
@@ -370,7 +367,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
     const promotion2 = new PromotionFactory().generate(
@@ -378,7 +374,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
 
@@ -415,7 +410,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
     promotion1.name = SAMPLE_SEARCH_QUERY;
@@ -425,7 +419,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.PERCENTAGE),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
     promotion2.name = SAMPLE_SEARCH_QUERY;
@@ -617,7 +610,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.AMOUNT, 18),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
     const promotion2 = new PromotionFactory().generate(
@@ -625,7 +617,6 @@ describe('Integration tests for all entities', function () {
       new DiscountFactory().generate(DiscountType.AMOUNT, 4.9),
       new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()],
-      '',
       PromotionType.BOGO
     );
 
@@ -784,6 +775,45 @@ describe('Integration tests for all entities', function () {
       expect(promotions.length).toEqual(3);
     } catch (e) {
       fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Test DeleteRestaurant migration - Deleting a promotion should delete restaurant respectively if restaurant is only referencing one promotion', async () => {
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+
+    promotion2.restaurant = promotion1.restaurant;
+    await userRepository.save(user);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    try {
+      // restaurant should still exist because is used in promotion2
+      await promotionRepository.delete(promotion1.id);
+      await restaurantRepository.findOneOrFail(promotion2.restaurant.id);
+
+      // restaurant should now be deleted
+      await promotionRepository.delete(promotion2.id);
+      const restaurants = await restaurantRepository.find();
+      expect(restaurants).toHaveLength(0);
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Deleting a restaurant should fail if promotion is referencing the restaurant', async () => {
+    const user = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+    try {
+      await restaurantRepository.delete(promotion.restaurant.id);
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.message).toContain(
+        'update or delete on table "restaurant" violates foreign key constraint'
+      );
     }
   });
 });

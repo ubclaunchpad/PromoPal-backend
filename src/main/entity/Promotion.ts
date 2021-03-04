@@ -27,7 +27,6 @@ export class Promotion {
     discount: Discount,
     restaurant: Restaurant,
     schedules: Schedule[],
-    placeId: string,
     promotionType: PromotionType,
     cuisine: CuisineType,
     name: string,
@@ -39,7 +38,6 @@ export class Promotion {
     this.discount = discount;
     this.restaurant = restaurant;
     this.schedules = schedules;
-    this.placeId = placeId;
     this.promotionType = promotionType;
     this.cuisine = cuisine;
     this.name = name;
@@ -50,13 +48,6 @@ export class Promotion {
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  /*
-   * Represents Google Places API place_id
-   * Many promotions can come from the same restaurant and thus have the same placeId
-   * */
-  @Column()
-  placeId: string;
 
   /*
    * ManyToOne bidirectional relationship between Promotion and User
@@ -82,13 +73,19 @@ export class Promotion {
   discount: Discount;
 
   /*
-   * OneToOne bidirectional relationship between Promotion and Restaurant
+   * ManyToOne bidirectional relationship between Promotion and Restaurant
    * Each promotion can have a single restaurant
+   * * IMPORTANT: We want delete the restaurant when restaurant no longer references any promotions.
+   * See RestaurantDeletion migration for how we handle this
+   *
+   * * We do NOT want cascade delete on foreign key restaurantId because we do not want to delete the promotions when a restaurant is deleted
+   * * Promotion is owning side of this association, contains column restaurantId
    * */
-  @OneToOne(() => Restaurant, (restaurant) => restaurant.promotion, {
-    cascade: true,
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.promotion, {
     nullable: false,
+    cascade: true,
   })
+  @JoinColumn()
   restaurant: Restaurant;
 
   /*
