@@ -28,7 +28,7 @@ import redis, { RedisClient } from 'redis';
 import { initFirebaseAdmin } from './FirebaseConfig';
 import { RestaurantRepository } from './repository/RestaurantRepository';
 import { Restaurant } from './entity/Restaurant';
-import { GooglePlaceService } from './service/GooglePlaceService';
+import { GooglePlacesService } from './service/GooglePlacesService';
 import { Client } from '@googlemaps/google-maps-services-js';
 import { AxiosInstance } from 'axios';
 import { RestaurantController } from './controller/RestaurantController';
@@ -84,8 +84,8 @@ export class App {
     app.get('/', (req, res) => res.send('Hello World'));
 
     const client = axiosInstance ? new Client({ axiosInstance }) : new Client();
-    const googlePlaceService = new GooglePlaceService(client);
-    const restaurantController = new RestaurantController(googlePlaceService);
+    const googlesPlaceService = new GooglePlacesService(client);
+    const restaurantController = new RestaurantController(googlesPlaceService);
     const restaurantRouter = new RestaurantRouter(restaurantController);
     app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
 

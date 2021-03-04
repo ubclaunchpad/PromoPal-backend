@@ -1,7 +1,7 @@
 import { defaultUrl } from '@googlemaps/google-maps-services-js/dist/places/details';
 import MockAdapter from 'axios-mock-adapter';
 import { Status } from '@googlemaps/google-maps-services-js';
-import { restaurantDetailsFields } from '../../main/service/GooglePlaceService';
+import { restaurantDetailsFields } from '../../main/service/GooglePlacesService';
 import { PlaceField } from '../../main/data/PlaceField';
 
 /**

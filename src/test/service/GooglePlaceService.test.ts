@@ -1,7 +1,7 @@
 import { Client, Status } from '@googlemaps/google-maps-services-js';
 import axios from 'axios';
 import { CustomAxiosMockAdapter } from '../mock/CustomAxiosMockAdapter';
-import { GooglePlaceService } from '../../main/service/GooglePlaceService';
+import { GooglePlacesService } from '../../main/service/GooglePlacesService';
 import { PlaceDetailsResponseData } from '@googlemaps/google-maps-services-js/dist/places/details';
 
 /**
@@ -15,21 +15,23 @@ import { PlaceDetailsResponseData } from '@googlemaps/google-maps-services-js/di
  * * source: https://stackoverflow.com/questions/57261582/google-places-api-refresh-place-ids-with-java
  * * When used in a refresh request, it will return a new valid placeId.
  * */
-describe('Unit tests for GooglePlaceService', function () {
+describe('Unit tests for GooglePlacesService', function () {
   const SAMPLE_PLACE_ID = 'ChIJb0n5cWl3hlQRIbVGYLiTEgE';
-  let googlePlaceService: GooglePlaceService;
+  let googlePlacesService: GooglePlacesService;
   let customAxiosMockAdapter: CustomAxiosMockAdapter;
 
   beforeEach(() => {
     const axiosInstance = axios.create();
-    googlePlaceService = new GooglePlaceService(new Client({ axiosInstance }));
+    googlePlacesService = new GooglePlacesService(
+      new Client({ axiosInstance })
+    );
     customAxiosMockAdapter = new CustomAxiosMockAdapter(axiosInstance);
   });
 
   test('Should be able to successfully get place details', async () => {
     customAxiosMockAdapter.mockSuccessfulPlaceDetails(SAMPLE_PLACE_ID);
     try {
-      const placeDetailsResponseData: PlaceDetailsResponseData = await googlePlaceService.getRestaurantDetails(
+      const placeDetailsResponseData: PlaceDetailsResponseData = await googlePlacesService.getRestaurantDetails(
         SAMPLE_PLACE_ID
       );
       expect(placeDetailsResponseData.status).toEqual('OK');
@@ -43,7 +45,7 @@ describe('Unit tests for GooglePlaceService', function () {
   test('If response results in INVALID_REQUEST, no data should be present', async () => {
     customAxiosMockAdapter.mockInvalidRequestPlaceDetails();
     try {
-      const placeDetailsResponseData = await googlePlaceService.getRestaurantDetails(
+      const placeDetailsResponseData = await googlePlacesService.getRestaurantDetails(
         'Non-existent placeId'
       );
       expect(placeDetailsResponseData.status).toEqual(Status.INVALID_REQUEST);
@@ -64,7 +66,7 @@ describe('Unit tests for GooglePlaceService', function () {
     customAxiosMockAdapter.mockSuccessfulPlaceDetails(validRefreshedPlaceId);
 
     try {
-      const refreshResult = await googlePlaceService.refreshPlaceId(
+      const refreshResult = await googlePlacesService.refreshPlaceId(
         invalidPlaceId
       );
       expect(refreshResult.placeId).toEqual(validRefreshedPlaceId);
@@ -82,7 +84,7 @@ describe('Unit tests for GooglePlaceService', function () {
     customAxiosMockAdapter.mockNotFoundRefreshRequest(invalidPlaceId);
 
     try {
-      const refreshResult = await googlePlaceService.refreshPlaceId(
+      const refreshResult = await googlePlacesService.refreshPlaceId(
         invalidPlaceId
       );
       expect(refreshResult.placeId).toEqual('');
@@ -97,7 +99,7 @@ describe('Unit tests for GooglePlaceService', function () {
     customAxiosMockAdapter.mockNotFoundPlaceDetails(invalidPlaceId);
 
     try {
-      const placeDetailsResponseData = await googlePlaceService.getRestaurantDetails(
+      const placeDetailsResponseData = await googlePlacesService.getRestaurantDetails(
         invalidPlaceId
       );
       expect(placeDetailsResponseData.status).toEqual(Status.NOT_FOUND);

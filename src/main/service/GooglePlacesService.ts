@@ -34,7 +34,7 @@ export const restaurantDetailsFields = [
   PlaceField.USER_RATINGS_TOTAL,
 ];
 
-export class GooglePlaceService {
+export class GooglePlacesService {
   private client: Client;
 
   constructor(client: Client) {

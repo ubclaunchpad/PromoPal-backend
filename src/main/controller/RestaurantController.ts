@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
 import { EntityManager, getManager } from 'typeorm';
 import { IdValidation } from '../validation/IdValidation';
-import { GooglePlaceService } from '../service/GooglePlaceService';
+import { GooglePlacesService } from '../service/GooglePlacesService';
 import { Place, Status } from '@googlemaps/google-maps-services-js';
 import { RestaurantRepository } from '../repository/RestaurantRepository';
 
 export class RestaurantController {
-  private googlePlaceService: GooglePlaceService;
+  private googlePlacesService: GooglePlacesService;
 
-  constructor(googlePlaceService: GooglePlaceService) {
-    this.googlePlaceService = googlePlaceService;
+  constructor(googlePlacesService: GooglePlacesService) {
+    this.googlePlacesService = googlePlacesService;
   }
 
   /* *
@@ -33,7 +33,7 @@ export class RestaurantController {
 
         // placeId may be empty string if this restaurant has previously resulted in a NOT_FOUND even after refresh request
         if (restaurant.placeId) {
-          const placeDetailsResponseData = await this.googlePlaceService.getRestaurantDetails(
+          const placeDetailsResponseData = await this.googlePlacesService.getRestaurantDetails(
             restaurant.placeId
           );
           result = placeDetailsResponseData.result ?? {};
@@ -68,7 +68,9 @@ export class RestaurantController {
     id: string,
     transactionalEntityManager: EntityManager
   ): Promise<Place> {
-    const refreshResult = await this.googlePlaceService.refreshPlaceId(placeId);
+    const refreshResult = await this.googlePlacesService.refreshPlaceId(
+      placeId
+    );
 
     // update DB with new placeId, even if placeId is empty string
     await transactionalEntityManager
