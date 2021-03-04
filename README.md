@@ -188,7 +188,7 @@ dropSchema: true
 ```
 
 Then TypeORM will automatically create the schema drop the schema on every application launch.
-Make sure this line is uncommented in `App.ts` in the `loadSampleDBData` function for TypeORM to save the data when the application starts. After data is loaded,
+Make sure this line is uncommented in `App.ts` for TypeORM to save the data when the application starts. After data is loaded,
 it is recommended to set `dropSchema: false`.
 
 ```
