@@ -20,7 +20,6 @@ import { RestaurantRepository } from '../../main/repository/RestaurantRepository
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
-  let restaurantRepository: RestaurantRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
   let mockFirebaseAdmin: any;
@@ -42,7 +41,6 @@ describe('Unit tests for PromotionController', function () {
     await connection.clear();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
-    restaurantRepository = getCustomRepository(RestaurantRepository);
   });
 
   test('GET /promotions', async (done) => {
@@ -276,12 +274,19 @@ describe('Unit tests for PromotionController', function () {
       .expect(201)
       .end(async (err, res) => {
         if (err) return done(err);
-        const restaurants = await restaurantRepository.find();
-        expect(restaurants).toHaveLength(1);
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            const restaurants = await transactionalEntityManager
+              .getCustomRepository(RestaurantRepository)
+              .find();
+            expect(restaurants).toHaveLength(1);
 
-        const actualPromotion = res.body;
-        comparePromotions(actualPromotion, promotion);
-        done();
+            const actualPromotion = res.body;
+            comparePromotions(actualPromotion, promotion);
+            done();
+          }
+        );
       });
   });
 
