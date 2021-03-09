@@ -16,6 +16,7 @@ import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
+import { randomString } from '../utility/Utility';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -153,12 +154,13 @@ describe('Unit tests for PromotionController', function () {
     const expectedPromotion = new PromotionFactory().generateWithRelatedEntities(
       user
     );
+    const inputtedPromotion = setGooglePlacesAddress(expectedPromotion);
 
     await userRepository.save(user);
     request(app)
       .post('/promotions')
       .send({
-        ...expectedPromotion,
+        ...inputtedPromotion,
         user: undefined,
         userId: user.id,
         restaurant: undefined,
@@ -176,12 +178,13 @@ describe('Unit tests for PromotionController', function () {
   test('POST /promotions/ - invalid request body should be caught', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+    const inputtedPromotion = setGooglePlacesAddress(promotion);
 
     await userRepository.save(user);
     request(app)
       .post('/promotions')
       .send({
-        ...promotion,
+        ...inputtedPromotion,
         user: undefined,
         userId: user.id,
         cuisine: 'nonexistentcuisinetype',
@@ -203,11 +206,12 @@ describe('Unit tests for PromotionController', function () {
   test('POST /promotions/ - should not be able to add promotion if user does not exist', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+    const inputtedPromotion = setGooglePlacesAddress(promotion);
 
     request(app)
       .post('/promotions')
       .send({
-        ...promotion,
+        ...inputtedPromotion,
         restaurant: undefined,
         user: undefined,
         userId: '65d7bc0a-6490-4e09-82e0-cb835a64e1b8', // non-existent user UUID
@@ -228,6 +232,7 @@ describe('Unit tests for PromotionController', function () {
   test('POST /promotions/ - if restaurant with same placeId exists in DB, promotion should reference that restaurant', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+    const inputtedPromotion = setGooglePlacesAddress(promotion);
 
     // save a promotion with a restaurant
     const existingPromotion = new PromotionFactory().generateWithRelatedEntities(
@@ -241,7 +246,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .post('/promotions')
       .send({
-        ...promotion,
+        ...inputtedPromotion,
         restaurant: undefined,
         user: undefined,
         userId: user.id,
@@ -259,13 +264,14 @@ describe('Unit tests for PromotionController', function () {
   test('POST /promotions/ - if restaurant with placeId does not exist in DB, promotion should create new restaurant', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+    const inputtedPromotion = setGooglePlacesAddress(promotion);
 
     await userRepository.save(user);
 
     request(app)
       .post('/promotions')
       .send({
-        ...promotion,
+        ...inputtedPromotion,
         restaurant: undefined,
         user: undefined,
         userId: user.id,
@@ -410,15 +416,20 @@ describe('Unit tests for PromotionController', function () {
       expect(actualPromotion.discount).toMatchObject(discountObject);
     }
 
-    // todo: uncomment this once https://promopal.atlassian.net/browse/PP-82 has been implemented
-    // if (expectedPromotion.restaurant) {
-    //   const restaurantObject: any = { ...expectedPromotion.restaurant };
-    //
-    //   if (!expectedPromotion.restaurant.id) {
-    //     delete restaurantObject.id;
-    //   }
-    //   expect(actualPromotion.restaurant).toMatchObject(restaurantObject);
-    // }
+    if (expectedPromotion.restaurant) {
+      const restaurantObject: any = { ...expectedPromotion.restaurant };
+
+      if (!expectedPromotion.restaurant.id) {
+        delete restaurantObject.id;
+      }
+
+      // as these values are randomly generated, the geocoder will not be able to provide coordinates
+      // hence, the values will be null in the actual promotion returned
+      delete restaurantObject.lat;
+      delete restaurantObject.lon;
+
+      expect(actualPromotion.restaurant).toMatchObject(restaurantObject);
+    }
 
     if (expectedPromotion.schedules && expectedPromotion.schedules.length > 0) {
       const result = [];
@@ -435,5 +446,14 @@ describe('Unit tests for PromotionController', function () {
       }
       expect(actualPromotion.schedules).toMatchObject(result);
     }
+  }
+
+  /**
+   * Sets the googlePlacesAddress field for the promotion
+   */
+  function setGooglePlacesAddress(promotion: Promotion) {
+    const result: any = { ...promotion };
+    result.googlePlacesAddress = randomString(30);
+    return result;
   }
 });

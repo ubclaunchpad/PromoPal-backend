@@ -44,6 +44,7 @@ describe('Unit tests for DTOConverter', function () {
       schedules: [scheduleDTO],
       startDate: new Date(),
       userId: 'fake userId',
+      googlePlacesAddress: '3094 Random Ave, Vancouver BC, V03M31',
     };
 
     userDTO = {

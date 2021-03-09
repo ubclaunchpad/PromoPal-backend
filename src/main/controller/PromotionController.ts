@@ -15,9 +15,15 @@ import * as querystring from 'querystring';
 import { DTOConverter } from '../validation/DTOConverter';
 import { RestaurantRepository } from '../repository/RestaurantRepository';
 import { Restaurant } from '../entity/Restaurant';
-import { randomLatitude, randomLongitude } from '../../test/utility/Utility';
+import { GeocodingService } from '../service/GeocodingService';
 
 export class PromotionController {
+  private geocodingService: GeocodingService;
+
+  constructor() {
+    this.geocodingService = new GeocodingService();
+  }
+
   /**
    * Retrieves all promotions and their discounts
    * * First we need to validate the query params and cast that into a PromotionQueryDTO
@@ -88,6 +94,8 @@ export class PromotionController {
   /**
    * Adds a promotion to the database
    * * First, we need to validate the contents of request body and then cast that into PromotionDTO
+   * * Next, if our DB does not contain the restaurant yet, we use Geocoder to get the coordinates
+   * * After, we save a new restaurant with these coordinates into the DB
    * * Then we construct a new Promotion along with its associated entities and the user
    * * Lastly, save promotion along with associated entities in DB and return result
    */
@@ -103,23 +111,37 @@ export class PromotionController {
           { abortEarly: false }
         );
 
-        // find existing restaurant
-        const restaurant = await transactionalEntityManager
-          .getCustomRepository(RestaurantRepository)
-          .findOne({ placeId: promotionDTO.placeId });
         const user = await transactionalEntityManager
           .getCustomRepository(UserRepository)
           .findOneOrFail(promotionDTO.userId);
+
+        // find existing restaurant
+        let restaurant = await transactionalEntityManager
+          .getCustomRepository(RestaurantRepository)
+          .findOne({ placeId: promotionDTO.placeId });
+
+        if (!restaurant) {
+          const coordinates = await this.geocodingService.getGeoCoordinatesFromAddress(
+            promotionDTO.googlePlacesAddress
+          );
+          if (coordinates.lat && coordinates.lon) {
+            restaurant = new Restaurant(
+              promotionDTO.placeId,
+              coordinates.lat,
+              coordinates.lon
+            );
+          } else {
+            restaurant = new Restaurant(promotionDTO.placeId);
+          }
+          await transactionalEntityManager
+            .getCustomRepository(RestaurantRepository)
+            .save(restaurant);
+        }
+
         const promotion = DTOConverter.promotionDTOtoPromotion(
           promotionDTO,
           user,
-          // todo PP-82 if restaurant does not exist create a new one with correct lat and lon
-          restaurant ??
-            new Restaurant(
-              promotionDTO.placeId,
-              randomLatitude(),
-              randomLongitude()
-            )
+          restaurant
         );
 
         const result = await transactionalEntityManager
