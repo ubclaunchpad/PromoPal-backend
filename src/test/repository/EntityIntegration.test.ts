@@ -844,7 +844,6 @@ describe('Integration tests for all entities', function () {
     await promotionRepository.save(promotion3);
     await savedPromotionRepository.save(new SavedPromotion(user, promotion1));
     await savedPromotionRepository.save(new SavedPromotion(user, promotion2));
-    // todo: see if deadlock
 
     const promotionQueryDTO: PromotionQueryDTO = {
       userId: user.id,
