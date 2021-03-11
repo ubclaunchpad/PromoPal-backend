@@ -12,6 +12,7 @@ import { SavedPromotionRepository } from '../repository/SavedPromotionRepository
 import { DTOConverter } from '../validation/DTOConverter';
 import { SavedPromotion } from '../entity/SavedPromotion';
 import { Promotion } from '../entity/Promotion';
+import { FirebaseIdValidation } from '../validation/FirebaseIdValidation';
 
 export class UserController {
   /**
@@ -57,6 +58,33 @@ export class UserController {
           UserRepository
         );
         const user = await userRepository.findOneOrFail(id, { cache: true });
+        return res.send(user);
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
+
+  // return one user by firebaseId
+  getOneByFirebaseId = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      await getManager().transaction(async (transationalEntityManager) => {
+        const firebaseId = await FirebaseIdValidation.schema.validateAsync(
+          req.params.firebaseId,
+          {
+            abortEarly: false,
+          }
+        );
+        const userRepository = transationalEntityManager.getCustomRepository(
+          UserRepository
+        );
+        const user = await userRepository.findByFirebaseId(firebaseId, {
+          cache: true,
+        });
         return res.send(user);
       });
     } catch (e) {

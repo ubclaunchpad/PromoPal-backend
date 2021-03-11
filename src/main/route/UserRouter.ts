@@ -26,6 +26,11 @@ export class UserRouter {
       this.firebaseAuth.isAuthorizedForProtection,
       this.userController.getOneById
     );
+    this.userRouter.get(
+      '/firebase/:firebaseId',
+      this.firebaseAuth.isAuthorizedForProtection,
+      this.userController.getOneByFirebaseId
+    );
     this.userRouter.post(
       '/',
       this.firebaseAuth.isAuthorizedForProtection,

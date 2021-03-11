@@ -1,7 +1,14 @@
-import { EntityRepository, Repository } from 'typeorm';
+import {
+  DeleteResult,
+  EntityRepository,
+  FindOneOptions,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
 import { User } from '../entity/User';
 import { Promotion } from '../entity/Promotion';
 import { SavedPromotion } from '../entity/SavedPromotion';
+import { UserUpdateDTO } from '../validation/UserUpdateValidation';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -9,8 +16,11 @@ export class UserRepository extends Repository<User> {
     return this.findOne({ firstName, lastName });
   }
 
-  findByFirebaseId(firebaseId: string): Promise<User | undefined> {
-    return this.findOne({ firebaseId });
+  findByFirebaseId(
+    firebaseId: string,
+    options: FindOneOptions<User>
+  ): Promise<User | undefined> {
+    return this.findOneOrFail({ firebaseId }, options);
   }
 
   /**
