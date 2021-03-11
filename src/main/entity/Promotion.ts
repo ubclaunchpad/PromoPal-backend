@@ -192,4 +192,10 @@ export class Promotion {
     default: 0,
   })
   votes: number;
+
+  /**
+   * True if the user has saved this promotion
+   * * Note this is used for endpoints that need to be aware of the user making the request
+   * */
+  isSavedByUser?: boolean;
 }

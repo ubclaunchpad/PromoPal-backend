@@ -27,6 +27,7 @@ export class PromotionQueryValidation {
     /** note incoming format is a string, and Joi will automatically convert to type Date */
     expirationDate: Joi.date(),
     dayOfWeek: Joi.string().valid(...Object.values(Day)),
+    userId: Joi.string().uuid(),
   })
     .required()
     /**
@@ -44,4 +45,5 @@ export interface PromotionQueryDTO {
   cuisine?: CuisineType | CuisineType[];
   expirationDate?: Date;
   dayOfWeek?: Day;
+  userId?: string;
 }

@@ -17,6 +17,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       expirationDate: '2020-11-09 03:39:40.395843',
       dayOfWeek: Day.THURSDAY,
       searchQuery: 'promo',
+      userId: 'b271dde4-c938-4dd4-aba6-cdcd23b9194d',
     };
   });
 
@@ -275,6 +276,18 @@ describe('Unit tests for PromotionQueryValidation', function () {
     }
   });
 
+  test('Should fail if userId is not uuid', async () => {
+    try {
+      promotionQueryDTO.dayOfWeek = Day.MONDAY;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual('"userId" must be a valid GUID');
+    }
+  });
+
   test('Should fail if any fields are the wrong type', async () => {
     try {
       promotionQueryDTO = {
@@ -285,13 +298,14 @@ describe('Unit tests for PromotionQueryValidation', function () {
         expirationDate: true,
         dayOfWeek: 123,
         searchQuery: 1,
+        userId: true,
       };
       await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
-      expect(e.details.length).toEqual(10);
+      expect(e.details.length).toEqual(11);
       expect(e.details[0].message).toEqual('"searchQuery" must be a string');
       expect(e.details[1].message).toEqual(
         '"discountType" must be one of [%, $, Other]'
@@ -306,6 +320,7 @@ describe('Unit tests for PromotionQueryValidation', function () {
       );
       expect(e.details[8].message).toContain('"dayOfWeek" must be one of');
       expect(e.details[9].message).toEqual('"dayOfWeek" must be a string');
+      expect(e.details[10].message).toEqual('"userId" must be a string');
     }
   });
 });

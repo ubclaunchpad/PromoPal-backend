@@ -1,7 +1,13 @@
-import { EntityRepository, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  EntityRepository,
+  getConnection,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 import { Schedule } from '../entity/Schedule';
+import { SavedPromotion } from '../entity/SavedPromotion';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -16,7 +22,11 @@ export class PromotionRepository extends Repository<Promotion> {
       promotionQuery &&
       JSON.stringify(promotionQuery) !== JSON.stringify({})
     ) {
-      return this.applyQueryOptions(promotionQuery);
+      const promotions = await this.applyQueryOptions(promotionQuery);
+      if (promotionQuery.userId && promotions.length != 0) {
+        return this.findPromotionsUserSaved(promotionQuery.userId, promotions);
+      }
+      return promotions;
     } else {
       return this.createQueryBuilder('promotion')
         .innerJoinAndSelect('promotion.discount', 'discount')
@@ -29,7 +39,9 @@ export class PromotionRepository extends Repository<Promotion> {
   /**
    * Depending on which properties are defined inside promotionQuery, we add those properties into our query for the queryBuilder to execute.
    */
-  private applyQueryOptions(promotionQuery: PromotionQueryDTO): Promise<any> {
+  private applyQueryOptions(
+    promotionQuery: PromotionQueryDTO
+  ): Promise<Promotion[] | PromotionFullTextSearch[]> {
     const queryBuilder = this.createQueryBuilder('promotion')
       .innerJoinAndSelect('promotion.discount', 'discount')
       .innerJoinAndSelect('promotion.schedules', 'schedule');
@@ -109,7 +121,7 @@ export class PromotionRepository extends Repository<Promotion> {
   private async fullTextSearch(
     queryBuilder: SelectQueryBuilder<Promotion>,
     promotionQuery: PromotionQueryDTO
-  ): Promise<any> {
+  ): Promise<PromotionFullTextSearch[]> {
     // todo: modify searchQuery accordingly
     // todo: decide how to handle special characters (e.g. single quotes, AT&T as a single word)
 
@@ -173,6 +185,34 @@ export class PromotionRepository extends Repository<Promotion> {
     }
 
     return result;
+  }
+
+  /**
+   * Find all promotions saved by user and set {@link Promotion.isSavedByUser} respectively.
+   * More specifically, look into saved promotion table and find entries with matching userId and with promotionId in the id's of promotions
+   * @param userId the id of the user
+   * @param promotions the promotions we want to find out if the user saved
+   * */
+  private async findPromotionsUserSaved(
+    userId: string,
+    promotions: Promotion[]
+  ): Promise<Promotion[]> {
+    const promotionIds = promotions.map((promotion: Promotion) => promotion.id);
+    const savedPromotionIds = await getConnection()
+      .createQueryBuilder(SavedPromotion, 'savedPromotions')
+      .select('savedPromotions.promotionId', 'id')
+      .where('savedPromotions.userId = :userId', { userId })
+      .andWhere('savedPromotions.promotionId IN (:...promotionIds)', {
+        promotionIds,
+      })
+      .getRawMany();
+    const set = new Set(
+      savedPromotionIds.map((savedPromotionId) => savedPromotionId.id)
+    );
+    return promotions.map((promotion: Promotion) => {
+      promotion.isSavedByUser = set.has(promotion.id);
+      return promotion;
+    });
   }
 }
 
