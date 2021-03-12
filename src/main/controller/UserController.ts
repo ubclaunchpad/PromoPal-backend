@@ -72,14 +72,14 @@ export class UserController {
     next: NextFunction
   ): Promise<any> => {
     try {
-      await getManager().transaction(async (transationalEntityManager) => {
+      await getManager().transaction(async (transactionalEntityManager) => {
         const firebaseId = await FirebaseIdValidation.schema.validateAsync(
           req.params.firebaseId,
           {
             abortEarly: false,
           }
         );
-        const userRepository = transationalEntityManager.getCustomRepository(
+        const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
         const user = await userRepository.findByFirebaseId(firebaseId, {

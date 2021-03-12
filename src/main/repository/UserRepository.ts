@@ -1,14 +1,7 @@
-import {
-  DeleteResult,
-  EntityRepository,
-  FindOneOptions,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
+import { EntityRepository, FindOneOptions, Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { Promotion } from '../entity/Promotion';
 import { SavedPromotion } from '../entity/SavedPromotion';
-import { UserUpdateDTO } from '../validation/UserUpdateValidation';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
