@@ -3,6 +3,7 @@ import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { DiscountType } from '../data/DiscountType';
 import { Day } from '../data/Day';
+import { Sort } from '../data/Sort';
 
 /**
  * Checks the validity of a promotion query, used when we make queries against all promotions
@@ -27,6 +28,9 @@ export class PromotionQueryValidation {
     /** note incoming format is a string, and Joi will automatically convert to type Date */
     expirationDate: Joi.date(),
     dayOfWeek: Joi.string().valid(...Object.values(Day)),
+    sort: Joi.string().valid(...Object.values(Sort)),
+    lat: Joi.number(),
+    lon: Joi.number(),
   })
     .required()
     /**
@@ -44,4 +48,7 @@ export interface PromotionQueryDTO {
   cuisine?: CuisineType | CuisineType[];
   expirationDate?: Date;
   dayOfWeek?: Day;
+  sort?: Sort;
+  lat?: number;
+  lon?: number;
 }
