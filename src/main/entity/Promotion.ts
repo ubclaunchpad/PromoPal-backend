@@ -14,6 +14,7 @@ import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
 import { Schedule } from './Schedule';
+import { VoteRecord } from './VoteRecord';
 
 /*
  * Represents a promotion
@@ -192,4 +193,7 @@ export class Promotion {
     default: 0,
   })
   votes: number;
+
+  @OneToMany(() => VoteRecord, (voteRecord) => voteRecord.promotion, {})
+  votedBy: VoteRecord[];
 }
