@@ -18,6 +18,8 @@ import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
 import { CachingService } from '../../main/service/CachingService';
+import { VoteRecordRepository } from '../../main/repository/VoteRecordRepository';
+import { VoteState } from '../../main/entity/VoteRecord';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -331,8 +333,14 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
     request(app)
       .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -342,10 +350,19 @@ describe('Unit tests for PromotionController', function () {
             const promotionRepository = transactionalEntityManager.getCustomRepository(
               PromotionRepository
             );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
             const newPromotion = await promotionRepository.findOneOrFail(
               promotion.id
             );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
             expect(newPromotion.votes).toEqual(1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.UP);
             done();
           }
         );
@@ -363,8 +380,14 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
     request(app)
       .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -374,10 +397,127 @@ describe('Unit tests for PromotionController', function () {
             const promotionRepository = transactionalEntityManager.getCustomRepository(
               PromotionRepository
             );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
             const newPromotion = await promotionRepository.findOneOrFail(
               promotion.id
             );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
             expect(newPromotion.votes).toEqual(-1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.DOWN);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/upVote - cannot upVote twice', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.UP);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/downVote - cannot upVote twice', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generate(
+      user,
+      new DiscountFactory().generate(DiscountType.PERCENTAGE),
+      [new ScheduleFactory().generate()]
+    );
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(-1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.DOWN);
             done();
           }
         );

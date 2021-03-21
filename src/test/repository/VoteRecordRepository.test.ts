@@ -136,6 +136,7 @@ describe('Unit test for VoteRecord', function () {
       fail(e);
     }
     record.voteState = VoteState.DOWN;
+    await voteRecordRepository.save(record);
     try {
       record = await voteRecordRepository.findOneOrFail({
         userId: votingUser.id,

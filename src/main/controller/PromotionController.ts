@@ -173,7 +173,7 @@ export class PromotionController {
         const pid = await IdValidation.schema.validateAsync(request.params.id, {
           abortEarly: false,
         });
-        const uid = await IdValidation.schema.validateAsync(request.body, {
+        const uid = await IdValidation.schema.validateAsync(request.body.uid, {
           abortEarly: false,
         });
 
@@ -190,9 +190,12 @@ export class PromotionController {
             .findOneOrFail({ userId: uid, promotionId: pid });
         } catch (e) {
           // user vote first time
-          voteRecord = transactionalEntityManager
+          voteRecord = await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
             .create({ userId: uid, promotionId: pid });
+          await transactionalEntityManager
+            .getCustomRepository(VoteRecordRepository)
+            .save(voteRecord);
         }
 
         if (voteRecord.voteState === VoteState.UP) {
@@ -232,7 +235,7 @@ export class PromotionController {
         const pid = await IdValidation.schema.validateAsync(request.params.id, {
           abortEarly: false,
         });
-        const uid = await IdValidation.schema.validateAsync(request.body, {
+        const uid = await IdValidation.schema.validateAsync(request.body.uid, {
           abortEarly: false,
         });
 
@@ -249,9 +252,12 @@ export class PromotionController {
             .findOneOrFail({ userId: uid, promotionId: pid });
         } catch (e) {
           // user vote first time
-          voteRecord = transactionalEntityManager
+          voteRecord = await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
             .create({ userId: uid, promotionId: pid });
+          await transactionalEntityManager
+            .getCustomRepository(VoteRecordRepository)
+            .save(voteRecord);
         }
         if (voteRecord.voteState === VoteState.DOWN) {
           // user cannot downvote twice
