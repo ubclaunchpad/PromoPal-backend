@@ -150,4 +150,76 @@ describe('Unit test for VoteRecord', function () {
       fail(e);
     }
   });
+
+  test('Vote record should be removed when respective promotion is deleted', async () => {
+    const user: User = new UserFactory().generate();
+    const discount: Discount = new DiscountFactory().generate();
+    const schedule: Schedule = new ScheduleFactory().generate();
+    const promotion: Promotion = new PromotionFactory().generate(
+      user,
+      discount,
+      [schedule]
+    );
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+    const voteRecord = voteRecordRepository.create({
+      userId: votingUser.id,
+      promotionId: promotion.id,
+    });
+    await voteRecordRepository.save(voteRecord);
+    // delete promotion
+    await promotionRepository.delete(promotion.id);
+    try {
+      await voteRecordRepository.findOneOrFail({
+        userId: votingUser.id,
+        promotionId: promotion.id,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.message).toEqual(
+        `Could not find any entity of type "VoteRecord" matching: {
+    "userId": "${votingUser.id}",
+    "promotionId": "${promotion.id}"\n}`
+      );
+    }
+  });
+
+  test('Vote record should be removed when respective user is deleted', async () => {
+    const user: User = new UserFactory().generate();
+    const discount: Discount = new DiscountFactory().generate();
+    const schedule: Schedule = new ScheduleFactory().generate();
+    const promotion: Promotion = new PromotionFactory().generate(
+      user,
+      discount,
+      [schedule]
+    );
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+    const voteRecord = voteRecordRepository.create({
+      userId: votingUser.id,
+      promotionId: promotion.id,
+    });
+    await voteRecordRepository.save(voteRecord);
+    // delete user
+    await userRepository.delete(votingUser.id);
+    try {
+      await voteRecordRepository.findOneOrFail({
+        userId: votingUser.id,
+        promotionId: promotion.id,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.message).toEqual(
+        `Could not find any entity of type "VoteRecord" matching: {
+    "userId": "${votingUser.id}",
+    "promotionId": "${promotion.id}"\n}`
+      );
+    }
+  });
 });
