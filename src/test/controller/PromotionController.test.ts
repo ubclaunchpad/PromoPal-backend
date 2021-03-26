@@ -470,7 +470,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('POST /promotions/:id/downVote - cannot upVote twice', async (done) => {
+  test('POST /promotions/:id/downVote - cannot downVote twice', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generate(
       user,
