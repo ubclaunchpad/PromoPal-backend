@@ -23,7 +23,7 @@ describe('Unit tests for UserController', function () {
   let app: Express;
   let redisClient: RedisClient;
   let mockFirebaseAdmin: any;
-  let uid = '';
+  let firebaseId = '';
   let idToken = '';
 
   beforeAll(async () => {
@@ -43,7 +43,7 @@ describe('Unit tests for UserController', function () {
       password: 'testpassword',
     });
     idToken = await user.getIdToken();
-    uid = user.uid;
+    firebaseId = user.uid;
   });
 
   afterAll(async () => {
@@ -102,9 +102,25 @@ describe('Unit tests for UserController', function () {
       });
   });
 
+  test('GET /users/firebase/:firebaseId', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    expectedUser.firebaseId = firebaseId;
+    await userRepository.save(expectedUser);
+    request(app)
+      .get(`/users/firebase/${expectedUser.firebaseId}`)
+      .set('Authorization', idToken)
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const user = res.body;
+        compareUsers(user, expectedUser);
+        done();
+      });
+  });
+
   test('POST /users', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = uid;
+    expectedUser.firebaseId = firebaseId;
     const sentObj: any = { ...expectedUser };
     delete sentObj['id'];
     request(app)
