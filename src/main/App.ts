@@ -25,8 +25,14 @@ import { ScheduleRepository } from './repository/ScheduleRepository';
 import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
 import redis, { RedisClient } from 'redis';
-import { CachingService } from './service/CachingService';
 import { initFirebaseAdmin } from './FirebaseConfig';
+import { RestaurantRepository } from './repository/RestaurantRepository';
+import { Restaurant } from './entity/Restaurant';
+import { GooglePlacesService } from './service/GooglePlacesService';
+import { Client } from '@googlemaps/google-maps-services-js';
+import { AxiosInstance } from 'axios';
+import { RestaurantController } from './controller/RestaurantController';
+import { RestaurantRouter } from './route/RestaurantRouter';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 
@@ -50,8 +56,8 @@ export class App {
         this.firebaseAdmin
       );
 
-      // load sample data and cache the lat/lon for existing data
-      // await this.loadAndCacheSampleData();
+      // load sample data
+      // await this.loadSampleDBData();
 
       const PORT = 8000;
       app.listen(PORT, () => {
@@ -70,14 +76,20 @@ export class App {
   async registerHandlersAndRoutes(
     app: Express,
     redisClient: RedisClient,
-    firebaseAdmin: Auth
+    firebaseAdmin: Auth,
+    axiosInstance?: AxiosInstance
   ): Promise<void> {
     app.use(bodyParser.json());
 
     app.get('/', (req, res) => res.send('Hello World'));
 
-    const cachingService = new CachingService(redisClient);
-    const promotionController = new PromotionController(cachingService);
+    const client = axiosInstance ? new Client({ axiosInstance }) : new Client();
+    const googlesPlaceService = new GooglePlacesService(client);
+    const restaurantController = new RestaurantController(googlesPlaceService);
+    const restaurantRouter = new RestaurantRouter(restaurantController);
+    app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
+
+    const promotionController = new PromotionController();
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 
@@ -101,6 +113,9 @@ export class App {
     );
     const discountRepository: DiscountRepository = getCustomRepository(
       DiscountRepository
+    );
+    const restaurantRepository: RestaurantRepository = getCustomRepository(
+      RestaurantRepository
     );
     const savedPromotionRepository: SavedPromotionRepository = getCustomRepository(
       SavedPromotionRepository
@@ -131,9 +146,12 @@ export class App {
       ],
     }); // see https://stackoverflow.com/questions/61236129/typeorm-custom-many-to-many-not-pulling-relation-data
     const promotions: Promotion[] = await promotionRepository.find({
-      relations: ['user', 'discount', 'schedules'],
+      relations: ['user', 'discount', 'restaurant', 'schedules'],
     });
     const discounts: Discount[] = await discountRepository.find({
+      relations: ['promotion'],
+    });
+    const restaurants: Restaurant[] = await restaurantRepository.find({
       relations: ['promotion'],
     });
     const savedPromotions: SavedPromotion[] = await savedPromotionRepository.find(
@@ -155,6 +173,9 @@ export class App {
     const discountsLazy: Discount[] = await discountRepository.find({
       loadRelationIds: true,
     });
+    const restaurantsLazy: Restaurant[] = await restaurantRepository.find({
+      loadRelationIds: true,
+    });
     const savedPromotionsLazy: SavedPromotion[] = await savedPromotionRepository.find(
       {
         loadRelationIds: true,
@@ -170,23 +191,5 @@ export class App {
       host: process.env.REDIS_HOST ?? 'localhost',
       port: 6379,
     });
-  }
-
-  private async cacheLatLonForSamplePromotions(): Promise<void> {
-    const cachingService = new CachingService(this.redisClient);
-    for (const promotion of promotions_sample) {
-      promotion.lat = Math.random() * (-200.0 - 200.0) + 200.0;
-      promotion.lon = Math.random() * (-200.0 - 200.0) + 200.0;
-      await cachingService.cacheLatLonValues(
-        promotion.placeId,
-        promotion.lat,
-        promotion.lon
-      );
-    }
-  }
-
-  async loadAndCacheSampleData(): Promise<void> {
-    await this.loadSampleDBData();
-    await this.cacheLatLonForSamplePromotions();
   }
 }

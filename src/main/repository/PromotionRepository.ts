@@ -30,6 +30,7 @@ export class PromotionRepository extends Repository<Promotion> {
     } else {
       return this.createQueryBuilder('promotion')
         .innerJoinAndSelect('promotion.discount', 'discount')
+        .innerJoinAndSelect('promotion.restaurant', 'restaurant')
         .innerJoinAndSelect('promotion.schedules', 'schedule')
         .cache(true) // https://typeorm.io/#/caching Any promotions added within the 1 second cache window won't be returned to the user
         .getMany();
@@ -44,6 +45,7 @@ export class PromotionRepository extends Repository<Promotion> {
   ): Promise<Promotion[] | PromotionFullTextSearch[]> {
     const queryBuilder = this.createQueryBuilder('promotion')
       .innerJoinAndSelect('promotion.discount', 'discount')
+      .innerJoinAndSelect('promotion.restaurant', 'restaurant')
       .innerJoinAndSelect('promotion.schedules', 'schedule');
 
     if (promotionQuery?.promotionType) {

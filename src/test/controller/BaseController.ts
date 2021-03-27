@@ -5,6 +5,7 @@ import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const firebaseMock = require('firebase-mock');
+import { AxiosInstance } from 'axios';
 
 /**
  * Creates an express app and registers all handlers and routes
@@ -12,11 +13,17 @@ const firebaseMock = require('firebase-mock');
  * */
 export const registerTestApplication = async (
   redisClient: RedisClient,
-  firebaseAdmin: Auth
+  firebaseAdmin: Auth,
+  axiosInstance?: AxiosInstance
 ): Promise<Express> => {
   const app = new App();
   const expressApp = express();
-  await app.registerHandlersAndRoutes(expressApp, redisClient, firebaseAdmin);
+  await app.registerHandlersAndRoutes(
+    expressApp,
+    redisClient,
+    firebaseAdmin,
+    axiosInstance
+  );
   return expressApp;
 };
 
@@ -28,9 +35,9 @@ export const connectRedisClient = async (): Promise<RedisClient> => {
 export const createFirebaseMock = (): Auth => {
   const mockAuth = new firebaseMock.MockAuthentication();
   const mockDatabase = new firebaseMock.MockFirebase();
-  const mockFirestore = new firebaseMock.MockFirestore();
+  // const mockFirestore = new firebaseMock.MockFirestore();
   const mockStorage = new firebaseMock.MockStorage();
-  const mockMessaging = new firebaseMock.MockMessaging();
+  // const mockMessaging = new firebaseMock.MockMessaging();
   const mockSdk = new firebaseMock.MockFirebaseSdk(
     // use null if your code does not use RTDB
     (path: any) => {

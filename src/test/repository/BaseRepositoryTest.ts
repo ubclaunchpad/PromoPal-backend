@@ -1,4 +1,4 @@
-import { createConnection, EntityMetadata, getConnection } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 
 // use this class whenever we want to write unit/integration tests that interact with foodies_test database.
 const connection = {
@@ -32,13 +32,10 @@ const connection = {
 
   async clear(): Promise<void> {
     const connection = getConnection();
-    const entities = connection.entityMetadatas;
 
-    const promises = entities.map(async (entity: EntityMetadata) => {
-      const repository = connection.getRepository(entity.name);
-      return repository.query(`DELETE FROM ${entity.tableName}`);
-    });
-    await Promise.all(promises);
+    // deleting from user_profile should activate cascade deletes and
+    // triggers which should delete everything in the rest of the tables
+    await connection.query('delete from user_profile');
   },
 };
 

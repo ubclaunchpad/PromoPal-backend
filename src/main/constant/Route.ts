@@ -5,4 +5,5 @@ export enum Route {
   PROMOTIONS = '/promotions',
   ENUMS = '/enums',
   USERS = '/users',
+  RESTAURANTS = '/restaurants',
 }

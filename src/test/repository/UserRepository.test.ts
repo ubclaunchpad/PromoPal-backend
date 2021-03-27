@@ -31,7 +31,10 @@ describe('Unit tests for UserRepository', function () {
   test('Should be able to store a user and successfully retrieve by id firebase', async () => {
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
-    const user = await userRepository.findByFirebaseId(expectedUser.firebaseId);
+    const user = await userRepository.findByFirebaseId(
+      expectedUser.firebaseId,
+      { cache: true }
+    );
     expect(user).toBeDefined();
     expect(user!.id).toEqual(expectedUser.id);
   });

@@ -12,6 +12,7 @@ import { Discount } from '../../main/entity/Discount';
 import { User } from '../../main/entity/User';
 import { UserFactory } from '../factory/UserFactory';
 import { Promotion } from '../../main/entity/Promotion';
+import { RestaurantFactory } from '../factory/RestaurantFactory';
 
 describe('Unit tests for DTOConverter', function () {
   let scheduleDTO: ScheduleDTO;
@@ -37,16 +38,12 @@ describe('Unit tests for DTOConverter', function () {
       description: 'Sample description',
       discount: discountDTO,
       expirationDate: new Date(),
-      lat: 0.99,
-      lon: 0.11,
       name: 'Sample name',
       placeId: 'Sample placeId',
       promotionType: PromotionType.BOGO,
-      restaurantName: 'Sample restaurantName',
       schedules: [scheduleDTO],
       startDate: new Date(),
       userId: 'fake userId',
-      restaurantAddress: '3012 Sample Ave, Vancouver BC',
     };
 
     userDTO = {
@@ -79,11 +76,17 @@ describe('Unit tests for DTOConverter', function () {
 
   it('Should be able to convert PromotionDTO to Promotion', () => {
     const user = new UserFactory().generate();
-    const promotion = DTOConverter.promotionDTOtoPromotion(promotionDTO, user);
+    const restaurant = new RestaurantFactory().generate();
+    const promotion = DTOConverter.promotionDTOtoPromotion(
+      promotionDTO,
+      user,
+      restaurant
+    );
     expect(promotion).toBeInstanceOf(Promotion);
 
     // userId is only needed to find the user
     const expectedPromotion = promotionDTO as any;
+    delete expectedPromotion.placeId;
     delete expectedPromotion.userId;
     expect(promotion).toMatchObject(promotionDTO);
     expect(promotion.schedules[0]).toEqual(scheduleDTO);

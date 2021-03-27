@@ -11,13 +11,11 @@ import {
   createFirebaseMock,
 } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
-import { DiscountFactory } from '../factory/DiscountFactory';
-import { ScheduleFactory } from '../factory/ScheduleFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
-import { CachingService } from '../../main/service/CachingService';
+import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -25,12 +23,10 @@ describe('Unit tests for PromotionController', function () {
   let app: Express;
   let mockRedisClient: RedisClient;
   let mockFirebaseAdmin: any;
-  let cachingService: CachingService;
 
   beforeAll(async () => {
     await connection.create();
     mockRedisClient = await connectRedisClient();
-    cachingService = new CachingService(mockRedisClient);
     // init mock firebase
     mockFirebaseAdmin = createFirebaseMock();
     app = await registerTestApplication(mockRedisClient, mockFirebaseAdmin);
@@ -49,15 +45,10 @@ describe('Unit tests for PromotionController', function () {
 
   test('GET /promotions', async (done) => {
     const user: User = new UserFactory().generate();
-    const discount = new DiscountFactory().generate();
-    const schedule = new ScheduleFactory().generate();
-    const promotion = new PromotionFactory().generate(user, discount, [
-      schedule,
-    ]);
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
-    await cacheLatLonForPromotions([promotion]);
 
     request(app)
       .get('/promotions')
@@ -74,22 +65,15 @@ describe('Unit tests for PromotionController', function () {
   test('GET /promotions - query parameters without search query', async (done) => {
     const user: User = new UserFactory().generate();
 
-    const promotion1 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion2 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.AMOUNT),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+
+    promotion1.discount.discountType = DiscountType.PERCENTAGE;
+    promotion2.discount.discountType = DiscountType.AMOUNT;
 
     await userRepository.save(user);
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
-
-    await cacheLatLonForPromotions([promotion1, promotion2]);
 
     request(app)
       .get('/promotions')
@@ -110,21 +94,9 @@ describe('Unit tests for PromotionController', function () {
     const searchKey = 'buffalo wings '; // purposefully have space after
     const user: User = new UserFactory().generate();
 
-    const promotion1 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion2 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.AMOUNT),
-      [new ScheduleFactory().generate()]
-    );
-    const promotion3 = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.OTHER),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
 
     // guarantee that search results will be hit
     promotion1.name = searchKey;
@@ -135,8 +107,6 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
     await promotionRepository.save(promotion3);
-
-    await cacheLatLonForPromotions([promotion1, promotion2, promotion3]);
 
     request(app)
       .get('/promotions')
@@ -160,16 +130,12 @@ describe('Unit tests for PromotionController', function () {
 
   test('GET /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
-    const discount = new DiscountFactory().generate();
-    const schedule = new ScheduleFactory().generate();
-    const expectedPromotion = new PromotionFactory().generate(user, discount, [
-      schedule,
-    ]);
+    const expectedPromotion = new PromotionFactory().generateWithRelatedEntities(
+      user
+    );
 
     await userRepository.save(user);
     await promotionRepository.save(expectedPromotion);
-
-    await cacheLatLonForPromotions([expectedPromotion]);
 
     request(app)
       .get(`/promotions/${expectedPromotion.id}`)
@@ -184,16 +150,20 @@ describe('Unit tests for PromotionController', function () {
 
   test('POST /promotions', async (done) => {
     const user: User = new UserFactory().generate();
-    const expectedPromotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
+    const expectedPromotion = new PromotionFactory().generateWithRelatedEntities(
+      user
     );
 
     await userRepository.save(user);
     request(app)
       .post('/promotions')
-      .send({ ...expectedPromotion, user: undefined, userId: user.id })
+      .send({
+        ...expectedPromotion,
+        user: undefined,
+        userId: user.id,
+        restaurant: undefined,
+        placeId: expectedPromotion.restaurant.placeId,
+      })
       .expect(201)
       .end((err, res) => {
         if (err) return done(err);
@@ -205,11 +175,7 @@ describe('Unit tests for PromotionController', function () {
 
   test('POST /promotions/ - invalid request body should be caught', async (done) => {
     const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     request(app)
@@ -219,6 +185,8 @@ describe('Unit tests for PromotionController', function () {
         user: undefined,
         userId: user.id,
         cuisine: 'nonexistentcuisinetype',
+        restaurant: undefined,
+        placeId: promotion.restaurant.placeId,
       })
       .expect(400)
       .end((err, res) => {
@@ -232,46 +200,18 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('POST /promotions/ - should not be able to add promotion if lat/lon do not exist', async (done) => {
-    const user: User = new UserFactory().generate();
-    const expectedPromotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
-
-    delete expectedPromotion.lat;
-    delete expectedPromotion.lon;
-
-    await userRepository.save(user);
-    request(app)
-      .post('/promotions')
-      .send({ ...expectedPromotion, user: undefined, userId: user.id })
-      .expect(400)
-      .end((err, res) => {
-        const frontEndErrorObject = res.body;
-        expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
-        expect(frontEndErrorObject.message).toHaveLength(2);
-        expect(frontEndErrorObject.message[0]).toContain('"lat" is required');
-        expect(frontEndErrorObject.message[1]).toContain('"lon" is required');
-        done();
-      });
-  });
-
   test('POST /promotions/ - should not be able to add promotion if user does not exist', async (done) => {
     const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     request(app)
       .post('/promotions')
       .send({
         ...promotion,
+        restaurant: undefined,
         user: undefined,
         userId: '65d7bc0a-6490-4e09-82e0-cb835a64e1b8', // non-existent user UUID
+        placeId: promotion.restaurant.placeId,
       })
       .expect(400)
       .end((err, res) => {
@@ -285,13 +225,74 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
+  test('POST /promotions/ - if restaurant with same placeId exists in DB, promotion should reference that restaurant', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    // save a promotion with a restaurant
+    const existingPromotion = new PromotionFactory().generateWithRelatedEntities(
+      user
+    );
+    const existingRestaurant = existingPromotion.restaurant;
+
+    await userRepository.save(user);
+    await promotionRepository.save(existingPromotion);
+
+    request(app)
+      .post('/promotions')
+      .send({
+        ...promotion,
+        restaurant: undefined,
+        user: undefined,
+        userId: user.id,
+        placeId: existingRestaurant.placeId,
+      })
+      .expect(201)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotion = res.body as Promotion;
+        expect(promotion.restaurant).toEqual(existingRestaurant);
+        done();
+      });
+  });
+
+  test('POST /promotions/ - if restaurant with placeId does not exist in DB, promotion should create new restaurant', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+
+    request(app)
+      .post('/promotions')
+      .send({
+        ...promotion,
+        restaurant: undefined,
+        user: undefined,
+        userId: user.id,
+        placeId: promotion.restaurant.placeId,
+      })
+      .expect(201)
+      .end(async (err, res) => {
+        if (err) return done(err);
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            const restaurants = await transactionalEntityManager
+              .getCustomRepository(RestaurantRepository)
+              .find();
+            expect(restaurants).toHaveLength(1);
+
+            const actualPromotion = res.body;
+            comparePromotions(actualPromotion, promotion);
+            done();
+          }
+        );
+      });
+  });
+
   test('DELETE /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
@@ -322,11 +323,7 @@ describe('Unit tests for PromotionController', function () {
 
   test('POST /promotions/:id/upVote', async (done) => {
     const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
@@ -354,11 +351,7 @@ describe('Unit tests for PromotionController', function () {
 
   test('POST /promotions/:id/downVote', async (done) => {
     const user: User = new UserFactory().generate();
-    const promotion = new PromotionFactory().generate(
-      user,
-      new DiscountFactory().generate(DiscountType.PERCENTAGE),
-      [new ScheduleFactory().generate()]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
@@ -384,18 +377,6 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  async function cacheLatLonForPromotions(promotions: Promotion[]) {
-    for (const promotion of promotions) {
-      if (promotion.lat && promotion.lon) {
-        await cachingService.cacheLatLonValues(
-          promotion.placeId,
-          promotion.lat,
-          promotion.lon
-        );
-      }
-    }
-  }
-
   /**
    * Compare actual promotion against expected promotion
    * */
@@ -406,13 +387,8 @@ describe('Unit tests for PromotionController', function () {
     const promotionObject: any = {
       name: expectedPromotion.name,
       description: expectedPromotion.description,
-      placeId: expectedPromotion.placeId,
       expirationDate: expectedPromotion.expirationDate.toISOString(),
       startDate: expectedPromotion.startDate.toISOString(),
-      lat: expectedPromotion.lat,
-      lon: expectedPromotion.lon,
-      restaurantAddress: expectedPromotion.restaurantAddress,
-      restaurantName: expectedPromotion.restaurantName,
     };
 
     // since id is undefined in POST requests
@@ -433,6 +409,16 @@ describe('Unit tests for PromotionController', function () {
       }
       expect(actualPromotion.discount).toMatchObject(discountObject);
     }
+
+    // todo: uncomment this once https://promopal.atlassian.net/browse/PP-82 has been implemented
+    // if (expectedPromotion.restaurant) {
+    //   const restaurantObject: any = { ...expectedPromotion.restaurant };
+    //
+    //   if (!expectedPromotion.restaurant.id) {
+    //     delete restaurantObject.id;
+    //   }
+    //   expect(actualPromotion.restaurant).toMatchObject(restaurantObject);
+    // }
 
     if (expectedPromotion.schedules && expectedPromotion.schedules.length > 0) {
       const result = [];

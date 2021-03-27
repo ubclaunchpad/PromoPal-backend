@@ -14,50 +14,40 @@ import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
 import { Schedule } from './Schedule';
+import { Restaurant } from './Restaurant';
 
 /*
  * Represents a promotion
- * * A promotion is created by one user and can have many discounts
+ * * A promotion is created by one user and can have one discount, one restaurant, and many schedules.
  * */
 @Entity()
 export class Promotion {
   constructor(
     user: User,
     discount: Discount,
+    restaurant: Restaurant,
     schedules: Schedule[],
-    placeId: string,
     promotionType: PromotionType,
     cuisine: CuisineType,
     name: string,
     description: string,
     startDate: Date,
-    expirationDate: Date,
-    restaurantName: string,
-    restaurantAddress: string
+    expirationDate: Date
   ) {
     this.user = user;
     this.discount = discount;
+    this.restaurant = restaurant;
     this.schedules = schedules;
-    this.placeId = placeId;
     this.promotionType = promotionType;
     this.cuisine = cuisine;
     this.name = name;
     this.description = description;
     this.startDate = startDate;
     this.expirationDate = expirationDate;
-    this.restaurantName = restaurantName;
-    this.restaurantAddress = restaurantAddress;
   }
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  /*
-   * Represents Google Places API place_id
-   * Many promotions can come from the same restaurant and thus have the same placeId
-   * */
-  @Column()
-  placeId: string;
 
   /*
    * ManyToOne bidirectional relationship between Promotion and User
@@ -81,6 +71,22 @@ export class Promotion {
     nullable: false,
   })
   discount: Discount;
+
+  /*
+   * ManyToOne bidirectional relationship between Promotion and Restaurant
+   * Each promotion can have a single restaurant
+   * * IMPORTANT: We want delete the restaurant when restaurant no longer references any promotions.
+   * See RestaurantDeletion migration for how we handle this
+   *
+   * * We do NOT want cascade delete on foreign key restaurantId because we do not want to delete the promotions when a restaurant is deleted
+   * * Promotion is owning side of this association, contains column restaurantId
+   * */
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.promotion, {
+    nullable: false,
+    cascade: true,
+  })
+  @JoinColumn()
+  restaurant: Restaurant;
 
   /*
    * ManyToMany bidirectional relationship between Promotion and User
@@ -162,26 +168,6 @@ export class Promotion {
     select: false,
   })
   tsVector: string;
-
-  /*
-   * The restaurant name of the promotion
-   * Many promotions can come from the same restaurant and thus have the same restaurantName
-   * */
-  @Column()
-  restaurantName: string;
-
-  /*
-   * The restaurant address of the promotion
-   * Many promotions can come from the same restaurant and thus have the same restaurantAddress
-   * */
-  @Column()
-  restaurantAddress: string;
-
-  /*
-   * These are just temporary values due to caching restrictions for lat/lon
-   */
-  lon?: number;
-  lat?: number;
 
   /**
    * Not included in the constructor because when we create a promotion, starts at 0 votes
