@@ -9,6 +9,7 @@ import {
   connectRedisClient,
   registerTestApplication,
   createFirebaseMock,
+  createGeocodingServiceMock,
 } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
@@ -33,7 +34,13 @@ describe('Unit tests for UserController', function () {
     // init mock firebase
     mockFirebaseAdmin = createFirebaseMock();
 
-    app = await registerTestApplication(redisClient, mockFirebaseAdmin);
+    // init mock geocodingService
+    const mockGeocodingService = createGeocodingServiceMock();
+    app = await registerTestApplication(
+      redisClient,
+      mockFirebaseAdmin,
+      mockGeocodingService
+    );
 
     mockFirebaseAdmin.autoFlush();
 

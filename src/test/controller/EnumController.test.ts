@@ -5,6 +5,7 @@ import {
   connectRedisClient,
   registerTestApplication,
   createFirebaseMock,
+  createGeocodingServiceMock,
 } from './BaseController';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionType } from '../../main/data/PromotionType';
@@ -22,7 +23,13 @@ describe('Unit tests for PromotionController', function () {
     redisClient = await connectRedisClient();
     // init mock firebase
     mockFireabseAdmin = createFirebaseMock();
-    app = await registerTestApplication(redisClient, mockFireabseAdmin);
+    // init mock geocodingService
+    const mockGeocodingService = createGeocodingServiceMock();
+    app = await registerTestApplication(
+      redisClient,
+      mockFireabseAdmin,
+      mockGeocodingService
+    );
   });
 
   afterAll(async () => {

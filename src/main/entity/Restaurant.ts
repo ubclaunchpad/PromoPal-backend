@@ -8,8 +8,8 @@ import { Promotion } from './Promotion';
 export class Restaurant {
   constructor(placeId: string, lat?: number, lon?: number) {
     this.placeId = placeId;
-    this.lat = lat || null;
-    this.lon = lon || null;
+    this.lat = lat;
+    this.lon = lon;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -37,7 +37,7 @@ export class Restaurant {
     type: 'real',
     nullable: true,
   })
-  lat: number | null;
+  lat?: number;
 
   /**
    * Longitude coordinates of restaurant
@@ -46,5 +46,5 @@ export class Restaurant {
     type: 'real',
     nullable: true,
   })
-  lon: number | null;
+  lon?: number;
 }

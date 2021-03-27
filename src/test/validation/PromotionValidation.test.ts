@@ -41,7 +41,7 @@ describe('Unit tests for PromotionValidation', function () {
       name: 'name',
       placeId: '123123123',
       userId: '56588b66-7bc3-4245-98c2-5e3d4e3bd2a6',
-      googlePlacesAddress: '3094 Random Ave, Vancouver BC V1M0M4',
+      address: '3094 Random Ave, Vancouver BC V1M0M4',
     };
   });
 
@@ -371,16 +371,16 @@ describe('Unit tests for PromotionValidation', function () {
     }
   });
 
-  test('Should fail if googlePlacesAddress is undefined', async () => {
+  test('Should fail if address is undefined', async () => {
     try {
-      promotionDTO.googlePlacesAddress = undefined;
+      promotionDTO.address = undefined;
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
       });
       fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"googlePlacesAddress" is required');
+      expect(e.details[0].message).toEqual('"address" is required');
     }
   });
 
@@ -397,7 +397,7 @@ describe('Unit tests for PromotionValidation', function () {
         name: 3,
         placeId: 4,
         userId: false,
-        googlePlacesAddress: 5,
+        address: 5,
       };
       await PromotionValidation.schema.validateAsync(promotionDTO, {
         abortEarly: false,
@@ -416,9 +416,7 @@ describe('Unit tests for PromotionValidation', function () {
         '"expirationDate" must be a valid date'
       );
       expect(e.details[8].message).toEqual('"startDate" must be a valid date');
-      expect(e.details[9].message).toEqual(
-        '"googlePlacesAddress" must be a string'
-      );
+      expect(e.details[9].message).toEqual('"address" must be a string');
     }
   });
 });

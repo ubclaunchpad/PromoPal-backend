@@ -20,8 +20,8 @@ import { GeocodingService } from '../service/GeocodingService';
 export class PromotionController {
   private geocodingService: GeocodingService;
 
-  constructor() {
-    this.geocodingService = new GeocodingService();
+  constructor(geocodingService: GeocodingService) {
+    this.geocodingService = geocodingService;
   }
 
   /**
@@ -121,21 +121,15 @@ export class PromotionController {
           .findOne({ placeId: promotionDTO.placeId });
 
         if (!restaurant) {
-          const coordinates = await this.geocodingService.getGeoCoordinatesFromAddress(
-            promotionDTO.googlePlacesAddress
+          const geoCoordinate = await this.geocodingService.getGeoCoordinateFromAddress(
+            promotionDTO.address
           );
-          if (coordinates.lat && coordinates.lon) {
-            restaurant = new Restaurant(
-              promotionDTO.placeId,
-              coordinates.lat,
-              coordinates.lon
-            );
-          } else {
-            restaurant = new Restaurant(promotionDTO.placeId);
-          }
-          await transactionalEntityManager
-            .getCustomRepository(RestaurantRepository)
-            .save(restaurant);
+
+          restaurant = new Restaurant(
+            promotionDTO.placeId,
+            geoCoordinate.lat,
+            geoCoordinate.lon
+          );
         }
 
         const promotion = DTOConverter.promotionDTOtoPromotion(

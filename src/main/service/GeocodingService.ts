@@ -1,40 +1,33 @@
 import nodeGeocoder, { Entry, Geocoder, Options } from 'node-geocoder';
-import { GeocodingObject } from '../data/GeocodingObject';
-import * as dotenv from 'dotenv';
+import { GeoCoordinate } from '../data/GeoCoordinate';
 
 /**
- * A Node library for geocoding our restaurant addresses
+ * Class used for geocoding our restaurant addresses into lat/lon values
  */
 export class GeocodingService {
   private geocoder: Geocoder;
 
-  constructor() {
-    dotenv.config();
-    const options: Options = {
-      provider: 'locationiq',
-      apiKey: process.env.GEOCODING_KEY,
-    };
+  constructor(options: Options) {
     this.geocoder = nodeGeocoder(options);
   }
 
-  public getGeoCoordinatesFromAddress(
+  /**
+   * Geocode the address
+   * NOTE: The resulting latitude and longitude values may be null
+   * @param address The address of the restaurant
+   */
+  public async getGeoCoordinateFromAddress(
     address: string
-  ): Promise<GeocodingObject> {
-    return this.geocoder
-      .geocode(address)
-      .then((entries: Entry[]) => {
-        const result: GeocodingObject = {};
+  ): Promise<GeoCoordinate> {
+    const entries: Entry[] = await this.geocoder.geocode(address);
+    const result: GeoCoordinate = {};
 
-        if (entries?.length) {
-          const geocodeResult = entries[0];
-          result.lat = geocodeResult.latitude;
-          result.lon = geocodeResult.longitude;
-        }
+    if (entries?.length) {
+      const geocodeResult = entries[0];
+      result.lat = geocodeResult.latitude;
+      result.lon = geocodeResult.longitude;
+    }
 
-        return result;
-      })
-      .catch(() => {
-        return {};
-      });
+    return result;
   }
 }

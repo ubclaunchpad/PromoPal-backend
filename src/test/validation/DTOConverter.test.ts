@@ -44,7 +44,7 @@ describe('Unit tests for DTOConverter', function () {
       schedules: [scheduleDTO],
       startDate: new Date(),
       userId: 'fake userId',
-      googlePlacesAddress: '3094 Random Ave, Vancouver BC, V03M31',
+      address: '3094 Random Ave, Vancouver BC, V03M31',
     };
 
     userDTO = {
@@ -89,7 +89,8 @@ describe('Unit tests for DTOConverter', function () {
     const expectedPromotion = promotionDTO as any;
     delete expectedPromotion.placeId;
     delete expectedPromotion.userId;
-    expect(promotion).toMatchObject(promotionDTO);
+    delete expectedPromotion.address;
+    expect(promotion).toMatchObject(expectedPromotion);
     expect(promotion.schedules[0]).toEqual(scheduleDTO);
     expect(promotion.discount).toEqual(discountDTO);
     expect(promotion.user).toEqual(user);
