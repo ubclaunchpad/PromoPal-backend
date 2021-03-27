@@ -1,8 +1,6 @@
 import * as admin from 'firebase-admin';
-import * as dotenv from 'dotenv';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
-dotenv.config();
 
 export function initFirebaseAdmin(): Auth {
   admin.initializeApp({
