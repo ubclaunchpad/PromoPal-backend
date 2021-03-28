@@ -7,10 +7,6 @@ import { User } from '../../main/entity/User';
 import { Promotion } from '../../main/entity/Promotion';
 import { UserFactory } from '../factory/UserFactory';
 import { PromotionFactory } from '../factory/PromotionFactory';
-import { Discount } from '../../main/entity/Discount';
-import { DiscountFactory } from '../factory/DiscountFactory';
-import { Schedule } from '../../main/entity/Schedule';
-import { ScheduleFactory } from '../factory/ScheduleFactory';
 
 describe('Unit tests for SavedPromotionRepository', function () {
   let savedPromotionRepository: SavedPromotionRepository;
@@ -34,12 +30,8 @@ describe('Unit tests for SavedPromotionRepository', function () {
   test('Should be able to store a savedpromotion and successfully retrieve the saved promotion', async () => {
     // make a promotion
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
+    const promotion: Promotion = new PromotionFactory().generateWithRelatedEntities(
+      user
     );
     await userRepository.save(user);
     await promotionRepository.save(promotion);
@@ -64,12 +56,8 @@ describe('Unit tests for SavedPromotionRepository', function () {
   test('Should not able to store two same promotion for one user', async () => {
     // make a promotion
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
+    const promotion: Promotion = new PromotionFactory().generateWithRelatedEntities(
+      user
     );
     await userRepository.save(user);
     await promotionRepository.save(promotion);
@@ -90,12 +78,8 @@ describe('Unit tests for SavedPromotionRepository', function () {
   test('Should be able to store a savedpromotion and successfully delete the saved promotion', async () => {
     // make a promotion
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
+    const promotion: Promotion = new PromotionFactory().generateWithRelatedEntities(
+      user
     );
     await userRepository.save(user);
     await promotionRepository.save(promotion);
