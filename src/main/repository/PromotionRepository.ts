@@ -23,7 +23,7 @@ export class PromotionRepository extends Repository<Promotion> {
       JSON.stringify(promotionQuery) !== JSON.stringify({})
     ) {
       const promotions = await this.applyQueryOptions(promotionQuery);
-      if (promotionQuery.userId && promotions.length != 0) {
+      if (promotionQuery.userId && promotions.length) {
         return this.findPromotionsUserSaved(promotionQuery.userId, promotions);
       }
       return promotions;

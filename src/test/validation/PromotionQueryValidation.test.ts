@@ -278,10 +278,11 @@ describe('Unit tests for PromotionQueryValidation', function () {
 
   test('Should fail if userId is not uuid', async () => {
     try {
-      promotionQueryDTO.dayOfWeek = Day.MONDAY;
+      promotionQueryDTO.userId = 'b271dde4-c938-4dd4-aba6-cdcd23b9194d0000';
       await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
         abortEarly: false,
       });
+      fail('Should have failed');
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"userId" must be a valid GUID');
