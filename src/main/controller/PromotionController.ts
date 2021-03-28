@@ -16,13 +16,12 @@ import { DTOConverter } from '../validation/DTOConverter';
 import { RestaurantRepository } from '../repository/RestaurantRepository';
 import { Restaurant } from '../entity/Restaurant';
 import { GeocodingService } from '../service/GeocodingService';
-import { Geocoder } from 'node-geocoder';
 
 export class PromotionController {
   private geocodingService: GeocodingService;
 
-  constructor(nodeGeocoder: Geocoder) {
-    this.geocodingService = new GeocodingService(nodeGeocoder);
+  constructor(geocodingService: GeocodingService) {
+    this.geocodingService = geocodingService;
   }
 
   /**

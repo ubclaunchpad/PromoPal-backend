@@ -36,6 +36,7 @@ import { RestaurantRouter } from './route/RestaurantRouter';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 import nodeGeocoder, { Geocoder } from 'node-geocoder';
+import { GeocodingService } from './service/GeocodingService';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -97,7 +98,8 @@ export class App {
     const restaurantRouter = new RestaurantRouter(restaurantController);
     app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
 
-    const promotionController = new PromotionController(nodeGeocoder);
+    const geocodingService = new GeocodingService(nodeGeocoder);
+    const promotionController = new PromotionController(geocodingService);
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 
