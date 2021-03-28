@@ -35,13 +35,7 @@ describe('Unit test for VoteRecord', function () {
   test('Should be able to create a new voteRecord', async () => {
     // make a promotion
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
@@ -65,13 +59,7 @@ describe('Unit test for VoteRecord', function () {
   test('Should not able to create two vote record for one user', async () => {
     // make a promotion
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     // save the promotion
@@ -91,13 +79,7 @@ describe('Unit test for VoteRecord', function () {
   test('Should be able to edit the vote state', async () => {
     // make a promotion
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
@@ -153,13 +135,7 @@ describe('Unit test for VoteRecord', function () {
 
   test('Vote record should be removed when respective promotion is deleted', async () => {
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
@@ -191,11 +167,7 @@ describe('Unit test for VoteRecord', function () {
     const user: User = new UserFactory().generate();
     const discount: Discount = new DiscountFactory().generate();
     const schedule: Schedule = new ScheduleFactory().generate();
-    const promotion: Promotion = new PromotionFactory().generate(
-      user,
-      discount,
-      [schedule]
-    );
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
