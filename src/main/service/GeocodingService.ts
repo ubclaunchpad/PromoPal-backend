@@ -7,8 +7,8 @@ import { GeoCoordinate } from '../data/GeoCoordinate';
 export class GeocodingService {
   private geocoder: Geocoder;
 
-  constructor(options: Options) {
-    this.geocoder = nodeGeocoder(options);
+  constructor(nodeGeocoder: Geocoder) {
+    this.geocoder = nodeGeocoder;
   }
 
   /**
@@ -23,6 +23,8 @@ export class GeocodingService {
     const result: GeoCoordinate = {};
 
     if (entries?.length) {
+      // currently just taking first result, may require future refactoring for more accurate approach
+      // https://promopal.atlassian.net/browse/PP-95
       const geocodeResult = entries[0];
       result.lat = geocodeResult.latitude;
       result.lon = geocodeResult.longitude;

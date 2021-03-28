@@ -35,7 +35,7 @@ import { RestaurantController } from './controller/RestaurantController';
 import { RestaurantRouter } from './route/RestaurantRouter';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
-import { GeocodingService } from './service/GeocodingService';
+import nodeGeocoder, { Geocoder } from 'node-geocoder';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -51,7 +51,7 @@ export class App {
 
       this.redisClient = await this.createRedisClient();
       this.firebaseAdmin = await initFirebaseAdmin();
-      const geocodingService = new GeocodingService({
+      const geocoder = nodeGeocoder({
         provider: 'locationiq',
         apiKey: process.env.GEOCODING_KEY,
       });
@@ -60,7 +60,7 @@ export class App {
         app,
         this.redisClient,
         this.firebaseAdmin,
-        geocodingService
+        geocoder
       );
 
       // load sample data
@@ -84,7 +84,7 @@ export class App {
     app: Express,
     redisClient: RedisClient,
     firebaseAdmin: Auth,
-    geocodingService: GeocodingService,
+    nodeGeocoder: Geocoder,
     axiosInstance?: AxiosInstance
   ): Promise<void> {
     app.use(bodyParser.json());
@@ -97,7 +97,7 @@ export class App {
     const restaurantRouter = new RestaurantRouter(restaurantController);
     app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
 
-    const promotionController = new PromotionController(geocodingService);
+    const promotionController = new PromotionController(nodeGeocoder);
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 

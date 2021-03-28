@@ -9,7 +9,7 @@ import {
   connectRedisClient,
   registerTestApplication,
   createFirebaseMock,
-  createGeocodingServiceMock,
+  createMockNodeGeocoder,
 } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
@@ -31,12 +31,12 @@ describe('Unit tests for PromotionController', function () {
     mockRedisClient = await connectRedisClient();
     // init mock firebase
     mockFirebaseAdmin = createFirebaseMock();
-    // init mock geocodingService
-    const mockGeocodingService = createGeocodingServiceMock();
+    // init mock geocoder
+    const mockNodeGeocoder = createMockNodeGeocoder();
     app = await registerTestApplication(
       mockRedisClient,
       mockFirebaseAdmin,
-      mockGeocodingService
+      mockNodeGeocoder
     );
   });
 

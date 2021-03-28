@@ -6,7 +6,7 @@ import Auth = auth.Auth;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const firebaseMock = require('firebase-mock');
 import { AxiosInstance } from 'axios';
-import { GeocodingService } from '../../main/service/GeocodingService';
+import nodeGeocoder, { Geocoder } from 'node-geocoder';
 
 /**
  * Creates an express app and registers all handlers and routes
@@ -15,7 +15,7 @@ import { GeocodingService } from '../../main/service/GeocodingService';
 export const registerTestApplication = async (
   redisClient: RedisClient,
   firebaseAdmin: Auth,
-  geocodingService: GeocodingService,
+  geocoder: Geocoder,
   axiosInstance?: AxiosInstance
 ): Promise<Express> => {
   const app = new App();
@@ -24,7 +24,7 @@ export const registerTestApplication = async (
     expressApp,
     redisClient,
     firebaseAdmin,
-    geocodingService,
+    geocoder,
     axiosInstance
   );
   return expressApp;
@@ -68,8 +68,8 @@ export const createFirebaseMock = (): Auth => {
   return mockSdk.auth();
 };
 
-export const createGeocodingServiceMock = (): GeocodingService => {
-  return new GeocodingService({
+export const createMockNodeGeocoder = (): Geocoder => {
+  return nodeGeocoder({
     provider: 'openstreetmap',
   });
 };
