@@ -1,4 +1,4 @@
-import nodeGeocoder, { Entry, Geocoder, Options } from 'node-geocoder';
+import { Entry, Geocoder } from 'node-geocoder';
 import { GeoCoordinate } from '../data/GeoCoordinate';
 
 /**
