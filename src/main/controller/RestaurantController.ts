@@ -27,7 +27,7 @@ export class RestaurantController {
           abortEarly: false,
         });
 
-        // find all ids of promotions who have the same restaurantId
+        // find all promotions who have the same restaurantId
         const promotions = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .createQueryBuilder('promotion')
