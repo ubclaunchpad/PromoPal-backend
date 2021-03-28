@@ -31,6 +31,7 @@ export class PromotionQueryValidation {
     sort: Joi.string().valid(...Object.values(Sort)),
     lat: Joi.number(),
     lon: Joi.number(),
+    userId: Joi.string().uuid(),
   })
     .required()
     /**
@@ -51,4 +52,5 @@ export interface PromotionQueryDTO {
   sort?: Sort;
   lat?: number;
   lon?: number;
+  userId?: string;
 }
