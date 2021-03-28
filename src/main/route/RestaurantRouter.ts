@@ -13,6 +13,10 @@ export class RestaurantRouter {
       '/:id/restaurantDetails/',
       this.restaurantController.getRestaurantDetails
     );
+    this.restaurantRouter.get(
+      '/:id/promotions',
+      this.restaurantController.getPromotions
+    );
     return this.restaurantRouter;
   }
 }

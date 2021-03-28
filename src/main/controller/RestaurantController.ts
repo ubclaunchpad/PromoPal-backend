@@ -4,6 +4,7 @@ import { IdValidation } from '../validation/IdValidation';
 import { GooglePlacesService } from '../service/GooglePlacesService';
 import { Place, Status } from '@googlemaps/google-maps-services-js';
 import { RestaurantRepository } from '../repository/RestaurantRepository';
+import { PromotionRepository } from '../repository/PromotionRepository';
 
 export class RestaurantController {
   private googlePlacesService: GooglePlacesService;
@@ -11,6 +12,37 @@ export class RestaurantController {
   constructor(googlePlacesService: GooglePlacesService) {
     this.googlePlacesService = googlePlacesService;
   }
+
+  /**
+   * Get all the promotions for a restaurant
+   */
+  getPromotions = async (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ): Promise<any> => {
+    try {
+      await getManager().transaction(async (transactionalEntityManager) => {
+        const id = await IdValidation.schema.validateAsync(request.params.id, {
+          abortEarly: false,
+        });
+
+        // find all promotions who have the same restaurantId
+        const promotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .createQueryBuilder('promotion')
+          .innerJoinAndSelect('promotion.discount', 'discount')
+          .innerJoinAndSelect('promotion.schedules', 'schedule')
+          .where('promotion.restaurantId = :id', { id })
+          .cache(true)
+          .getMany();
+
+        return response.status(200).send(promotions);
+      });
+    } catch (e) {
+      return next(e);
+    }
+  };
 
   /* *
    * Get the restaurant details of a restaurant

@@ -17,10 +17,14 @@ import axios, { AxiosInstance } from 'axios';
 import { Place } from '@googlemaps/google-maps-services-js';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { RestaurantFactory } from '../factory/RestaurantFactory';
+import { PromotionFactory } from '../factory/PromotionFactory';
+import { PromotionRepository } from '../../main/repository/PromotionRepository';
+import { Promotion } from '../../main/entity/Promotion';
 
 describe('Unit tests for RestaurantController', function () {
   let userRepository: UserRepository;
   let restaurantRepository: RestaurantRepository;
+  let promotionRepository: PromotionRepository;
   let app: Express;
   let mockRedisClient: RedisClient;
   let mockFirebaseAdmin: any;
@@ -50,6 +54,7 @@ describe('Unit tests for RestaurantController', function () {
     await connection.clear();
     userRepository = getCustomRepository(UserRepository);
     restaurantRepository = getCustomRepository(RestaurantRepository);
+    promotionRepository = getCustomRepository(PromotionRepository);
     customAxiosMockAdapter = new CustomAxiosMockAdapter(axiosInstance);
   });
 
@@ -153,6 +158,45 @@ describe('Unit tests for RestaurantController', function () {
         // should be able to get restaurant details with new placeId
         const restaurantDetails = res.body as Place;
         expect(restaurantDetails).toEqual({});
+        done();
+      });
+  });
+
+  test('GET /restaurants/:id/promotions should return all promotions for a specified restaurant', async (done) => {
+    const user: User = new UserFactory().generate();
+    const restaurant = new RestaurantFactory().generate();
+
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
+
+    promotion1.restaurant = restaurant;
+    promotion2.restaurant = restaurant;
+
+    await userRepository.save(user);
+    await restaurantRepository.save(restaurant);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+
+    const expectedPromotions = [promotion1, promotion2];
+
+    request(app)
+      .get(`/restaurants/${restaurant.id}/promotions`)
+      .expect(200)
+      .end(async (err, res) => {
+        if (err) return done(err);
+        // should be able to get restaurant details with new placeId
+        const promotions = res.body as Promotion[];
+        expect(promotions.length).toEqual(2);
+        for (const expectedPromotion of expectedPromotions) {
+          const p = promotions.find(
+            (promotion) => promotion.id === expectedPromotion.id
+          )!;
+          expect(p.discount).toBeDefined();
+          expect(p.schedules).toBeDefined();
+          expect(p.restaurant).not.toBeDefined();
+        }
         done();
       });
   });
