@@ -6,7 +6,7 @@ import { Promotion } from './Promotion';
  * */
 @Entity()
 export class Restaurant {
-  constructor(placeId: string, lat: number, lon: number) {
+  constructor(placeId: string, lat?: number, lon?: number) {
     this.placeId = placeId;
     this.lat = lat;
     this.lon = lon;
@@ -33,12 +33,18 @@ export class Restaurant {
   /**
    * Latitude coordinates of restaurant
    * */
-  @Column('real')
-  lat: number;
+  @Column({
+    type: 'real',
+    nullable: true,
+  })
+  lat?: number;
 
   /**
    * Longitude coordinates of restaurant
    * */
-  @Column('real')
-  lon: number;
+  @Column({
+    type: 'real',
+    nullable: true,
+  })
+  lon?: number;
 }

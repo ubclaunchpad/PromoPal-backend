@@ -8,6 +8,7 @@ import { UserFactory } from '../factory/UserFactory';
 import {
   connectRedisClient,
   createFirebaseMock,
+  createMockNodeGeocoder,
   registerTestApplication,
 } from './BaseController';
 import { RedisClient } from 'redis-mock';
@@ -35,9 +36,11 @@ describe('Unit tests for RestaurantController', function () {
     mockRedisClient = await connectRedisClient();
     axiosInstance = axios.create();
     mockFirebaseAdmin = createFirebaseMock();
+    const mockNodeGeocoder = createMockNodeGeocoder();
     app = await registerTestApplication(
       mockRedisClient,
       mockFirebaseAdmin,
+      mockNodeGeocoder,
       axiosInstance
     );
   });
