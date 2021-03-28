@@ -15,7 +15,7 @@ import {
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
-import { Sort } from '../../main/data/Sort';
+import { SortOptions } from '../../main/data/SortOptions';
 import { Promotion } from '../../main/entity/Promotion';
 import { RedisClient } from 'redis-mock';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
@@ -163,7 +163,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .get('/promotions')
       .query({
-        sort: Sort.DISTANCE,
+        sort: SortOptions.DISTANCE,
         lat: 49.282,
         lon: -123.1171,
       })
@@ -215,7 +215,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .get('/promotions')
       .query({
-        sort: Sort.POPULARITY,
+        sort: SortOptions.POPULARITY,
       })
       .expect(200)
       .end((err, res) => {
@@ -246,7 +246,7 @@ describe('Unit tests for PromotionController', function () {
     request(app)
       .get('/promotions')
       .query({
-        sort: Sort.POPULARITY,
+        sort: SortOptions.POPULARITY,
       })
       .expect(200)
       .end((err, res) => {

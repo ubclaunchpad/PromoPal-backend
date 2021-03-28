@@ -8,7 +8,7 @@ import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 import { Schedule } from '../entity/Schedule';
 import { SavedPromotion } from '../entity/SavedPromotion';
-import { Sort } from '../data/Sort';
+import { SortOptions } from '../data/SortOptions';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -199,7 +199,7 @@ export class PromotionRepository extends Repository<Promotion> {
     promotionQuery: PromotionQueryDTO
   ): SelectQueryBuilder<Promotion> {
     switch (promotionQuery.sort) {
-      case Sort.DISTANCE:
+      case SortOptions.DISTANCE:
         return queryBuilder
           .addSelect(
             // Note: formatted as (lon, lat) because this is more similar to the cartesian axes (x, y)
@@ -207,7 +207,7 @@ export class PromotionRepository extends Repository<Promotion> {
             'distance'
           )
           .orderBy('distance', 'ASC');
-      case Sort.POPULARITY:
+      case SortOptions.POPULARITY:
         /**
          * Calculates a "popularity score" for each promotion based on the recency of saves.
          * This query gives higher weight to promotions that have been recently saved in the past month.
@@ -245,7 +245,7 @@ export class PromotionRepository extends Repository<Promotion> {
               .where('"promotion"."id" = "SP"."promotionId"');
           }, 'popularity')
           .orderBy('popularity', 'DESC');
-      case Sort.RECENCY:
+      case SortOptions.RECENCY:
         return queryBuilder.addOrderBy('date_added', 'ASC');
       default:
         // No modifications to query
