@@ -1,13 +1,15 @@
 import { GeocodingService } from '../../main/service/GeocodingService';
 import { GeoCoordinate } from '../../main/data/GeoCoordinate';
 import { randomString } from '../utility/Utility';
-import { createMockNodeGeocoder } from '../controller/BaseController';
+import { BaseController } from '../controller/BaseController';
 
 describe('tests for Geocoding Service', function () {
   let geocodingService: GeocodingService;
 
   beforeAll(() => {
-    geocodingService = new GeocodingService(createMockNodeGeocoder());
+    geocodingService = new GeocodingService(
+      BaseController.createMockNodeGeocoder()
+    );
   });
 
   test('getting coordinates for Marutama Ramen', async () => {

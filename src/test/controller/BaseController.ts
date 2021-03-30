@@ -19,10 +19,10 @@ export class BaseController {
   axiosInstance: AxiosInstance;
 
   constructor() {
-    this.mockRedisClient = this.createRedisMock();
-    this.mockFirebaseAdmin = this.createFirebaseMock();
-    this.mockGeoCoder = this.createMockNodeGeocoder();
-    this.mockS3 = this.createS3Mock();
+    this.mockRedisClient = BaseController.createRedisMock();
+    this.mockFirebaseAdmin = BaseController.createFirebaseMock();
+    this.mockGeoCoder = BaseController.createMockNodeGeocoder();
+    this.mockS3 = BaseController.createS3Mock();
     this.axiosInstance = axios.create();
   }
 
@@ -46,12 +46,12 @@ export class BaseController {
     return expressApp;
   };
 
-  createRedisMock = (): RedisClient => {
+  static createRedisMock = (): RedisClient => {
     // see https://www.npmjs.com/package/redis-mock
     return redisMock.createClient();
   };
 
-  createFirebaseMock = (): Auth => {
+  static createFirebaseMock = (): Auth => {
     const mockAuth = new firebaseMock.MockAuthentication();
     const mockDatabase = new firebaseMock.MockFirebase();
     // const mockFirestore = new firebaseMock.MockFirestore();
@@ -84,13 +84,13 @@ export class BaseController {
     return mockSdk.auth();
   };
 
-  createMockNodeGeocoder = (): Geocoder => {
+  static createMockNodeGeocoder = (): Geocoder => {
     return nodeGeocoder({
       provider: 'openstreetmap',
     });
   };
 
-  createS3Mock = (): S3 => {
+  static createS3Mock = (): S3 => {
     return new AWSMock.S3();
   };
 
