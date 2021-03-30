@@ -60,11 +60,7 @@ export class App {
         accessKeyId: process.env.S3_ACCESS_KEY_ID,
         secretAccessKey: process.env.S3_SECRETE_ACCESS_KEY,
       });
-      const s3 = new AWS.S3({
-        params: {
-          Bucket: process.env.S3_UPLOAD_BUCKET,
-        },
-      });
+      const s3 = new AWS.S3();
 
       await this.registerHandlersAndRoutes(
         app,
