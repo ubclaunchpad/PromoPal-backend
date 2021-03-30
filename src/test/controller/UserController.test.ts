@@ -1,51 +1,35 @@
-import { getManager, getCustomRepository, EntityManager } from 'typeorm';
+import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { UserRepository } from '../../main/repository/UserRepository';
 import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
-import {
-  connectRedisClient,
-  registerTestApplication,
-  createFirebaseMock,
-  createMockNodeGeocoder,
-} from './BaseController';
+import { BaseController } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
-import { RedisClient } from 'redis-mock';
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
 import { Restaurant } from '../../main/entity/Restaurant';
+import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
-  let redisClient: RedisClient;
-  let mockFirebaseAdmin: any;
+  let baseController: BaseController;
   let firebaseId = '';
   let idToken = '';
 
   beforeAll(async () => {
     await connection.create();
-    redisClient = await connectRedisClient();
+    baseController = new BaseController();
+    app = await baseController.registerTestApplication();
 
-    // init mock firebase
-    mockFirebaseAdmin = createFirebaseMock();
-
-    // init mock geocoder
-    const mockNodeGeocoder = createMockNodeGeocoder();
-    app = await registerTestApplication(
-      redisClient,
-      mockFirebaseAdmin,
-      mockNodeGeocoder
-    );
-
-    mockFirebaseAdmin.autoFlush();
+    (baseController.mockFirebaseAdmin as any).autoFlush();
 
     // create user
-    const user = await mockFirebaseAdmin.createUser({
+    const user = await (baseController.mockFirebaseAdmin as any).createUser({
       email: 'test@gmail.com',
       password: 'testpassword',
     });
@@ -55,7 +39,7 @@ describe('Unit tests for UserController', function () {
 
   afterAll(async () => {
     await connection.close();
-    redisClient.quit();
+    await baseController.quit();
   });
 
   beforeEach(async () => {
@@ -416,6 +400,70 @@ describe('Unit tests for UserController', function () {
         expect(user).toHaveProperty('uploadedPromotions');
         compareUsers(user, expectedUser);
         expect(user.uploadedPromotions).toHaveLength(0);
+        done();
+      });
+  });
+
+  test('DELETE /users/:id should cleanup resources of promotions uploaded by the user', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
+    );
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
+    );
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(
+      expectedUser
+    );
+
+    await userRepository.save(expectedUser);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+
+    // create s3 objects
+    const expectedObject1 = '{"hello": 1}';
+    const expectedObject2 = '{"hello": 2}';
+    const expectedObject3 = '{"hello": 3}';
+
+    const expectedPromotions = [promotion1, promotion2, promotion3];
+    const expectedObjects = [expectedObject1, expectedObject2, expectedObject3];
+
+    for (let i = 0; i < expectedObjects.length; i++) {
+      const promotion = expectedPromotions[i];
+      const expectedObject = expectedObjects[i];
+
+      // save to mock s3
+      await baseController.mockS3
+        .putObject({
+          Key: promotion.id,
+          Body: expectedObject,
+          Bucket: S3_BUCKET,
+        })
+        .promise();
+      // check object put correctly
+      const object = await baseController.mockS3
+        .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+        .promise();
+      expect(object.Body!.toString()).toEqual(expectedObject);
+    }
+
+    request(app)
+      .delete(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
+      .expect(204)
+      .then(async () => {
+        for (let i = 0; i < expectedObjects.length; i++) {
+          try {
+            const promotion = expectedPromotions[i];
+            await baseController.mockS3
+              .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+              .promise();
+            fail('Should have thrown error');
+          } catch (e) {
+            expect(e.code).toEqual('NoSuchKey');
+          }
+        }
         done();
       });
   });

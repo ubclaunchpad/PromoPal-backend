@@ -16,12 +16,18 @@ import { DTOConverter } from '../validation/DTOConverter';
 import { RestaurantRepository } from '../repository/RestaurantRepository';
 import { Restaurant } from '../entity/Restaurant';
 import { GeocodingService } from '../service/GeocodingService';
+import { ResourceCleanupService } from '../service/ResourceCleanupService';
 
 export class PromotionController {
   private geocodingService: GeocodingService;
+  private resourceCleanupService: ResourceCleanupService;
 
-  constructor(geocodingService: GeocodingService) {
+  constructor(
+    geocodingService: GeocodingService,
+    resourceCleanupService: ResourceCleanupService
+  ) {
     this.geocodingService = geocodingService;
+    this.resourceCleanupService = resourceCleanupService;
   }
 
   /**
@@ -165,6 +171,7 @@ export class PromotionController {
         const promotion = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .delete(id);
+        await this.resourceCleanupService.cleanupResourceForPromotion(id);
         return response.status(204).send(promotion);
       });
     } catch (e) {

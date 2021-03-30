@@ -1,13 +1,14 @@
 import {
   EntityRepository,
   getConnection,
+  In,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
 import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 import { Schedule } from '../entity/Schedule';
-import { SavedPromotion } from '../entity/SavedPromotion';
+import { SavedPromotionRepository } from './SavedPromotionRepository';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -200,16 +201,17 @@ export class PromotionRepository extends Repository<Promotion> {
     promotions: Promotion[]
   ): Promise<Promotion[]> {
     const promotionIds = promotions.map((promotion: Promotion) => promotion.id);
-    const savedPromotionIds = await getConnection()
-      .createQueryBuilder(SavedPromotion, 'savedPromotions')
-      .select('savedPromotions.promotionId', 'id')
-      .where('savedPromotions.userId = :userId', { userId })
-      .andWhere('savedPromotions.promotionId IN (:...promotionIds)', {
-        promotionIds,
-      })
-      .getRawMany();
+    const savedPromotions = await getConnection()
+      .getCustomRepository(SavedPromotionRepository)
+      .find({
+        select: ['promotionId'],
+        where: {
+          userId,
+          promotionId: In(promotionIds),
+        },
+      });
     const set = new Set(
-      savedPromotionIds.map((savedPromotionId) => savedPromotionId.id)
+      savedPromotions.map((savedPromotion) => savedPromotion.promotionId)
     );
     return promotions.map((promotion: Promotion) => {
       promotion.isSavedByUser = set.has(promotion.id);
