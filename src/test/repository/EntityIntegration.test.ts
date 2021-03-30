@@ -21,6 +21,7 @@ import { CuisineType } from '../../main/data/CuisineType';
 import { Day } from '../../main/data/Day';
 import { RestaurantFactory } from '../factory/RestaurantFactory';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
+import { SavedPromotion } from '../../main/entity/SavedPromotion';
 
 describe('Integration tests for all entities', function () {
   const SAMPLE_SEARCH_QUERY = 'beef cafe';
@@ -814,6 +815,117 @@ describe('Integration tests for all entities', function () {
       expect(e.message).toContain(
         'update or delete on table "restaurant" violates foreign key constraint'
       );
+    }
+  });
+
+  test('Promotions should tell whether user has saved the promotion or not if userId is provided to query', async () => {
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
+    await userRepository.save(user);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+    await savedPromotionRepository.save(new SavedPromotion(user, promotion1));
+    await savedPromotionRepository.save(new SavedPromotion(user, promotion2));
+
+    const promotionQueryDTO: PromotionQueryDTO = {
+      userId: user.id,
+    };
+
+    try {
+      const promotions: Promotion[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(3);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion1.id)
+          ?.isSavedByUser
+      ).toEqual(true);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion2.id)
+          ?.isSavedByUser
+      ).toEqual(true);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion3.id)
+          ?.isSavedByUser
+      ).toEqual(false);
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Finding promotions saved by user with search query should not fail', async () => {
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
+
+    promotion1.name = SAMPLE_SEARCH_QUERY;
+    promotion2.name = SAMPLE_SEARCH_QUERY;
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+    await savedPromotionRepository.save(new SavedPromotion(user, promotion1));
+
+    const promotionQueryDTO: PromotionQueryDTO = {
+      userId: user.id,
+      searchQuery: SAMPLE_SEARCH_QUERY,
+    };
+
+    try {
+      const promotions: PromotionFullTextSearch[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(2);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion1.id)
+          ?.isSavedByUser
+      ).toEqual(true);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion2.id)
+          ?.isSavedByUser
+      ).toEqual(false);
+      for (const promotion of promotions) {
+        expect(promotion.rank).toBeGreaterThan(0);
+        expect(promotion.boldName).toBeDefined();
+        expect(promotion.boldDescription).toBeDefined();
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Getting promotions without userId query param should not define isSavedByUser', async () => {
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+
+    try {
+      const promotions: Promotion[] = await promotionRepository.getAllPromotions(
+        {}
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(3);
+      for (const promotion of promotions) {
+        expect(promotion.isSavedByUser).toBeUndefined();
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
     }
   });
 });

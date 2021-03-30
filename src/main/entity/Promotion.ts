@@ -182,4 +182,9 @@ export class Promotion {
 
   @OneToMany(() => VoteRecord, (voteRecord) => voteRecord.promotion, {})
   votedBy: VoteRecord[];
+  /**
+   * True if the user has saved this promotion
+   * * Note this is used for endpoints that need to be aware of the user making the request
+   * */
+  isSavedByUser?: boolean;
 }
