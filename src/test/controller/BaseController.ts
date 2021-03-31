@@ -94,7 +94,7 @@ export class BaseController {
     return new AWSMock.S3();
   };
 
-  quit = async () => {
+  quit = async (): Promise<void> => {
     this.mockRedisClient.quit();
     await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
   };
