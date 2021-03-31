@@ -1,4 +1,5 @@
 import {
+  Brackets,
   EntityRepository,
   getConnection,
   Repository,
@@ -8,6 +9,7 @@ import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 import { Schedule } from '../entity/Schedule';
 import { SavedPromotion } from '../entity/SavedPromotion';
+import { VoteRecord, VoteState } from '../entity/VoteRecord';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -22,9 +24,15 @@ export class PromotionRepository extends Repository<Promotion> {
       promotionQuery &&
       JSON.stringify(promotionQuery) !== JSON.stringify({})
     ) {
-      const promotions = await this.applyQueryOptions(promotionQuery);
+      let promotions: Promotion[] = await this.applyQueryOptions(
+        promotionQuery
+      );
       if (promotionQuery.userId && promotions.length) {
-        return this.findPromotionsUserSaved(promotionQuery.userId, promotions);
+        promotions = await this.findPromotionsUserSaved(
+          promotionQuery.userId,
+          promotions
+        );
+        return this.findPromotionsUserVoted(promotionQuery.userId, promotions);
       }
       return promotions;
     } else {
@@ -213,6 +221,40 @@ export class PromotionRepository extends Repository<Promotion> {
     );
     return promotions.map((promotion: Promotion) => {
       promotion.isSavedByUser = set.has(promotion.id);
+      return promotion;
+    });
+  }
+
+  /**
+   * Like as we did in findPromotionUserSaved, check all promotions is voted by the user
+   * @param userId the id of the user
+   * @param promotions the promotions we want to find out if the user saved
+   */
+  private async findPromotionsUserVoted(
+    userId: string,
+    promotions: Promotion[]
+  ): Promise<Promotion[]> {
+    const promotionIds = promotions.map((promotion: Promotion) => promotion.id);
+    const voteRecordIds = await getConnection()
+      .createQueryBuilder(VoteRecord, 'voteRecords')
+      .select('voteRecords.promotionId', 'id')
+      .where('voteRecords.userId = :userId', { userId })
+      .andWhere('voteRecords.promotionId IN (:...promotionIds)', {
+        promotionIds,
+      })
+      .getRawMany();
+    const map = new Map<string, VoteState>(
+      voteRecordIds.map((voteRecordId) => [
+        voteRecordId.id,
+        voteRecordId.voteState,
+      ])
+    );
+    return promotions.map((promotion: Promotion) => {
+      if (map.has(promotion.id)) {
+        promotion.voteState = map.get(promotion.id);
+      } else {
+        promotion.voteState = VoteState.INIT;
+      }
       return promotion;
     });
   }
