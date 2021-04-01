@@ -228,7 +228,7 @@ export class PromotionRepository extends Repository<Promotion> {
   /**
    * Like as we did in findPromotionUserSaved, check all promotions is voted by the user
    * @param userId the id of the user
-   * @param promotions the promotions we want to find out if the user saved
+   * @param promotions the promotions we want to find out if the user voted
    */
   private async findPromotionsUserVoted(
     userId: string,
@@ -237,21 +237,24 @@ export class PromotionRepository extends Repository<Promotion> {
     const promotionIds = promotions.map((promotion: Promotion) => promotion.id);
     const voteRecordIds = await getConnection()
       .createQueryBuilder(VoteRecord, 'voteRecords')
-      .select('voteRecords.promotionId', 'id')
+      .select(['voteRecords.promotionId', 'voteRecords.voteState'])
       .where('voteRecords.userId = :userId', { userId })
       .andWhere('voteRecords.promotionId IN (:...promotionIds)', {
         promotionIds,
       })
       .getRawMany();
-    const map = new Map<string, VoteState>(
-      voteRecordIds.map((voteRecordId) => [
-        voteRecordId.id,
-        voteRecordId.voteState,
-      ])
+    // todo: I could not find way to initialize Map using map function, so using for loop
+    const dict = new Map<string, number>(
+      voteRecordIds.map((voteRecordId) => {
+        return [
+          voteRecordId['voteRecords_promotionId'],
+          voteRecordId['voteRecords_voteState'],
+        ];
+      })
     );
     return promotions.map((promotion: Promotion) => {
-      if (map.has(promotion.id)) {
-        promotion.voteState = map.get(promotion.id);
+      if (dict.has(promotion.id)) {
+        promotion.voteState = dict.get(promotion.id);
       } else {
         promotion.voteState = VoteState.INIT;
       }

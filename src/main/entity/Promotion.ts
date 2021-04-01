@@ -193,5 +193,5 @@ export class Promotion {
    * True if the user has voted this promotion
    * This is used for endpoints that need to be aware of the user making the request
    */
-  voteState?: VoteState;
+  voteState?: number;
 }
