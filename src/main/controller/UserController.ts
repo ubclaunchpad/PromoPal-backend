@@ -162,6 +162,20 @@ export class UserController {
         const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
+
+        const authenticatedUser = await userRepository.findByFirebaseId(
+          res.locals.firebaseUserId,
+          {
+            cache: true,
+          }
+        );
+
+        // todo: handle null authenticatedUser case
+
+        if (authenticatedUser?.id !== id) {
+          // todo: throw error
+        }
+
         const result = await userRepository.delete(id);
         return res.status(204).send(result);
       });
