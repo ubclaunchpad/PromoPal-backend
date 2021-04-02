@@ -5,13 +5,8 @@ import connection from './BaseRepositoryTest';
 import { getCustomRepository } from 'typeorm';
 import { User } from '../../main/entity/User';
 import { UserFactory } from '../factory/UserFactory';
-import { Discount } from '../../main/entity/Discount';
-import { DiscountFactory } from '../factory/DiscountFactory';
-import { Schedule } from '../../main/entity/Schedule';
-import { ScheduleFactory } from '../factory/ScheduleFactory';
-import { Promotion } from '../../main/entity/Promotion';
 import { PromotionFactory } from '../factory/PromotionFactory';
-import { VoteRecord, VoteState } from '../../main/entity/VoteRecord';
+import { VoteState } from '../../main/entity/VoteRecord';
 
 describe('Unit test for VoteRecord', function () {
   let voteRecordRepository: VoteRecordRepository;
@@ -165,8 +160,6 @@ describe('Unit test for VoteRecord', function () {
 
   test('Vote record should be removed when respective user is deleted', async () => {
     const user: User = new UserFactory().generate();
-    const discount: Discount = new DiscountFactory().generate();
-    const schedule: Schedule = new ScheduleFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     await userRepository.save(user);
     await promotionRepository.save(promotion);

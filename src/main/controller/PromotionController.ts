@@ -204,28 +204,32 @@ export class PromotionController {
             .getCustomRepository(VoteRecordRepository)
             .findOneOrFail({ userId: uid, promotionId: pid });
         } catch (e) {
-          // user vote first time
+          // vote record does not exist
           voteRecord = await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
-            .create({ userId: uid, promotionId: pid });
+            .create({ userId: uid, promotionId: pid, voteState: VoteState.UP });
           await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
             .save(voteRecord);
-        }
-
-        if (voteRecord.voteState === VoteState.UP) {
-          // user cannot vote twice
-          return response.status(204).send();
-        } else {
-          // user vote first time
           await transactionalEntityManager
             .getCustomRepository(PromotionRepository)
             .increment({ id: pid }, 'votes', 1);
+          return response.status(204).send();
         }
-        voteRecord.voteState =
-          voteRecord.voteState === VoteState.INIT
-            ? VoteState.UP
-            : VoteState.INIT;
+        // vote record exists
+        if (voteRecord.voteState === VoteState.UP) {
+          voteRecord.voteState = VoteState.INIT;
+          await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .decrement({ id: pid }, 'votes', 1);
+        } else {
+          const voteValue: number =
+            voteRecord.voteState === VoteState.DOWN ? 2 : 1;
+          voteRecord.voteState = VoteState.UP;
+          await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .increment({ id: pid }, 'votes', voteValue);
+        }
         await transactionalEntityManager
           .getCustomRepository(VoteRecordRepository)
           .save(voteRecord);
@@ -266,27 +270,36 @@ export class PromotionController {
             .getCustomRepository(VoteRecordRepository)
             .findOneOrFail({ userId: uid, promotionId: pid });
         } catch (e) {
-          // user vote first time
+          // vote record does not exist
           voteRecord = await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
-            .create({ userId: uid, promotionId: pid });
+            .create({
+              userId: uid,
+              promotionId: pid,
+              voteState: VoteState.DOWN,
+            });
           await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
             .save(voteRecord);
-        }
-        if (voteRecord.voteState === VoteState.DOWN) {
-          // user cannot downvote twice
-          return response.status(204).send();
-        } else {
-          // user downvote first time
           await transactionalEntityManager
             .getCustomRepository(PromotionRepository)
             .decrement({ id: pid }, 'votes', 1);
+          return response.status(204).send();
         }
-        voteRecord.voteState =
-          voteRecord.voteState === VoteState.INIT
-            ? VoteState.DOWN
-            : VoteState.INIT;
+        // vote record exists
+        if (voteRecord.voteState === VoteState.DOWN) {
+          voteRecord.voteState = VoteState.INIT;
+          await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .increment({ id: pid }, 'votes', 1);
+        } else {
+          const voteValue: number =
+            voteRecord.voteState === VoteState.UP ? 2 : 1;
+          voteRecord.voteState = VoteState.DOWN;
+          await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .decrement({ id: pid }, 'votes', voteValue);
+        }
         await transactionalEntityManager
           .getCustomRepository(VoteRecordRepository)
           .save(voteRecord);

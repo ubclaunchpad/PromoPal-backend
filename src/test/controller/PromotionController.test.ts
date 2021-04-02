@@ -502,7 +502,7 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('POST /promotions/:id/upVote - cannot upVote twice', async (done) => {
+  test('POST /promotions/:id/upVote - voting to become INIT', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
@@ -543,16 +543,16 @@ describe('Unit tests for PromotionController', function () {
               userId: votingUser.id,
               promotionId: promotion.id,
             });
-            expect(newPromotion.votes).toEqual(1);
+            expect(newPromotion.votes).toEqual(0);
             expect(newVoteRecord).toBeDefined();
-            expect(newVoteRecord.voteState).toEqual(VoteState.UP);
+            expect(newVoteRecord.voteState).toEqual(VoteState.INIT);
             done();
           }
         );
       });
   });
 
-  test('POST /promotions/:id/downVote - cannot downVote twice', async (done) => {
+  test('POST /promotions/:id/downVote - voting to become INIT', async (done) => {
     const user: User = new UserFactory().generate();
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
@@ -564,6 +564,56 @@ describe('Unit tests for PromotionController', function () {
 
     await request(app)
       .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(0);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.INIT);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/upVote - voting to become DOWN from UP', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
       .send({
         uid: votingUser.id,
       })
@@ -596,6 +646,56 @@ describe('Unit tests for PromotionController', function () {
             expect(newPromotion.votes).toEqual(-1);
             expect(newVoteRecord).toBeDefined();
             expect(newVoteRecord.voteState).toEqual(VoteState.DOWN);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/downVote - voting to become UP from DOWN', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.UP);
             done();
           }
         );
