@@ -967,22 +967,16 @@ describe('Integration tests for all entities', function () {
       expect(promotions).toBeDefined();
       expect(promotions.length).toEqual(3);
       expect(
-        Number(
-          promotions.find((promotion) => promotion.id === promotion1.id)
-            ?.voteState
-        )
+        promotions.find((promotion) => promotion.id === promotion1.id)
+          ?.voteState
       ).toEqual(1);
       expect(
-        Number(
-          promotions.find((promotion) => promotion.id === promotion2.id)
-            ?.voteState
-        )
+        promotions.find((promotion) => promotion.id === promotion2.id)
+          ?.voteState
       ).toEqual(VoteState.DOWN);
       expect(
-        Number(
-          promotions.find((promotion) => promotion.id === promotion3.id)
-            ?.voteState
-        )
+        promotions.find((promotion) => promotion.id === promotion3.id)
+          ?.voteState
       ).toEqual(VoteState.INIT);
     } catch (e) {
       fail('Should not have failed: ' + e);

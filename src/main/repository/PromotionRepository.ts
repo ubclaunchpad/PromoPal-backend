@@ -246,17 +246,14 @@ export class PromotionRepository extends Repository<Promotion> {
         },
       });
     // todo: I could not find way to initialize Map using map function, so using for loop
-    const dict = new Map<string, number>(
+    const promotionIdToVoteState = new Map<string, number>(
       voteRecords.map((voteRecord) => {
         return [voteRecord['promotionId'], voteRecord['voteState']];
       })
     );
     return promotions.map((promotion: Promotion) => {
-      if (dict.has(promotion.id)) {
-        promotion.voteState = dict.get(promotion.id);
-      } else {
-        promotion.voteState = VoteState.INIT;
-      }
+      promotion.voteState =
+        promotionIdToVoteState.get(promotion.id) ?? VoteState.INIT;
       return promotion;
     });
   }
