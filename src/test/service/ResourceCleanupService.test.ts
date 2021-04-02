@@ -56,6 +56,32 @@ describe('Unit tests for ResourceCleanupService', function () {
     }
   });
 
+  test('Should be able to successfully cleanup resources for multiple promotions at once', async () => {
+    const sampleKeys = ['key1', 'key2'];
+
+    try {
+      for (const sampleKey of sampleKeys) {
+        await s3
+          .putObject({
+            Key: sampleKey,
+            Body: '{"hello": 1}',
+            Bucket: S3_BUCKET,
+          })
+          .promise();
+      }
+
+      // should be able to successfully get the object
+      await s3.getObject({ Key: sampleKeys[0], Bucket: S3_BUCKET }).promise();
+
+      await resourceCleanupService.cleanupResourceForPromotions(sampleKeys);
+      for (const sampleKey of sampleKeys) {
+        await checkObjectDoesNotExist(sampleKey);
+      }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
   async function checkObjectDoesNotExist(key: string) {
     try {
       await s3.getObject({ Key: key, Bucket: S3_BUCKET }).promise();
