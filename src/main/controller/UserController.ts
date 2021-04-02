@@ -13,6 +13,7 @@ import { DTOConverter } from '../validation/DTOConverter';
 import { SavedPromotion } from '../entity/SavedPromotion';
 import { Promotion } from '../entity/Promotion';
 import { FirebaseIdValidation } from '../validation/FirebaseIdValidation';
+import Errors from '../libraries/Errors';
 
 export class UserController {
   /**
@@ -164,16 +165,11 @@ export class UserController {
         );
 
         const authenticatedUser = await userRepository.findByFirebaseId(
-          res.locals.firebaseUserId,
-          {
-            cache: true,
-          }
+          res.locals.firebaseUserId
         );
 
-        // todo: handle null authenticatedUser case
-
         if (authenticatedUser?.id !== id) {
-          // todo: throw error
+          throw Errors.INSUFFICIENT_PRIVILEGES();
         }
 
         const result = await userRepository.delete(id);

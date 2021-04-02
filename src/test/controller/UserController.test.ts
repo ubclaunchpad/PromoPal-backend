@@ -222,9 +222,57 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id', async (done) => {
+  test('DELETE /users/:id - ForbiddenError should be caught', async (done) => {
     const expectedUser: User = new UserFactory().generate();
+    expectedUser.firebaseId = 'randomfirebaseId';
+
+    const authenticatedUser: User = new UserFactory().generate();
+    authenticatedUser.firebaseId = firebaseId;
+
     await userRepository.save(expectedUser);
+    await userRepository.save(authenticatedUser);
+
+    request(app)
+      .delete(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
+      .expect(403)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toEqual(
+          'Your account does not have sufficient privileges to perform this action.'
+        );
+        done();
+      });
+  });
+
+  test('DELETE /users/:id - EntityNotFound error should be caught for authenticated user', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    expectedUser.firebaseId = 'randomfirebaseId';
+    await userRepository.save(expectedUser);
+
+    request(app)
+      .delete(`/users/${expectedUser.id}`)
+      .set('Authorization', idToken)
+      .expect(404)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('EntityNotFound');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toContain(
+          'Could not find any entity of type "User"'
+        );
+        expect(frontEndErrorObject.message[0]).toContain('firebaseId');
+        done();
+      });
+  });
+
+  test('DELETE /users/:id, should be successful', async (done) => {
+    const expectedUser: User = new UserFactory().generate();
+    expectedUser.firebaseId = firebaseId;
+    await userRepository.save(expectedUser);
+
     request(app)
       .delete(`/users/${expectedUser.id}`)
       .set('Authorization', idToken)

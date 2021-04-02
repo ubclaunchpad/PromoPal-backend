@@ -11,7 +11,7 @@ export class UserRepository extends Repository<User> {
 
   findByFirebaseId(
     firebaseId: string,
-    options: FindOneOptions<User>
+    options?: FindOneOptions<User>
   ): Promise<User | undefined> {
     return this.findOneOrFail({ firebaseId }, options);
   }
