@@ -1,7 +1,7 @@
 import {
-  Brackets,
   EntityRepository,
   getConnection,
+  In,
   Repository,
   SelectQueryBuilder,
 } from 'typeorm';
@@ -9,7 +9,8 @@ import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 import { Schedule } from '../entity/Schedule';
 import { SavedPromotion } from '../entity/SavedPromotion';
-import { VoteRecord, VoteState } from '../entity/VoteRecord';
+import { VoteState } from '../entity/VoteRecord';
+import { VoteRecordRepository } from './VoteRecordRepository';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -235,21 +236,19 @@ export class PromotionRepository extends Repository<Promotion> {
     promotions: Promotion[]
   ): Promise<Promotion[]> {
     const promotionIds = promotions.map((promotion: Promotion) => promotion.id);
-    const voteRecordIds = await getConnection()
-      .createQueryBuilder(VoteRecord, 'voteRecords')
-      .select(['voteRecords.promotionId', 'voteRecords.voteState'])
-      .where('voteRecords.userId = :userId', { userId })
-      .andWhere('voteRecords.promotionId IN (:...promotionIds)', {
-        promotionIds,
-      })
-      .getRawMany();
+    const voteRecords = await getConnection()
+      .getCustomRepository(VoteRecordRepository)
+      .find({
+        select: ['promotionId', 'voteState'],
+        where: {
+          userId,
+          promotionId: In(promotionIds),
+        },
+      });
     // todo: I could not find way to initialize Map using map function, so using for loop
     const dict = new Map<string, number>(
-      voteRecordIds.map((voteRecordId) => {
-        return [
-          voteRecordId['voteRecords_promotionId'],
-          voteRecordId['voteRecords_voteState'],
-        ];
+      voteRecords.map((voteRecord) => {
+        return [voteRecord['promotionId'], voteRecord['voteState']];
       })
     );
     return promotions.map((promotion: Promotion) => {

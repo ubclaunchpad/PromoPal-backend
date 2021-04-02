@@ -180,6 +180,10 @@ export class Promotion {
   })
   votes: number;
 
+  /**
+   * The list of user who voted this promotion.
+   * It has One to Many relatoin to VoteRecord Entity
+   */
   @OneToMany(() => VoteRecord, (voteRecord) => voteRecord.promotion, {})
   votedBy: VoteRecord[];
 
@@ -190,8 +194,8 @@ export class Promotion {
   isSavedByUser?: boolean;
 
   /**
-   * True if the user has voted this promotion
+   * Vote state of promotion
    * This is used for endpoints that need to be aware of the user making the request
    */
-  voteState?: number;
+  voteState?: VoteState;
 }

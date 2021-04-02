@@ -198,38 +198,29 @@ export class PromotionController {
           uid
         );
 
-        let voteRecord;
-        try {
-          voteRecord = await transactionalEntityManager
-            .getCustomRepository(VoteRecordRepository)
-            .findOneOrFail({ userId: uid, promotionId: pid });
-        } catch (e) {
-          // vote record does not exist
-          voteRecord = await transactionalEntityManager
-            .getCustomRepository(VoteRecordRepository)
-            .create({ userId: uid, promotionId: pid, voteState: VoteState.UP });
+        const voteRecord = await transactionalEntityManager
+          .getCustomRepository(VoteRecordRepository)
+          .findOne({ userId: uid, promotionId: pid });
+        if (!voteRecord) {
           await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
-            .save(voteRecord);
+            .save({ userId: uid, promotionId: pid, voteState: VoteState.UP });
           await transactionalEntityManager
             .getCustomRepository(PromotionRepository)
             .increment({ id: pid }, 'votes', 1);
           return response.status(204).send();
         }
-        // vote record exists
-        if (voteRecord.voteState === VoteState.UP) {
-          voteRecord.voteState = VoteState.INIT;
-          await transactionalEntityManager
-            .getCustomRepository(PromotionRepository)
-            .decrement({ id: pid }, 'votes', 1);
-        } else {
-          const voteValue: number =
-            voteRecord.voteState === VoteState.DOWN ? 2 : 1;
-          voteRecord.voteState = VoteState.UP;
-          await transactionalEntityManager
-            .getCustomRepository(PromotionRepository)
-            .increment({ id: pid }, 'votes', voteValue);
-        }
+        const voteValue: number =
+          voteRecord.voteState === VoteState.UP
+            ? -1
+            : voteRecord.voteState === VoteState.DOWN
+            ? 2
+            : 1;
+        voteRecord.voteState =
+          voteRecord.voteState === VoteState.UP ? VoteState.INIT : VoteState.UP;
+        await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .increment({ id: pid }, 'votes', voteValue);
         await transactionalEntityManager
           .getCustomRepository(VoteRecordRepository)
           .save(voteRecord);
@@ -264,42 +255,31 @@ export class PromotionController {
           uid
         );
 
-        let voteRecord;
-        try {
-          voteRecord = await transactionalEntityManager
-            .getCustomRepository(VoteRecordRepository)
-            .findOneOrFail({ userId: uid, promotionId: pid });
-        } catch (e) {
-          // vote record does not exist
-          voteRecord = await transactionalEntityManager
-            .getCustomRepository(VoteRecordRepository)
-            .create({
-              userId: uid,
-              promotionId: pid,
-              voteState: VoteState.DOWN,
-            });
+        const voteRecord = await transactionalEntityManager
+          .getCustomRepository(VoteRecordRepository)
+          .findOne({ userId: uid, promotionId: pid });
+        if (!voteRecord) {
           await transactionalEntityManager
             .getCustomRepository(VoteRecordRepository)
-            .save(voteRecord);
+            .save({ userId: uid, promotionId: pid, voteState: VoteState.DOWN });
           await transactionalEntityManager
             .getCustomRepository(PromotionRepository)
             .decrement({ id: pid }, 'votes', 1);
           return response.status(204).send();
         }
-        // vote record exists
-        if (voteRecord.voteState === VoteState.DOWN) {
-          voteRecord.voteState = VoteState.INIT;
-          await transactionalEntityManager
-            .getCustomRepository(PromotionRepository)
-            .increment({ id: pid }, 'votes', 1);
-        } else {
-          const voteValue: number =
-            voteRecord.voteState === VoteState.UP ? 2 : 1;
-          voteRecord.voteState = VoteState.DOWN;
-          await transactionalEntityManager
-            .getCustomRepository(PromotionRepository)
-            .decrement({ id: pid }, 'votes', voteValue);
-        }
+        const voteValue: number =
+          voteRecord.voteState === VoteState.DOWN
+            ? -1
+            : voteRecord.voteState === VoteState.UP
+            ? 2
+            : 1;
+        voteRecord.voteState =
+          voteRecord.voteState === VoteState.DOWN
+            ? VoteState.INIT
+            : VoteState.DOWN;
+        await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .decrement({ id: pid }, 'votes', voteValue);
         await transactionalEntityManager
           .getCustomRepository(VoteRecordRepository)
           .save(voteRecord);
