@@ -13,6 +13,7 @@ import { DTOConverter } from '../validation/DTOConverter';
 import { SavedPromotion } from '../entity/SavedPromotion';
 import { Promotion } from '../entity/Promotion';
 import { FirebaseIdValidation } from '../validation/FirebaseIdValidation';
+import { ForbiddenError } from '../errors/Error';
 
 export class UserController {
   /**
@@ -162,6 +163,15 @@ export class UserController {
         const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
+
+        const authenticatedUser = await userRepository.findByFirebaseId(
+          res.locals.firebaseUserId
+        );
+
+        if (authenticatedUser.id !== id) {
+          throw new ForbiddenError();
+        }
+
         const result = await userRepository.delete(id);
         return res.status(204).send(result);
       });

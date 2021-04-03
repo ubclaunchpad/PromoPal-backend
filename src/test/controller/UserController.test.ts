@@ -222,11 +222,59 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    await userRepository.save(expectedUser);
+  test('DELETE /users/:id - Should not be able to delete another user', async (done) => {
+    const userToDelete: User = new UserFactory().generate();
+    userToDelete.firebaseId = 'randomfirebaseId';
+
+    const authenticatedUser: User = new UserFactory().generate();
+    authenticatedUser.firebaseId = firebaseId;
+
+    await userRepository.save(userToDelete);
+    await userRepository.save(authenticatedUser);
+
     request(app)
-      .delete(`/users/${expectedUser.id}`)
+      .delete(`/users/${userToDelete.id}`)
+      .set('Authorization', idToken)
+      .expect(403)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toEqual(
+          'Your account does not have sufficient privileges to perform this action.'
+        );
+        done();
+      });
+  });
+
+  test('DELETE /users/:id - Invalid authenticated user', async (done) => {
+    const userToDelete: User = new UserFactory().generate();
+    userToDelete.firebaseId = 'randomfirebaseId';
+    await userRepository.save(userToDelete);
+
+    request(app)
+      .delete(`/users/${userToDelete.id}`)
+      .set('Authorization', idToken)
+      .expect(404)
+      .end((err, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('EntityNotFound');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toContain(
+          'Could not find any entity of type "User"'
+        );
+        expect(frontEndErrorObject.message[0]).toContain('firebaseId');
+        done();
+      });
+  });
+
+  test('DELETE /users/:id, should be successful', async (done) => {
+    const userToDelete: User = new UserFactory().generate();
+    userToDelete.firebaseId = firebaseId;
+    await userRepository.save(userToDelete);
+
+    request(app)
+      .delete(`/users/${userToDelete.id}`)
       .set('Authorization', idToken)
       .expect(204)
       .then(() => {
@@ -238,26 +286,11 @@ describe('Unit tests for UserController', function () {
               UserRepository
             );
             await expect(
-              userRepository.findOneOrFail({ id: expectedUser.id })
+              userRepository.findOneOrFail({ id: userToDelete.id })
             ).rejects.toThrowError();
             done();
           }
         );
-      });
-  });
-
-  test('DELETE /users/:id - delete non-existent user should not fail', async (done) => {
-    const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
-    request(app)
-      .delete(`/users/${nonExistentUUID}`)
-      .set('Authorization', idToken)
-      .expect(204)
-      .end(async () => {
-        // check that user no longer exists
-        await expect(
-          userRepository.findOneOrFail({ id: nonExistentUUID })
-        ).rejects.toThrowError();
-        done();
       });
   });
 
