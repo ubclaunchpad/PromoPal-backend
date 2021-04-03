@@ -168,7 +168,7 @@ export class UserController {
           res.locals.firebaseUserId
         );
 
-        if (authenticatedUser?.id !== id) {
+        if (authenticatedUser.id !== id) {
           throw new ForbiddenError();
         }
 

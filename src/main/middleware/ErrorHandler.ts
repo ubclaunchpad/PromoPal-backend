@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { FrontEndErrorObject } from '../data/FrontEndErrorObject';
 import { ValidationError } from 'joi';
-import { BaseError, ForbiddenError } from '../errors/Error';
+import { BaseError } from '../errors/Error';
 
 /**
  * Middleware function to catch all global errors and convert them into FrontEndErrorObjects

@@ -12,7 +12,7 @@ export class UserRepository extends Repository<User> {
   findByFirebaseId(
     firebaseId: string,
     options?: FindOneOptions<User>
-  ): Promise<User | undefined> {
+  ): Promise<User> {
     return this.findOneOrFail({ firebaseId }, options);
   }
 
