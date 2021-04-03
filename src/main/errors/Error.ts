@@ -1,3 +1,5 @@
+import { ErrorMessages } from './ErrorMessages';
+
 class BaseError extends Error {
   public name: string;
   public status: number;
@@ -10,9 +12,13 @@ class BaseError extends Error {
 }
 
 class ForbiddenError extends BaseError {
-  constructor(errorMessage: string) {
-    super('ForbiddenError', errorMessage, 403);
+  constructor(errorMessage?: string) {
+    super(
+      'ForbiddenError',
+      errorMessage ?? ErrorMessages.INSUFFICIENT_PRIVILEGES,
+      403
+    );
   }
 }
 
-export { ForbiddenError };
+export { BaseError, ForbiddenError };

@@ -13,7 +13,7 @@ import { DTOConverter } from '../validation/DTOConverter';
 import { SavedPromotion } from '../entity/SavedPromotion';
 import { Promotion } from '../entity/Promotion';
 import { FirebaseIdValidation } from '../validation/FirebaseIdValidation';
-import Errors from '../libraries/Errors';
+import { ForbiddenError } from '../errors/Error';
 
 export class UserController {
   /**
@@ -169,7 +169,7 @@ export class UserController {
         );
 
         if (authenticatedUser?.id !== id) {
-          throw Errors.INSUFFICIENT_PRIVILEGES();
+          throw new ForbiddenError();
         }
 
         const result = await userRepository.delete(id);

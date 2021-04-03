@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { FrontEndErrorObject } from '../data/FrontEndErrorObject';
 import { ValidationError } from 'joi';
-import { ForbiddenError } from '../errors/Error';
+import { BaseError, ForbiddenError } from '../errors/Error';
 
 /**
  * Middleware function to catch all global errors and convert them into FrontEndErrorObjects
@@ -22,11 +22,12 @@ export function errorHandler(
       )
     );
 
-  let statusCode = 400;
-
-  if (error instanceof ForbiddenError) statusCode = 403;
+  if (error instanceof BaseError)
+    return res
+      .status(error.status)
+      .send(new FrontEndErrorObject(error.name, [error.message]));
 
   return res
-    .status(statusCode)
+    .status(500)
     .send(new FrontEndErrorObject(error.name, [error.message]));
 }

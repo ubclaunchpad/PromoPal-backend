@@ -222,18 +222,18 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id - ForbiddenError should be caught', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = 'randomfirebaseId';
+  test('DELETE /users/:id - Should not be able to delete another user', async (done) => {
+    const userToDelete: User = new UserFactory().generate();
+    userToDelete.firebaseId = 'randomfirebaseId';
 
     const authenticatedUser: User = new UserFactory().generate();
     authenticatedUser.firebaseId = firebaseId;
 
-    await userRepository.save(expectedUser);
+    await userRepository.save(userToDelete);
     await userRepository.save(authenticatedUser);
 
     request(app)
-      .delete(`/users/${expectedUser.id}`)
+      .delete(`/users/${userToDelete.id}`)
       .set('Authorization', idToken)
       .expect(403)
       .end((err, res) => {
@@ -247,13 +247,13 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('DELETE /users/:id - EntityNotFound error should be caught for authenticated user', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = 'randomfirebaseId';
-    await userRepository.save(expectedUser);
+  test('DELETE /users/:id - Invalid authenticated user', async (done) => {
+    const userToDelete: User = new UserFactory().generate();
+    userToDelete.firebaseId = 'randomfirebaseId';
+    await userRepository.save(userToDelete);
 
     request(app)
-      .delete(`/users/${expectedUser.id}`)
+      .delete(`/users/${userToDelete.id}`)
       .set('Authorization', idToken)
       .expect(404)
       .end((err, res) => {
@@ -269,12 +269,12 @@ describe('Unit tests for UserController', function () {
   });
 
   test('DELETE /users/:id, should be successful', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = firebaseId;
-    await userRepository.save(expectedUser);
+    const userToDelete: User = new UserFactory().generate();
+    userToDelete.firebaseId = firebaseId;
+    await userRepository.save(userToDelete);
 
     request(app)
-      .delete(`/users/${expectedUser.id}`)
+      .delete(`/users/${userToDelete.id}`)
       .set('Authorization', idToken)
       .expect(204)
       .then(() => {
@@ -286,26 +286,11 @@ describe('Unit tests for UserController', function () {
               UserRepository
             );
             await expect(
-              userRepository.findOneOrFail({ id: expectedUser.id })
+              userRepository.findOneOrFail({ id: userToDelete.id })
             ).rejects.toThrowError();
             done();
           }
         );
-      });
-  });
-
-  test('DELETE /users/:id - delete non-existent user should not fail', async (done) => {
-    const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
-    request(app)
-      .delete(`/users/${nonExistentUUID}`)
-      .set('Authorization', idToken)
-      .expect(204)
-      .end(async () => {
-        // check that user no longer exists
-        await expect(
-          userRepository.findOneOrFail({ id: nonExistentUUID })
-        ).rejects.toThrowError();
-        done();
       });
   });
 
