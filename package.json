@@ -46,6 +46,7 @@
     "@types/node-geocoder": "^3.24.1",
     "@types/redis": "^2.8.28",
     "@types/request-promise": "^4.1.47",
+    "aws-sdk": "^2.874.0",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "dotenv": "^8.2.0",
@@ -65,6 +66,7 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.19",
+    "@types/mock-aws-s3": "^2.6.1",
     "@types/redis-mock": "^0.17.0",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "4.14.2",
@@ -77,6 +79,7 @@
     "husky": "4.3.8",
     "jest": "^26.6.3",
     "lint-staged": "10.5.3",
+    "mock-aws-s3": "^4.0.1",
     "prettier": "2.2.1",
     "redis-mock": "^0.56.3",
     "reflect-metadata": "^0.1.13",

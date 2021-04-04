@@ -37,31 +37,37 @@ import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 import nodeGeocoder, { Geocoder } from 'node-geocoder';
 import { GeocodingService } from './service/GeocodingService';
+import AWS, { S3 } from 'aws-sdk';
+import { ResourceCleanupService } from './service/ResourceCleanupService';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
 //todo: ormconfig.ts should not have synchronize and drop schema as true for production
 export class App {
-  private redisClient: RedisClient;
-  private firebaseAdmin: Auth;
-
   async init(): Promise<void> {
     try {
       await createConnection();
       const app = express();
 
-      this.redisClient = await this.createRedisClient();
-      this.firebaseAdmin = await initFirebaseAdmin();
+      const redisClient = await this.createRedisClient();
+      const firebaseAdmin = await initFirebaseAdmin();
       const geocoder = nodeGeocoder({
         provider: 'locationiq',
         apiKey: process.env.GEOCODING_KEY,
       });
 
+      AWS.config.update({
+        accessKeyId: process.env.S3_ACCESS_KEY_ID,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+      });
+      const s3 = new AWS.S3();
+
       await this.registerHandlersAndRoutes(
         app,
-        this.redisClient,
-        this.firebaseAdmin,
-        geocoder
+        redisClient,
+        firebaseAdmin,
+        geocoder,
+        s3
       );
 
       // load sample data
@@ -86,11 +92,14 @@ export class App {
     redisClient: RedisClient,
     firebaseAdmin: Auth,
     nodeGeocoder: Geocoder,
+    s3: S3,
     axiosInstance?: AxiosInstance
   ): Promise<void> {
     app.use(bodyParser.json());
 
     app.get('/', (req, res) => res.send('Hello World'));
+
+    const resourceCleanupService = new ResourceCleanupService(s3);
 
     const client = axiosInstance ? new Client({ axiosInstance }) : new Client();
     const googlesPlaceService = new GooglePlacesService(client);
@@ -99,7 +108,10 @@ export class App {
     app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
 
     const geocodingService = new GeocodingService(nodeGeocoder);
-    const promotionController = new PromotionController(geocodingService);
+    const promotionController = new PromotionController(
+      geocodingService,
+      resourceCleanupService
+    );
     const promotionRouter = new PromotionRouter(promotionController);
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 
@@ -107,7 +119,7 @@ export class App {
     const enumRouter = new EnumRouter(enumController);
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
-    const userController = new UserController();
+    const userController = new UserController(resourceCleanupService);
     const userRouter = new UserRouter(userController, firebaseAdmin);
     app.use(Route.USERS, userRouter.getRoutes());
 
