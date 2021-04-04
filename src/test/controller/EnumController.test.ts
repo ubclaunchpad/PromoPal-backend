@@ -1,40 +1,25 @@
 import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
-import {
-  connectRedisClient,
-  registerTestApplication,
-  createFirebaseMock,
-  createMockNodeGeocoder,
-} from './BaseController';
+import { BaseController } from './BaseController';
 import { DiscountType } from '../../main/data/DiscountType';
 import { PromotionType } from '../../main/data/PromotionType';
 import { CuisineType } from '../../main/data/CuisineType';
 import { Day } from '../../main/data/Day';
-import { RedisClient } from 'redis-mock';
 
 describe('Unit tests for PromotionController', function () {
   let app: Express;
-  let redisClient: RedisClient;
-  let mockFireabseAdmin: any;
+  let baseController: BaseController;
 
   beforeAll(async () => {
     await connection.create();
-    redisClient = await connectRedisClient();
-    // init mock firebase
-    mockFireabseAdmin = createFirebaseMock();
-    // init mock geocoder
-    const mockNodeGeocoder = createMockNodeGeocoder();
-    app = await registerTestApplication(
-      redisClient,
-      mockFireabseAdmin,
-      mockNodeGeocoder
-    );
+    baseController = new BaseController();
+    app = await baseController.registerTestApplication();
   });
 
   afterAll(async () => {
     await connection.close();
-    redisClient.quit();
+    await baseController.quit();
   });
 
   beforeEach(async () => {

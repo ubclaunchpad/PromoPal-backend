@@ -14,8 +14,15 @@ import { SavedPromotion } from '../entity/SavedPromotion';
 import { Promotion } from '../entity/Promotion';
 import { FirebaseIdValidation } from '../validation/FirebaseIdValidation';
 import { ForbiddenError } from '../errors/Error';
+import { ResourceCleanupService } from '../service/ResourceCleanupService';
 
 export class UserController {
+  private resourceCleanupService: ResourceCleanupService;
+
+  constructor(resourceCleanupService: ResourceCleanupService) {
+    this.resourceCleanupService = resourceCleanupService;
+  }
+
   /**
    * Access user profile data
    * * validate query first
@@ -160,6 +167,19 @@ export class UserController {
         const id = await IdValidation.schema.validateAsync(req.params.id, {
           abortEarly: false,
         });
+        const uploadedPromotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .find({
+            select: ['id'],
+            where: {
+              user: {
+                id,
+              },
+            },
+          });
+        const uploadedPromotionIds = uploadedPromotions.map(
+          (promotion) => promotion.id
+        );
         const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
@@ -173,6 +193,9 @@ export class UserController {
         }
 
         const result = await userRepository.delete(id);
+        await this.resourceCleanupService.cleanupResourceForPromotions(
+          uploadedPromotionIds
+        );
         return res.status(204).send(result);
       });
     } catch (e) {

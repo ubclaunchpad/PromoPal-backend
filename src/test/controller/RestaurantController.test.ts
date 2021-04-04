@@ -5,15 +5,8 @@ import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
 import { UserFactory } from '../factory/UserFactory';
-import {
-  connectRedisClient,
-  createFirebaseMock,
-  createMockNodeGeocoder,
-  registerTestApplication,
-} from './BaseController';
-import { RedisClient } from 'redis-mock';
+import { BaseController } from './BaseController';
 import { CustomAxiosMockAdapter } from '../mock/CustomAxiosMockAdapter';
-import axios, { AxiosInstance } from 'axios';
 import { Place } from '@googlemaps/google-maps-services-js';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { RestaurantFactory } from '../factory/RestaurantFactory';
@@ -26,28 +19,18 @@ describe('Unit tests for RestaurantController', function () {
   let restaurantRepository: RestaurantRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
-  let mockRedisClient: RedisClient;
-  let mockFirebaseAdmin: any;
   let customAxiosMockAdapter: CustomAxiosMockAdapter;
-  let axiosInstance: AxiosInstance;
+  let baseController: BaseController;
 
   beforeAll(async () => {
     await connection.create();
-    mockRedisClient = await connectRedisClient();
-    axiosInstance = axios.create();
-    mockFirebaseAdmin = createFirebaseMock();
-    const mockNodeGeocoder = createMockNodeGeocoder();
-    app = await registerTestApplication(
-      mockRedisClient,
-      mockFirebaseAdmin,
-      mockNodeGeocoder,
-      axiosInstance
-    );
+    baseController = new BaseController();
+    app = await baseController.registerTestApplication();
   });
 
   afterAll(async () => {
     await connection.close();
-    mockRedisClient.quit();
+    await baseController.quit();
   });
 
   beforeEach(async () => {
@@ -55,7 +38,9 @@ describe('Unit tests for RestaurantController', function () {
     userRepository = getCustomRepository(UserRepository);
     restaurantRepository = getCustomRepository(RestaurantRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
-    customAxiosMockAdapter = new CustomAxiosMockAdapter(axiosInstance);
+    customAxiosMockAdapter = new CustomAxiosMockAdapter(
+      baseController.axiosInstance
+    );
   });
 
   test('GET /restaurants/:id/restaurantDetails/', async (done) => {
