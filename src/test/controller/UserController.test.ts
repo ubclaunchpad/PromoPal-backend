@@ -439,6 +439,7 @@ describe('Unit tests for UserController', function () {
 
   test('DELETE /users/:id should cleanup resources of promotions uploaded by the user', async (done) => {
     const expectedUser: User = new UserFactory().generate();
+    expectedUser.firebaseId = firebaseId;
     const promotion1 = new PromotionFactory().generateWithRelatedEntities(
       expectedUser
     );
