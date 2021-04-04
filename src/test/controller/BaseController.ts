@@ -17,6 +17,8 @@ export class BaseController {
   mockGeoCoder: Geocoder;
   mockS3: S3;
   axiosInstance: AxiosInstance;
+  idToken: string;
+  firebaseId: string;
 
   constructor() {
     this.mockRedisClient = BaseController.createRedisMock();
@@ -43,6 +45,8 @@ export class BaseController {
     );
     // cleanup resources from previous bucket if possible
     await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
+    await (this.mockFirebaseAdmin as any).autoFlush();
+    await this.createAuthenticatedUser();
     return expressApp;
   };
 
@@ -93,6 +97,19 @@ export class BaseController {
   static createS3Mock = (): S3 => {
     return new AWSMock.S3();
   };
+
+  /**
+   * Create a mock authenticated user
+   * */
+  async createAuthenticatedUser(): Promise<void> {
+    // create user
+    const user = await (this.mockFirebaseAdmin as any).createUser({
+      email: 'test@gmail.com',
+      password: 'testpassword',
+    });
+    this.idToken = await user.getIdToken();
+    this.firebaseId = user.uid;
+  }
 
   quit = async (): Promise<void> => {
     this.mockRedisClient.quit();

@@ -155,7 +155,10 @@ export class UserController {
     }
   };
 
-  // delete one user
+  /**
+   * Delete a user.
+   * We need to ensure that a user can only delete their own account.
+   * */
   deleteUser = async (
     req: Request,
     res: Response,

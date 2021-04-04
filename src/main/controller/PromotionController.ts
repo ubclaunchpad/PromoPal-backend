@@ -17,6 +17,7 @@ import { RestaurantRepository } from '../repository/RestaurantRepository';
 import { Restaurant } from '../entity/Restaurant';
 import { GeocodingService } from '../service/GeocodingService';
 import { ResourceCleanupService } from '../service/ResourceCleanupService';
+import { ForbiddenError } from '../errors/Error';
 
 export class PromotionController {
   private geocodingService: GeocodingService;
@@ -156,7 +157,8 @@ export class PromotionController {
   };
 
   /**
-   * Deletes a promotion
+   * Deletes a promotion.
+   * We need to ensure only the user who uploaded the promotion is allowed to delete it.
    */
   deletePromotion = async (
     request: Request,
@@ -168,11 +170,24 @@ export class PromotionController {
         const id = await IdValidation.schema.validateAsync(request.params.id, {
           abortEarly: false,
         });
-        const promotion = await transactionalEntityManager
+
+        const authenticatedUser = await transactionalEntityManager
+          .getCustomRepository(UserRepository)
+          .findByFirebaseId(response.locals.firebaseUserId);
+
+        const potentialPromotionUploadedByUser = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .findOne({ id, user: authenticatedUser });
+
+        if (!potentialPromotionUploadedByUser) {
+          throw new ForbiddenError();
+        }
+
+        const deleteResult = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .delete(id);
         await this.resourceCleanupService.cleanupResourceForPromotion(id);
-        return response.status(204).send(promotion);
+        return response.status(204).send(deleteResult);
       });
     } catch (e) {
       return next(e);
