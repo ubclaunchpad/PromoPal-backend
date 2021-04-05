@@ -181,6 +181,7 @@ describe('Unit tests for PromotionController', function () {
         const promotions = res.body;
         expect(promotions).toHaveLength(3);
         promotions.forEach((promotion: Promotion, index: number) => {
+          // expected promotions should be same order as promotions returned
           comparePromotions(promotion, expectedPromotions[index]);
         });
         done();

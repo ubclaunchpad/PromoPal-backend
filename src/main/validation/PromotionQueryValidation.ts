@@ -29,8 +29,16 @@ export class PromotionQueryValidation {
     expirationDate: Joi.date(),
     dayOfWeek: Joi.string().valid(...Object.values(Day)),
     sort: Joi.string().valid(...Object.values(SortOptions)),
-    lat: Joi.number(),
-    lon: Joi.number(),
+    lat: Joi.any().when('sort', {
+      is: SortOptions.DISTANCE,
+      then: Joi.number().required(),
+      otherwise: Joi.number(),
+    }),
+    lon: Joi.any().when('sort', {
+      is: SortOptions.DISTANCE,
+      then: Joi.number().required(),
+      otherwise: Joi.number(),
+    }),
     userId: Joi.string().uuid(),
   })
     .required()

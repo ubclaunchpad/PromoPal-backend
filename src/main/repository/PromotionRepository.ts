@@ -199,23 +199,27 @@ export class PromotionRepository extends Repository<Promotion> {
     promotionQuery: PromotionQueryDTO
   ): SelectQueryBuilder<Promotion> {
     switch (promotionQuery.sort) {
-      case SortOptions.DISTANCE:
-        return queryBuilder
-          .addSelect(
-            // Note: formatted as (lon, lat) because this is more similar to the cartesian axes (x, y)
-            `point (restaurant.lon, restaurant.lat) <@> point (${promotionQuery.lon}, ${promotionQuery.lat})`,
-            'distance'
-          )
-          .orderBy('distance', 'ASC');
+      case SortOptions.DISTANCE: {
+        if (promotionQuery?.lat && promotionQuery?.lon) {
+          queryBuilder
+            .addSelect(
+              // Note: formatted as (lon, lat) because this is more similar to the cartesian axes (x, y)
+              `point (restaurant.lon, restaurant.lat) <@> point (${promotionQuery.lon}, ${promotionQuery.lat})`,
+              'distance'
+            )
+            .orderBy('distance', 'ASC');
+        }
+        break;
+      }
       case SortOptions.POPULARITY:
         /**
          * Calculates a "popularity score" for each promotion based on the recency of saves.
          * This query gives higher weight to promotions that have been recently saved in the past month.
          */
-        return queryBuilder
+        queryBuilder
           .addSelect((qb) => {
             /**
-             * The subquery finds the savedPromotion entries for each promotion and assigns a weight to them
+             * The sub-query finds the savedPromotion entries for each promotion and assigns a weight to them
              * based on how long ago the entry was created (i.e. date saved):
              *
              * [5 points]: dateSaved <= 1 month
@@ -245,12 +249,15 @@ export class PromotionRepository extends Repository<Promotion> {
               .where('"promotion"."id" = "SP"."promotionId"');
           }, 'popularity')
           .orderBy('popularity', 'DESC');
+        break;
       case SortOptions.RECENCY:
-        return queryBuilder.addOrderBy('date_added', 'ASC');
+        queryBuilder.addOrderBy('date_added', 'ASC');
+        break;
       default:
-        // No modifications to query
-        return queryBuilder;
+      // No modifications to query
     }
+
+    return queryBuilder;
   }
 
   /**
