@@ -7,21 +7,16 @@ import request from 'supertest';
 import { RestaurantFactory } from '../factory/RestaurantFactory';
 import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { UserFactory } from '../factory/UserFactory';
-import {
-  connectRedisClient,
-  registerTestApplication,
-  createFirebaseMock,
-  createMockNodeGeocoder,
-} from './BaseController';
+import { BaseController } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { SortOptions } from '../../main/data/SortOptions';
 import { Promotion } from '../../main/entity/Promotion';
-import { RedisClient } from 'redis-mock';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { randomString } from '../utility/Utility';
+import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -29,26 +24,17 @@ describe('Unit tests for PromotionController', function () {
   let restaurantRepository: RestaurantRepository;
   let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
-  let mockRedisClient: RedisClient;
-  let mockFirebaseAdmin: any;
+  let baseController: BaseController;
 
   beforeAll(async () => {
     await connection.create();
-    mockRedisClient = await connectRedisClient();
-    // init mock firebase
-    mockFirebaseAdmin = createFirebaseMock();
-    // init mock geocoder
-    const mockNodeGeocoder = createMockNodeGeocoder();
-    app = await registerTestApplication(
-      mockRedisClient,
-      mockFirebaseAdmin,
-      mockNodeGeocoder
-    );
+    baseController = new BaseController();
+    app = await baseController.registerTestApplication();
   });
 
   afterAll(async () => {
     await connection.close();
-    mockRedisClient.quit();
+    await baseController.quit();
   });
 
   beforeEach(async () => {
@@ -600,6 +586,39 @@ describe('Unit tests for PromotionController', function () {
             done();
           }
         );
+      });
+  });
+
+  test('DELETE /promotions/:id should cleanup external resources of a promotion such as s3 object', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+    const expectedObject = '{"hello": false}';
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    await baseController.mockS3
+      .putObject({ Key: promotion.id, Body: expectedObject, Bucket: S3_BUCKET })
+      .promise();
+    // check object put correctly
+    const object = await baseController.mockS3
+      .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+      .promise();
+    expect(object.Body!.toString()).toEqual(expectedObject);
+
+    request(app)
+      .delete(`/promotions/${promotion.id}`)
+      .expect(204)
+      .then(async () => {
+        try {
+          await baseController.mockS3
+            .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+            .promise();
+          fail('Should have thrown error');
+        } catch (e) {
+          expect(e.code).toEqual('NoSuchKey');
+          done();
+        }
       });
   });
 

@@ -32,3 +32,6 @@ yarn-error.log*
 user-authentication*.json
 # vscode
 /.vscode
+
+# mock s3 bucket for integration tests
+/promopal

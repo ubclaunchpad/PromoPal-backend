@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { QueryFailedError } from 'typeorm';
 import { FrontEndErrorObject } from '../data/FrontEndErrorObject';
 import { ValidationError } from 'joi';
+import { BaseError } from '../errors/Error';
 
 /**
  * Middleware function to catch all global errors and convert them into FrontEndErrorObjects
@@ -14,10 +14,6 @@ export function errorHandler(
   next: NextFunction
 ): any {
   // todo: see if can figure out the extension functions
-  if (error instanceof QueryFailedError)
-    return res
-      .status(400)
-      .send(new FrontEndErrorObject(error.name, [error.message]));
   if (error instanceof ValidationError)
     return res.status(400).send(
       new FrontEndErrorObject(
@@ -25,7 +21,13 @@ export function errorHandler(
         error.details.map((detail) => detail.message)
       )
     );
+
+  if (error instanceof BaseError)
+    return res
+      .status(error.status)
+      .send(new FrontEndErrorObject(error.name, [error.message]));
+
   return res
-    .status(400)
+    .status(500)
     .send(new FrontEndErrorObject(error.name, [error.message]));
 }

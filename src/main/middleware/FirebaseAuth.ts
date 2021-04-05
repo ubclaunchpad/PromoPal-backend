@@ -26,6 +26,7 @@ export class FirebaseAuth {
       const decodedToken = await this.admin.verifyIdToken(idToken);
 
       if (decodedToken) {
+        res.locals.firebaseUserId = decodedToken.uid;
         return next();
       } else {
         return res.status(401).send('You are not authorized');
