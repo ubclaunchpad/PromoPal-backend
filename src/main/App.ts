@@ -39,6 +39,7 @@ import nodeGeocoder, { Geocoder } from 'node-geocoder';
 import { GeocodingService } from './service/GeocodingService';
 import AWS, { S3 } from 'aws-sdk';
 import { ResourceCleanupService } from './service/ResourceCleanupService';
+import { FirebaseAuthMiddleware } from './middleware/FirebaseAuthMiddleware';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -105,6 +106,7 @@ export class App {
     const googlesPlaceService = new GooglePlacesService(client);
     const restaurantController = new RestaurantController(googlesPlaceService);
     const restaurantRouter = new RestaurantRouter(restaurantController);
+    const firebaseAuthMiddleware = new FirebaseAuthMiddleware(firebaseAdmin);
     app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
 
     const geocodingService = new GeocodingService(nodeGeocoder);
@@ -112,7 +114,10 @@ export class App {
       geocodingService,
       resourceCleanupService
     );
-    const promotionRouter = new PromotionRouter(promotionController);
+    const promotionRouter = new PromotionRouter(
+      promotionController,
+      firebaseAuthMiddleware
+    );
     app.use(Route.PROMOTIONS, promotionRouter.getRoutes());
 
     const enumController = new EnumController();
@@ -120,7 +125,7 @@ export class App {
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
     const userController = new UserController(resourceCleanupService);
-    const userRouter = new UserRouter(userController, firebaseAdmin);
+    const userRouter = new UserRouter(userController, firebaseAuthMiddleware);
     app.use(Route.USERS, userRouter.getRoutes());
 
     // middleware needs to be added at end

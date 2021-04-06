@@ -15,6 +15,7 @@ import { VoteState } from '../../main/entity/VoteRecord';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { randomString } from '../utility/Utility';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { ErrorMessages } from '../../main/errors/ErrorMessages';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -373,12 +374,14 @@ describe('Unit tests for PromotionController', function () {
 
   test('DELETE /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
+    user.firebaseId = baseController.firebaseId;
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     request(app)
       .delete(`/promotions/${promotion.id}`)
+      .set('Authorization', baseController.idToken)
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -397,9 +400,31 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('DELETE /promotions/:id - deleting non-existent promotion should not fail', async (done) => {
-    const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
-    request(app).delete(`/promotions/${nonExistentUUID}`).expect(204, done);
+  test('DELETE /promotions/:id - should not be able to delete a promotion that is not uploaded by the user', async (done) => {
+    const userWhoUploadedPromotion: User = new UserFactory().generate();
+    const userWhoWantsToDeleteAnotherUsersPromotion: User = new UserFactory().generate();
+    userWhoWantsToDeleteAnotherUsersPromotion.firebaseId =
+      baseController.firebaseId;
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      userWhoUploadedPromotion
+    );
+
+    await userRepository.save(userWhoWantsToDeleteAnotherUsersPromotion);
+    await userRepository.save(userWhoUploadedPromotion);
+    await promotionRepository.save(promotion);
+    request(app)
+      .delete(`/promotions/${promotion.id}`)
+      .set('Authorization', baseController.idToken)
+      .expect(204)
+      .end((error, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toEqual(
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
+        );
+        done();
+      });
   });
 
   test('POST /promotions/:id/upVote', async (done) => {
@@ -690,6 +715,7 @@ describe('Unit tests for PromotionController', function () {
 
   test('DELETE /promotions/:id should cleanup external resources of a promotion such as s3 object', async (done) => {
     const user: User = new UserFactory().generate();
+    user.firebaseId = baseController.firebaseId;
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     const expectedObject = '{"hello": false}';
 
@@ -707,6 +733,7 @@ describe('Unit tests for PromotionController', function () {
 
     request(app)
       .delete(`/promotions/${promotion.id}`)
+      .set('Authorization', baseController.idToken)
       .expect(204)
       .then(async () => {
         try {

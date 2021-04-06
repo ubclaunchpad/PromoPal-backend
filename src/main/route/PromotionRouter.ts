@@ -1,11 +1,18 @@
 import express, { Router } from 'express';
 import { PromotionController } from '../controller/PromotionController';
+import { FirebaseAuthMiddleware } from '../middleware/FirebaseAuthMiddleware';
 
 export class PromotionRouter {
   private promotionRouter = express.Router();
   private promotionController;
-  constructor(promotionController: PromotionController) {
+  private firebaseAuthMiddleware: FirebaseAuthMiddleware;
+
+  constructor(
+    promotionController: PromotionController,
+    firebaseAuthMiddleware: FirebaseAuthMiddleware
+  ) {
     this.promotionController = promotionController;
+    this.firebaseAuthMiddleware = firebaseAuthMiddleware;
   }
 
   getRoutes(): Router {
@@ -14,6 +21,7 @@ export class PromotionRouter {
     this.promotionRouter.post('/', this.promotionController.addPromotion);
     this.promotionRouter.delete(
       '/:id',
+      this.firebaseAuthMiddleware.isAuthorizedForProtection,
       this.promotionController.deletePromotion
     );
     this.promotionRouter.post(
