@@ -8,6 +8,8 @@ import {
 import { Promotion } from '../entity/Promotion';
 import { PromotionQueryDTO } from '../validation/PromotionQueryValidation';
 import { Schedule } from '../entity/Schedule';
+import { VoteState } from '../entity/VoteRecord';
+import { VoteRecordRepository } from './VoteRecordRepository';
 import { SavedPromotionRepository } from './SavedPromotionRepository';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
@@ -23,9 +25,15 @@ export class PromotionRepository extends Repository<Promotion> {
       promotionQuery &&
       JSON.stringify(promotionQuery) !== JSON.stringify({})
     ) {
-      const promotions = await this.applyQueryOptions(promotionQuery);
+      let promotions: Promotion[] = await this.applyQueryOptions(
+        promotionQuery
+      );
       if (promotionQuery.userId && promotions.length) {
-        return this.findPromotionsUserSaved(promotionQuery.userId, promotions);
+        promotions = await this.findPromotionsUserSaved(
+          promotionQuery.userId,
+          promotions
+        );
+        return this.findPromotionsUserVoted(promotionQuery.userId, promotions);
       }
       return promotions;
     } else {
@@ -215,6 +223,38 @@ export class PromotionRepository extends Repository<Promotion> {
     );
     return promotions.map((promotion: Promotion) => {
       promotion.isSavedByUser = set.has(promotion.id);
+      return promotion;
+    });
+  }
+
+  /**
+   * Like as we did in findPromotionUserSaved, check all promotions is voted by the user
+   * @param userId the id of the user
+   * @param promotions the promotions we want to find out if the user voted
+   */
+  private async findPromotionsUserVoted(
+    userId: string,
+    promotions: Promotion[]
+  ): Promise<Promotion[]> {
+    const promotionIds = promotions.map((promotion: Promotion) => promotion.id);
+    const voteRecords = await getConnection()
+      .getCustomRepository(VoteRecordRepository)
+      .find({
+        select: ['promotionId', 'voteState'],
+        where: {
+          userId,
+          promotionId: In(promotionIds),
+        },
+      });
+    // todo: I could not find way to initialize Map using map function, so using for loop
+    const promotionIdToVoteState = new Map<string, number>(
+      voteRecords.map((voteRecord) => {
+        return [voteRecord['promotionId'], voteRecord['voteState']];
+      })
+    );
+    return promotions.map((promotion: Promotion) => {
+      promotion.voteState =
+        promotionIdToVoteState.get(promotion.id) ?? VoteState.INIT;
       return promotion;
     });
   }
