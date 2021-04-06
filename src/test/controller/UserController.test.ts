@@ -12,6 +12,7 @@ import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
 import { Restaurant } from '../../main/entity/Restaurant';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { ErrorMessages } from '../../main/errors/ErrorMessages';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -213,13 +214,13 @@ describe('Unit tests for UserController', function () {
         expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
         expect(frontEndErrorObject.message).toHaveLength(1);
         expect(frontEndErrorObject.message[0]).toEqual(
-          'Your account does not have sufficient privileges to perform this action.'
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
         );
         done();
       });
   });
 
-  test('DELETE /users/:id - Invalid authenticated user', async (done) => {
+  test('DELETE /users/:id - Authenticated user that does not exist in our DB should not be able to delete another user', async (done) => {
     const userToDelete: User = new UserFactory().generate();
     userToDelete.firebaseId = 'randomfirebaseId';
     await userRepository.save(userToDelete);
@@ -230,17 +231,16 @@ describe('Unit tests for UserController', function () {
       .expect(404)
       .end((err, res) => {
         const frontEndErrorObject = res.body;
-        expect(frontEndErrorObject?.errorCode).toEqual('EntityNotFound');
+        expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
         expect(frontEndErrorObject.message).toHaveLength(1);
-        expect(frontEndErrorObject.message[0]).toContain(
-          'Could not find any entity of type "User"'
+        expect(frontEndErrorObject.message[0]).toEqual(
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
         );
-        expect(frontEndErrorObject.message[0]).toContain('firebaseId');
         done();
       });
   });
 
-  test('DELETE /users/:id, should be successful', async (done) => {
+  test('DELETE /users/:id - should be successful', async (done) => {
     const userToDelete: User = new UserFactory().generate();
     userToDelete.firebaseId = baseController.firebaseId;
     await userRepository.save(userToDelete);

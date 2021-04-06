@@ -13,6 +13,7 @@ import { Promotion } from '../../main/entity/Promotion';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { randomString } from '../utility/Utility';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { ErrorMessages } from '../../main/errors/ErrorMessages';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -418,7 +419,7 @@ describe('Unit tests for PromotionController', function () {
         expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
         expect(frontEndErrorObject.message).toHaveLength(1);
         expect(frontEndErrorObject.message[0]).toEqual(
-          'Your account does not have sufficient privileges to perform this action.'
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
         );
         done();
       });

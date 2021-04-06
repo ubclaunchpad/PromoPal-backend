@@ -170,6 +170,20 @@ export class UserController {
         const id = await IdValidation.schema.validateAsync(req.params.id, {
           abortEarly: false,
         });
+
+        const userRepository = transactionalEntityManager.getCustomRepository(
+          UserRepository
+        );
+
+        const potentialUserToDelete = await userRepository.findOne({
+          id,
+          firebaseId: res.locals.firebaseUserId,
+        });
+
+        if (!potentialUserToDelete) {
+          throw new ForbiddenError();
+        }
+
         const uploadedPromotions = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .find({
@@ -183,17 +197,6 @@ export class UserController {
         const uploadedPromotionIds = uploadedPromotions.map(
           (promotion) => promotion.id
         );
-        const userRepository = transactionalEntityManager.getCustomRepository(
-          UserRepository
-        );
-
-        const authenticatedUser = await userRepository.findByFirebaseId(
-          res.locals.firebaseUserId
-        );
-
-        if (authenticatedUser.id !== id) {
-          throw new ForbiddenError();
-        }
 
         const result = await userRepository.delete(id);
         await this.resourceCleanupService.cleanupResourceForPromotions(
