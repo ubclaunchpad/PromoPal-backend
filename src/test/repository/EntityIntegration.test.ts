@@ -22,6 +22,8 @@ import { Day } from '../../main/data/Day';
 import { RestaurantFactory } from '../factory/RestaurantFactory';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
+import { VoteRecordRepository } from '../../main/repository/VoteRecordRepository';
+import { VoteRecord, VoteState } from '../../main/entity/VoteRecord';
 
 describe('Integration tests for all entities', function () {
   const SAMPLE_SEARCH_QUERY = 'beef cafe';
@@ -32,6 +34,7 @@ describe('Integration tests for all entities', function () {
   let restaurantRepository: RestaurantRepository;
   let savedPromotionRepository: SavedPromotionRepository;
   let scheduleRepository: ScheduleRepository;
+  let voteRecordRepository: VoteRecordRepository;
 
   beforeAll(async () => {
     await connection.create();
@@ -49,6 +52,7 @@ describe('Integration tests for all entities', function () {
     restaurantRepository = getCustomRepository(RestaurantRepository);
     savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
     scheduleRepository = getCustomRepository(ScheduleRepository);
+    voteRecordRepository = getCustomRepository(VoteRecordRepository);
   });
 
   test('Should not be able to save a promotion if user is not saved', async () => {
@@ -924,6 +928,56 @@ describe('Integration tests for all entities', function () {
       for (const promotion of promotions) {
         expect(promotion.isSavedByUser).toBeUndefined();
       }
+    } catch (e) {
+      fail('Should not have failed: ' + e);
+    }
+  });
+
+  test('Promotions should tell whether user has voted the promotion or not if userId is provided to query', async () => {
+    const user = new UserFactory().generate();
+    const promotion1 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion2 = new PromotionFactory().generateWithRelatedEntities(user);
+    const promotion3 = new PromotionFactory().generateWithRelatedEntities(user);
+    await userRepository.save(user);
+    await promotionRepository.save(promotion1);
+    await promotionRepository.save(promotion2);
+    await promotionRepository.save(promotion3);
+    // promotion1
+    let voteRecord: VoteRecord = new VoteRecord(user, promotion1);
+    await voteRecordRepository.save(voteRecord);
+    voteRecord.voteState = VoteState.UP;
+    await promotionRepository.increment({ id: promotion1.id }, 'votes', 1);
+    await voteRecordRepository.save(voteRecord);
+    // promotion2
+    voteRecord = new VoteRecord(user, promotion2);
+    await voteRecordRepository.save(voteRecord);
+    voteRecord.voteState = VoteState.DOWN;
+    await promotionRepository.decrement({ id: promotion2.id }, 'votes', 1);
+    await voteRecordRepository.save(voteRecord);
+
+    const promotionQueryDTO: PromotionQueryDTO = {
+      userId: user.id,
+    };
+
+    try {
+      const promotions: Promotion[] = await promotionRepository.getAllPromotions(
+        promotionQueryDTO
+      );
+
+      expect(promotions).toBeDefined();
+      expect(promotions.length).toEqual(3);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion1.id)
+          ?.voteState
+      ).toEqual(1);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion2.id)
+          ?.voteState
+      ).toEqual(VoteState.DOWN);
+      expect(
+        promotions.find((promotion) => promotion.id === promotion3.id)
+          ?.voteState
+      ).toEqual(VoteState.INIT);
     } catch (e) {
       fail('Should not have failed: ' + e);
     }
