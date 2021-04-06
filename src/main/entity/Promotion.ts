@@ -182,7 +182,7 @@ export class Promotion {
 
   /**
    * The list of user who voted this promotion.
-   * It has One to Many relatoin to VoteRecord Entity
+   * It has One to Many relation to VoteRecord Entity
    */
   @OneToMany(() => VoteRecord, (voteRecord) => voteRecord.promotion, {})
   votedBy: VoteRecord[];
