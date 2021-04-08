@@ -27,16 +27,8 @@ export class UserRouter {
       this.firebaseAuthMiddleware.isAuthorizedForProtection,
       this.userController.getOneById
     );
-    this.userRouter.get(
-      '/firebase/:firebaseId',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.getOneByFirebaseId
-    );
-    this.userRouter.post(
-      '/',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.newUser
-    );
+    // unauthorized because we are creating a user in firebase in this controller
+    this.userRouter.post('/', this.userController.newUser);
     this.userRouter.patch(
       '/:id',
       this.firebaseAuthMiddleware.isAuthorizedForProtection,

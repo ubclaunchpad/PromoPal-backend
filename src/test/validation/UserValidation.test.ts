@@ -9,7 +9,7 @@ describe('Unit tests for UserValidation', function () {
       firstName: 'testfirstname',
       lastName: 'testlastname',
       email: 'test@sample.com',
-      firebaseId: 'testidfirebase',
+      password: 'test password',
     };
   });
 
@@ -45,6 +45,19 @@ describe('Unit tests for UserValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"email" must be a valid email');
+    }
+  });
+
+  test('Should fail if password missing', async () => {
+    try {
+      userDTO.password = undefined;
+      await UserValidation.schema.validateAsync(userDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toEqual('"password" is required');
     }
   });
 });

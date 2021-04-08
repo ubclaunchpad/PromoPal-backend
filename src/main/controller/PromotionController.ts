@@ -173,13 +173,9 @@ export class PromotionController {
           abortEarly: false,
         });
 
-        const authenticatedUser = await transactionalEntityManager
-          .getCustomRepository(UserRepository)
-          .findByFirebaseId(response.locals.firebaseUserId);
-
         const potentialPromotionUploadedByUser = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .findOne({ id, user: authenticatedUser });
+          .findOne({ id, user: { id: response.locals.firebaseUserId } });
 
         if (!potentialPromotionUploadedByUser) {
           throw new ForbiddenError();

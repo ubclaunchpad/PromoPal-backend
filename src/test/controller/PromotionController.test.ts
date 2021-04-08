@@ -36,8 +36,13 @@ describe('Unit tests for PromotionController', function () {
 
   beforeEach(async () => {
     await connection.clear();
+    await baseController.createAuthenticatedUser();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
+  });
+
+  afterEach(async () => {
+    await baseController.deleteAuthenticatedUser();
   });
 
   test('GET /promotions', async (done) => {
@@ -373,12 +378,11 @@ describe('Unit tests for PromotionController', function () {
   });
 
   test('DELETE /promotions/:id', async (done) => {
-    const user: User = new UserFactory().generate();
-    user.firebaseId = baseController.firebaseId;
-    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
-
-    await userRepository.save(user);
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      baseController.authenticatedUser
+    );
     await promotionRepository.save(promotion);
+
     request(app)
       .delete(`/promotions/${promotion.id}`)
       .set('Authorization', baseController.idToken)
@@ -402,16 +406,13 @@ describe('Unit tests for PromotionController', function () {
 
   test('DELETE /promotions/:id - should not be able to delete a promotion that is not uploaded by the user', async (done) => {
     const userWhoUploadedPromotion: User = new UserFactory().generate();
-    const userWhoWantsToDeleteAnotherUsersPromotion: User = new UserFactory().generate();
-    userWhoWantsToDeleteAnotherUsersPromotion.firebaseId =
-      baseController.firebaseId;
     const promotion = new PromotionFactory().generateWithRelatedEntities(
       userWhoUploadedPromotion
     );
-
-    await userRepository.save(userWhoWantsToDeleteAnotherUsersPromotion);
     await userRepository.save(userWhoUploadedPromotion);
     await promotionRepository.save(promotion);
+
+    // BaseController.authenticatedUser is trying to delete another users promotion
     request(app)
       .delete(`/promotions/${promotion.id}`)
       .set('Authorization', baseController.idToken)
@@ -714,12 +715,10 @@ describe('Unit tests for PromotionController', function () {
   });
 
   test('DELETE /promotions/:id should cleanup external resources of a promotion such as s3 object', async (done) => {
-    const user: User = new UserFactory().generate();
-    user.firebaseId = baseController.firebaseId;
-    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     const expectedObject = '{"hello": false}';
-
-    await userRepository.save(user);
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      baseController.authenticatedUser
+    );
     await promotionRepository.save(promotion);
 
     await baseController.mockS3

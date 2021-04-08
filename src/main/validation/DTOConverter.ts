@@ -65,12 +65,6 @@ export class DTOConverter {
    * Convert UserDTO to a User
    */
   static userDTOtoUser(userDTO: UserDTO): User {
-    return new User(
-      userDTO.firstName,
-      userDTO.lastName,
-      userDTO.email,
-      userDTO.username,
-      userDTO.firebaseId
-    );
+    return new User(userDTO.firstName, userDTO.lastName, userDTO.username);
   }
 }

@@ -28,17 +28,6 @@ describe('Unit tests for UserRepository', function () {
     expect(user!.id).toEqual(expectedUser.id);
   });
 
-  test('Should be able to store a user and successfully retrieve by id firebase', async () => {
-    const expectedUser: User = new UserFactory().generate();
-    await userRepository.save(expectedUser);
-    const user = await userRepository.findByFirebaseId(
-      expectedUser.firebaseId,
-      { cache: true }
-    );
-    expect(user).toBeDefined();
-    expect(user!.id).toEqual(expectedUser.id);
-  });
-
   test('Should not be able to add two users with the same username', async () => {
     const userName = 'userName';
     const user1 = new UserFactory().generate();
@@ -51,38 +40,6 @@ describe('Unit tests for UserRepository', function () {
       fail('Should  have failed');
     } catch (e) {
       expect(e.detail).toEqual(`Key (username)=(${userName}) already exists.`);
-    }
-  });
-
-  test('Should not be able to add two users with the same id firebase', async () => {
-    const firebaseId = 'testidfirebase';
-    const user1 = new UserFactory().generate();
-    const user2 = new UserFactory().generate();
-    user1.firebaseId = firebaseId;
-    user2.firebaseId = firebaseId;
-    await userRepository.save(user1);
-    try {
-      await userRepository.save(user2);
-      fail('Should  have failed');
-    } catch (e) {
-      expect(e.detail).toEqual(
-        `Key (uid_firebase)=(${firebaseId}) already exists.`
-      );
-    }
-  });
-
-  test('Should not be able to add two users with the same email', async () => {
-    const email = 'test@gmail.com';
-    const user1 = new UserFactory().generate();
-    const user2 = new UserFactory().generate();
-    user1.email = email;
-    user2.email = email;
-    await userRepository.save(user1);
-    try {
-      await userRepository.save(user2);
-      fail('Should  have failed');
-    } catch (e) {
-      expect(e.detail).toEqual(`Key (email)=(${email}) already exists.`);
     }
   });
 });

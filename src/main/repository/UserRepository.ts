@@ -1,4 +1,4 @@
-import { EntityRepository, FindOneOptions, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { User } from '../entity/User';
 import { Promotion } from '../entity/Promotion';
 import { SavedPromotion } from '../entity/SavedPromotion';
@@ -7,13 +7,6 @@ import { SavedPromotion } from '../entity/SavedPromotion';
 export class UserRepository extends Repository<User> {
   findByName(firstName: string, lastName: string): Promise<User | undefined> {
     return this.findOne({ firstName, lastName });
-  }
-
-  findByFirebaseId(
-    firebaseId: string,
-    options?: FindOneOptions<User>
-  ): Promise<User> {
-    return this.findOneOrFail({ firebaseId }, options);
   }
 
   /**

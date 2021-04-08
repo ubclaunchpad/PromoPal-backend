@@ -10,6 +10,11 @@ import nodeGeocoder, { Geocoder } from 'node-geocoder';
 import AWSMock from 'mock-aws-s3';
 import { S3 } from 'aws-sdk';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { User } from '../../main/entity/User';
+import { getConnection } from 'typeorm';
+import { UserRepository } from '../../main/repository/UserRepository';
+import { UserFactory } from '../factory/UserFactory';
+import { randomString } from '../utility/Utility';
 
 export class BaseController {
   mockRedisClient: RedisClient;
@@ -18,7 +23,7 @@ export class BaseController {
   mockS3: S3;
   axiosInstance: AxiosInstance;
   idToken: string;
-  firebaseId: string;
+  authenticatedUser: User;
 
   constructor() {
     this.mockRedisClient = BaseController.createRedisMock();
@@ -45,8 +50,6 @@ export class BaseController {
     );
     // cleanup resources from previous bucket if possible
     await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
-    await (this.mockFirebaseAdmin as any).autoFlush();
-    await this.createAuthenticatedUser();
     return expressApp;
   };
 
@@ -85,7 +88,9 @@ export class BaseController {
       // }
       null
     );
-    return mockSdk.auth();
+    const firebaseAdmin = mockSdk.auth();
+    (firebaseAdmin as any).autoFlush();
+    return firebaseAdmin;
   };
 
   static createMockNodeGeocoder = (): Geocoder => {
@@ -99,16 +104,30 @@ export class BaseController {
   };
 
   /**
-   * Create a mock authenticated user
+   * Create a mock authenticated user.
+   * * Note this should be called in the beforeEach of test files (we do not want tests to rely on the same user in multiple tests)
    * */
   async createAuthenticatedUser(): Promise<void> {
+    const authenticatedUser = new UserFactory().generate();
+    await getConnection()
+      .getCustomRepository(UserRepository)
+      .save(authenticatedUser);
     // create user
     const user = await (this.mockFirebaseAdmin as any).createUser({
-      email: 'test@gmail.com',
-      password: 'testpassword',
+      uid: authenticatedUser.id,
+      email: randomString(20) + '@gmail.com',
+      password: randomString(20),
     });
     this.idToken = await user.getIdToken();
-    this.firebaseId = user.uid;
+    this.authenticatedUser = authenticatedUser;
+  }
+
+  /**
+   * Delete the mock authenticated user
+   * * Note this should be called in the afterEach of test files (we do not want tests to rely on the same user in multiple tests)
+   * */
+  async deleteAuthenticatedUser(): Promise<void> {
+    await this.mockFirebaseAdmin.deleteUser(this.authenticatedUser.id);
   }
 
   quit = async (): Promise<void> => {
