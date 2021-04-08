@@ -13,10 +13,13 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
 import { SortOptions } from '../../main/data/SortOptions';
 import { Promotion } from '../../main/entity/Promotion';
+import { VoteRecordRepository } from '../../main/repository/VoteRecordRepository';
+import { VoteState } from '../../main/entity/VoteRecord';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { randomString } from '../utility/Utility';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { ErrorMessages } from '../../main/errors/ErrorMessages';
 
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
@@ -504,12 +507,14 @@ describe('Unit tests for PromotionController', function () {
 
   test('DELETE /promotions/:id', async (done) => {
     const user: User = new UserFactory().generate();
+    user.firebaseId = baseController.firebaseId;
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
 
     await userRepository.save(user);
     await promotionRepository.save(promotion);
     request(app)
       .delete(`/promotions/${promotion.id}`)
+      .set('Authorization', baseController.idToken)
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -528,9 +533,31 @@ describe('Unit tests for PromotionController', function () {
       });
   });
 
-  test('DELETE /promotions/:id - deleting non-existent promotion should not fail', async (done) => {
-    const nonExistentUUID = '65d7bc0a-6490-4e09-82e0-cb835a64e1b8';
-    request(app).delete(`/promotions/${nonExistentUUID}`).expect(204, done);
+  test('DELETE /promotions/:id - should not be able to delete a promotion that is not uploaded by the user', async (done) => {
+    const userWhoUploadedPromotion: User = new UserFactory().generate();
+    const userWhoWantsToDeleteAnotherUsersPromotion: User = new UserFactory().generate();
+    userWhoWantsToDeleteAnotherUsersPromotion.firebaseId =
+      baseController.firebaseId;
+    const promotion = new PromotionFactory().generateWithRelatedEntities(
+      userWhoUploadedPromotion
+    );
+
+    await userRepository.save(userWhoWantsToDeleteAnotherUsersPromotion);
+    await userRepository.save(userWhoUploadedPromotion);
+    await promotionRepository.save(promotion);
+    request(app)
+      .delete(`/promotions/${promotion.id}`)
+      .set('Authorization', baseController.idToken)
+      .expect(204)
+      .end((error, res) => {
+        const frontEndErrorObject = res.body;
+        expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
+        expect(frontEndErrorObject.message).toHaveLength(1);
+        expect(frontEndErrorObject.message[0]).toEqual(
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
+        );
+        done();
+      });
   });
 
   test('POST /promotions/:id/upVote', async (done) => {
@@ -540,8 +567,14 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
     request(app)
       .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -551,10 +584,19 @@ describe('Unit tests for PromotionController', function () {
             const promotionRepository = transactionalEntityManager.getCustomRepository(
               PromotionRepository
             );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
             const newPromotion = await promotionRepository.findOneOrFail(
               promotion.id
             );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
             expect(newPromotion.votes).toEqual(1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.UP);
             done();
           }
         );
@@ -568,8 +610,14 @@ describe('Unit tests for PromotionController', function () {
     await userRepository.save(user);
     await promotionRepository.save(promotion);
 
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
     request(app)
       .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -579,10 +627,219 @@ describe('Unit tests for PromotionController', function () {
             const promotionRepository = transactionalEntityManager.getCustomRepository(
               PromotionRepository
             );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
             const newPromotion = await promotionRepository.findOneOrFail(
               promotion.id
             );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
             expect(newPromotion.votes).toEqual(-1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.DOWN);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/upVote - voting to become INIT', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(0);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.INIT);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/downVote - voting to become INIT', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(0);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.INIT);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/upVote - voting to become DOWN from UP', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(-1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.DOWN);
+            done();
+          }
+        );
+      });
+  });
+
+  test('POST /promotions/:id/downVote - voting to become UP from DOWN', async (done) => {
+    const user: User = new UserFactory().generate();
+    const promotion = new PromotionFactory().generateWithRelatedEntities(user);
+
+    await userRepository.save(user);
+    await promotionRepository.save(promotion);
+
+    const votingUser: User = new UserFactory().generate();
+    await userRepository.save(votingUser);
+
+    await request(app)
+      .post(`/promotions/${promotion.id}/downVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204);
+    // second time
+    request(app)
+      .post(`/promotions/${promotion.id}/upVote`)
+      .send({
+        uid: votingUser.id,
+      })
+      .expect(204)
+      .then(() => {
+        return getManager().transaction(
+          'READ UNCOMMITTED',
+          async (transactionalEntityManager) => {
+            // check that promotion votes has incremented
+            const promotionRepository = transactionalEntityManager.getCustomRepository(
+              PromotionRepository
+            );
+            const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+              VoteRecordRepository
+            );
+            const newPromotion = await promotionRepository.findOneOrFail(
+              promotion.id
+            );
+            const newVoteRecord = await voteRecordRepository.findOneOrFail({
+              userId: votingUser.id,
+              promotionId: promotion.id,
+            });
+            expect(newPromotion.votes).toEqual(1);
+            expect(newVoteRecord).toBeDefined();
+            expect(newVoteRecord.voteState).toEqual(VoteState.UP);
             done();
           }
         );
@@ -591,6 +848,7 @@ describe('Unit tests for PromotionController', function () {
 
   test('DELETE /promotions/:id should cleanup external resources of a promotion such as s3 object', async (done) => {
     const user: User = new UserFactory().generate();
+    user.firebaseId = baseController.firebaseId;
     const promotion = new PromotionFactory().generateWithRelatedEntities(user);
     const expectedObject = '{"hello": false}';
 
@@ -608,6 +866,7 @@ describe('Unit tests for PromotionController', function () {
 
     request(app)
       .delete(`/promotions/${promotion.id}`)
+      .set('Authorization', baseController.idToken)
       .expect(204)
       .then(async () => {
         try {

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { PromotionRepository } from '../repository/PromotionRepository';
-import { getManager } from 'typeorm';
+import { EntityManager, getManager } from 'typeorm';
 import { UserRepository } from '../repository/UserRepository';
 import {
   PromotionDTO,
@@ -13,10 +13,13 @@ import {
 } from '../validation/PromotionQueryValidation';
 import * as querystring from 'querystring';
 import { DTOConverter } from '../validation/DTOConverter';
+import { VoteState } from '../entity/VoteRecord';
+import { VoteRecordRepository } from '../repository/VoteRecordRepository';
 import { RestaurantRepository } from '../repository/RestaurantRepository';
 import { Restaurant } from '../entity/Restaurant';
 import { GeocodingService } from '../service/GeocodingService';
 import { ResourceCleanupService } from '../service/ResourceCleanupService';
+import { ForbiddenError } from '../errors/Error';
 
 export class PromotionController {
   private geocodingService: GeocodingService;
@@ -156,7 +159,8 @@ export class PromotionController {
   };
 
   /**
-   * Deletes a promotion
+   * Deletes a promotion.
+   * We need to ensure only the user who uploaded the promotion is allowed to delete it.
    */
   deletePromotion = async (
     request: Request,
@@ -168,11 +172,24 @@ export class PromotionController {
         const id = await IdValidation.schema.validateAsync(request.params.id, {
           abortEarly: false,
         });
-        const promotion = await transactionalEntityManager
+
+        const authenticatedUser = await transactionalEntityManager
+          .getCustomRepository(UserRepository)
+          .findByFirebaseId(response.locals.firebaseUserId);
+
+        const potentialPromotionUploadedByUser = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .findOne({ id, user: authenticatedUser });
+
+        if (!potentialPromotionUploadedByUser) {
+          throw new ForbiddenError();
+        }
+
+        const deleteResult = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .delete(id);
         await this.resourceCleanupService.cleanupResourceForPromotion(id);
-        return response.status(204).send(promotion);
+        return response.status(204).send(deleteResult);
       });
     } catch (e) {
       return next(e);
@@ -190,12 +207,50 @@ export class PromotionController {
   ): Promise<any> => {
     try {
       await getManager().transaction(async (transactionalEntityManager) => {
-        const id = await IdValidation.schema.validateAsync(request.params.id, {
+        const pid = await IdValidation.schema.validateAsync(request.params.id, {
           abortEarly: false,
         });
+        const uid = await IdValidation.schema.validateAsync(request.body.uid, {
+          abortEarly: false,
+        });
+
+        await this.checkIfUserAndPromotionExist(
+          transactionalEntityManager,
+          pid,
+          uid
+        );
+
+        const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+          VoteRecordRepository
+        );
+
+        const voteRecord = await voteRecordRepository.findOne({
+          userId: uid,
+          promotionId: pid,
+        });
+        if (!voteRecord) {
+          await voteRecordRepository.save({
+            userId: uid,
+            promotionId: pid,
+            voteState: VoteState.UP,
+          });
+          await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .increment({ id: pid }, 'votes', 1);
+          return response.status(204).send();
+        }
+        const voteValue: number =
+          voteRecord.voteState === VoteState.UP
+            ? -1
+            : voteRecord.voteState === VoteState.DOWN
+            ? 2
+            : 1;
+        voteRecord.voteState =
+          voteRecord.voteState === VoteState.UP ? VoteState.INIT : VoteState.UP;
         await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .increment({ id }, 'votes', 1);
+          .increment({ id: pid }, 'votes', voteValue);
+        await voteRecordRepository.save(voteRecord);
         return response.status(204).send();
       });
     } catch (e) {
@@ -214,16 +269,72 @@ export class PromotionController {
   ): Promise<any> => {
     try {
       await getManager().transaction(async (transactionalEntityManager) => {
-        const id = await IdValidation.schema.validateAsync(request.params.id, {
+        const pid = await IdValidation.schema.validateAsync(request.params.id, {
           abortEarly: false,
         });
+        const uid = await IdValidation.schema.validateAsync(request.body.uid, {
+          abortEarly: false,
+        });
+
+        await this.checkIfUserAndPromotionExist(
+          transactionalEntityManager,
+          pid,
+          uid
+        );
+
+        const voteRecordRepository = transactionalEntityManager.getCustomRepository(
+          VoteRecordRepository
+        );
+
+        const voteRecord = await voteRecordRepository.findOne({
+          userId: uid,
+          promotionId: pid,
+        });
+        if (!voteRecord) {
+          await voteRecordRepository.save({
+            userId: uid,
+            promotionId: pid,
+            voteState: VoteState.DOWN,
+          });
+          await transactionalEntityManager
+            .getCustomRepository(PromotionRepository)
+            .decrement({ id: pid }, 'votes', 1);
+          return response.status(204).send();
+        }
+        const voteValue: number =
+          voteRecord.voteState === VoteState.DOWN
+            ? -1
+            : voteRecord.voteState === VoteState.UP
+            ? 2
+            : 1;
+        voteRecord.voteState =
+          voteRecord.voteState === VoteState.DOWN
+            ? VoteState.INIT
+            : VoteState.DOWN;
         await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
-          .decrement({ id }, 'votes', 1);
+          .decrement({ id: pid }, 'votes', voteValue);
+        await voteRecordRepository.save(voteRecord);
         return response.status(204).send();
       });
     } catch (e) {
       return next(e);
     }
   };
+
+  /**
+   * Checks if repositories contain entity with respective IDs
+   * */
+  private async checkIfUserAndPromotionExist(
+    transactionalEntityManager: EntityManager,
+    pid: string,
+    uid: string
+  ) {
+    await transactionalEntityManager
+      .getCustomRepository(PromotionRepository)
+      .findOneOrFail(pid);
+    await transactionalEntityManager
+      .getCustomRepository(UserRepository)
+      .findOneOrFail(uid);
+  }
 }

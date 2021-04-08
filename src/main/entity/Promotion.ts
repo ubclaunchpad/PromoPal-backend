@@ -14,6 +14,7 @@ import { PromotionType } from '../data/PromotionType';
 import { CuisineType } from '../data/CuisineType';
 import { SavedPromotion } from './SavedPromotion';
 import { Schedule } from './Schedule';
+import { VoteRecord, VoteState } from './VoteRecord';
 import { Restaurant } from './Restaurant';
 
 /*
@@ -180,8 +181,21 @@ export class Promotion {
   votes: number;
 
   /**
+   * The list of user who voted this promotion.
+   * It has One to Many relation to VoteRecord Entity
+   */
+  @OneToMany(() => VoteRecord, (voteRecord) => voteRecord.promotion, {})
+  votedBy: VoteRecord[];
+
+  /**
    * True if the user has saved this promotion
    * * Note this is used for endpoints that need to be aware of the user making the request
    * */
   isSavedByUser?: boolean;
+
+  /**
+   * Vote state of promotion
+   * This is used for endpoints that need to be aware of the user making the request
+   */
+  voteState?: VoteState;
 }
