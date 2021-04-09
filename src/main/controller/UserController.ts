@@ -324,12 +324,19 @@ export class UserController {
         const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
-        const uploadedPromotions = await userRepository.findOneOrFail(id, {
-          relations: ['uploadedPromotions'],
-          cache: true,
-        });
 
-        return res.status(200).send(uploadedPromotions);
+        const promotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .find({
+            where: {
+              user: {
+                id,
+              },
+            },
+            relations: ['schedules', 'discount', 'restaurant'],
+            cache: true,
+          });
+        return res.status(200).send(promotions);
       });
     } catch (e) {
       next(e);

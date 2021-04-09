@@ -389,15 +389,16 @@ describe('Unit tests for UserController', function () {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('uploadedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.uploadedPromotions).toHaveLength(1);
-        expect(user.uploadedPromotions[0]).toMatchObject({
+        const promotions = res.body as Promotion[];
+        expect(promotions).toHaveLength(1);
+        expect(promotions[0]).toMatchObject({
           id: promotion.id,
           name: promotion.name,
           description: promotion.description,
         });
+        expect(promotions[0].discount).toBeDefined();
+        expect(promotions[0].restaurant).toBeDefined();
+        expect(promotions[0].schedules).toBeDefined();
         done();
       });
   });
