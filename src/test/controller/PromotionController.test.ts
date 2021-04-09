@@ -4,15 +4,19 @@ import { UserRepository } from '../../main/repository/UserRepository';
 import connection from '../repository/BaseRepositoryTest';
 import { Express } from 'express';
 import request from 'supertest';
+import { RestaurantFactory } from '../factory/RestaurantFactory';
+import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
 import { UserFactory } from '../factory/UserFactory';
 import { BaseController } from './BaseController';
 import { PromotionFactory } from '../factory/PromotionFactory';
 import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { DiscountType } from '../../main/data/DiscountType';
+import { SortOptions } from '../../main/data/SortOptions';
 import { Promotion } from '../../main/entity/Promotion';
 import { VoteRecordRepository } from '../../main/repository/VoteRecordRepository';
 import { VoteState } from '../../main/entity/VoteRecord';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
+import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { randomString } from '../utility/Utility';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
 import { ErrorMessages } from '../../main/errors/ErrorMessages';
@@ -20,6 +24,8 @@ import { ErrorMessages } from '../../main/errors/ErrorMessages';
 describe('Unit tests for PromotionController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
+  let restaurantRepository: RestaurantRepository;
+  let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
   let baseController: BaseController;
 
@@ -39,6 +45,8 @@ describe('Unit tests for PromotionController', function () {
     await baseController.createAuthenticatedUser();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
+    restaurantRepository = getCustomRepository(RestaurantRepository);
+    savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
   });
 
   afterEach(async () => {
@@ -126,6 +134,131 @@ describe('Unit tests for PromotionController', function () {
           expect(promotion).toHaveProperty('boldDescription');
           expect(promotion).toHaveProperty('boldName');
         }
+        done();
+      });
+  });
+
+  test('GET /promotions - sort by distance', async (done) => {
+    const user: User = new UserFactory().generate();
+
+    const restaurants = [
+      new RestaurantFactory().generate(undefined, 0, 0),
+      new RestaurantFactory().generate(undefined, 49, -123),
+      new RestaurantFactory().generate(undefined, 50, -100),
+    ];
+
+    // In order of closest restaurant to user
+    const expectedPromotions = [
+      new PromotionFactory().generateWithRelatedEntities(user, restaurants[1]),
+      new PromotionFactory().generateWithRelatedEntities(user, restaurants[2]),
+      new PromotionFactory().generateWithRelatedEntities(user, restaurants[0]),
+    ];
+
+    await userRepository.save(user);
+    await Promise.all(
+      restaurants.map((restaurant) => restaurantRepository.save(restaurant))
+    );
+    await Promise.all(
+      expectedPromotions.map((promotion) => promotionRepository.save(promotion))
+    );
+
+    request(app)
+      .get('/promotions')
+      .query({
+        sort: SortOptions.DISTANCE,
+        lat: 49.282,
+        lon: -123.1171,
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotions = res.body;
+        expect(promotions).toHaveLength(3);
+        promotions.forEach((promotion: Promotion, index: number) => {
+          // expected promotions should be same order as promotions returned
+          comparePromotions(promotion, expectedPromotions[index]);
+        });
+        done();
+      });
+  });
+
+  test('GET /promotions - sort by popularity', async (done) => {
+    // Note: only able to test sorting based on number of likes; unable to factor in time periods
+    // because the date_added column is created upon insertion
+
+    const users = [
+      new UserFactory().generate(),
+      new UserFactory().generate(),
+      new UserFactory().generate(),
+    ];
+
+    const expectedPromotions = [
+      new PromotionFactory().generateWithRelatedEntities(users[0]),
+      new PromotionFactory().generateWithRelatedEntities(users[0]),
+      new PromotionFactory().generateWithRelatedEntities(users[0]),
+    ];
+
+    const savedPromotions = [
+      new SavedPromotionFactory().generate(users[0], expectedPromotions[0]),
+      new SavedPromotionFactory().generate(users[0], expectedPromotions[1]),
+      new SavedPromotionFactory().generate(users[1], expectedPromotions[0]),
+      new SavedPromotionFactory().generate(users[1], expectedPromotions[1]),
+      new SavedPromotionFactory().generate(users[1], expectedPromotions[2]),
+      new SavedPromotionFactory().generate(users[2], expectedPromotions[0]),
+    ];
+
+    await Promise.all(users.map((user) => userRepository.save(user)));
+    await Promise.all(
+      expectedPromotions.map((promotion) => promotionRepository.save(promotion))
+    );
+    await Promise.all(
+      savedPromotions.map((save) => savedPromotionRepository.save(save))
+    );
+
+    request(app)
+      .get('/promotions')
+      .query({
+        sort: SortOptions.POPULARITY,
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotions = res.body;
+        expect(promotions).toHaveLength(3);
+        promotions.forEach((promotion: Promotion, index: number) => {
+          comparePromotions(promotion, expectedPromotions[index]);
+        });
+        done();
+      });
+  });
+
+  test('GET /promotions - sort by recency', async (done) => {
+    const user: User = new UserFactory().generate();
+
+    const expectedPromotions = [
+      new PromotionFactory().generateWithRelatedEntities(user),
+      new PromotionFactory().generateWithRelatedEntities(user),
+      new PromotionFactory().generateWithRelatedEntities(user),
+    ];
+
+    await userRepository.save(user);
+    await promotionRepository.save(expectedPromotions[0]);
+    await promotionRepository.save(expectedPromotions[1]);
+    await promotionRepository.save(expectedPromotions[2]);
+
+    request(app)
+      .get('/promotions')
+      .query({
+        sort: SortOptions.POPULARITY,
+      })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        const promotions = res.body;
+        expect(promotions).toHaveLength(3);
+        promotions.forEach((promotion: Promotion, index: number) => {
+          comparePromotions(promotion, expectedPromotions[index]);
+        });
         done();
       });
   });
