@@ -413,10 +413,8 @@ describe('Unit tests for UserController', function () {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('uploadedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.uploadedPromotions).toHaveLength(0);
+        const promotions = res.body as Promotion[];
+        expect(promotions).toHaveLength(0);
         done();
       });
   });
