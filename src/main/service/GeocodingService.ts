@@ -1,4 +1,4 @@
-import { Entry, Geocoder } from 'node-geocoder';
+import { Entry, Geocoder, Query } from 'node-geocoder';
 import { GeoCoordinate } from '../data/GeoCoordinate';
 
 /**
@@ -15,11 +15,23 @@ export class GeocodingService {
    * Geocode the address
    * NOTE: The resulting latitude and longitude values may be null
    * @param address The address of the restaurant
+   * @param includeCountryCode To include or exclude country code in query
+   * NOTE: At the moment, we only exclude when testing with openstreetmaps
    */
   public async getGeoCoordinateFromAddress(
-    address: string
+    address: string,
+    includeCountryCode: boolean
   ): Promise<GeoCoordinate> {
-    const entries: Entry[] = await this.geocoder.geocode(address);
+    let entries: Entry[];
+
+    if (includeCountryCode) {
+      // currently set to Canada
+      const query: Query = { address, countryCode: 'ca' };
+      entries = await this.geocoder.geocode(query);
+    } else {
+      entries = await this.geocoder.geocode(address);
+    }
+
     const result: GeoCoordinate = {};
 
     if (entries?.length) {
