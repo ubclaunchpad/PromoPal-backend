@@ -321,9 +321,6 @@ export class UserController {
         const id = await IdValidation.schema.validateAsync(req.params.id, {
           abortEarly: false,
         });
-        const userRepository = transactionalEntityManager.getCustomRepository(
-          UserRepository
-        );
 
         const promotions = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
