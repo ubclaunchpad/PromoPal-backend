@@ -1,0 +1,31 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PlaceField = void 0;
+var PlaceField;
+(function (PlaceField) {
+    PlaceField["ADDRESS_COMPONENT"] = "address_component";
+    PlaceField["ADR_ADDRESS"] = "adr_address";
+    PlaceField["BUSINESS_STATUS"] = "business_status";
+    PlaceField["FORMATTED_ADDRESS"] = "formatted_address";
+    PlaceField["GEOMETRY"] = "geometry";
+    PlaceField["GEOMETRY_VIEWPORT"] = "geometry/viewport";
+    PlaceField["GEOMETRY_LOCATION"] = "geometry/location";
+    PlaceField["ICON"] = "icon";
+    PlaceField["NAME"] = "name";
+    PlaceField["PHOTOS"] = "photos";
+    PlaceField["PLACE_ID"] = "place_id";
+    PlaceField["PLUS_CODE"] = "plus_code";
+    PlaceField["TYPE"] = "type";
+    PlaceField["URL"] = "url";
+    PlaceField["UTC_OFFSET_MINUTES"] = "utc_offset";
+    PlaceField["VICINITY"] = "vicinity";
+    PlaceField["FORMATTED_PHONE_NUMBER"] = "formatted_phone_number";
+    PlaceField["INTERNATIONAL_PHONE_NUMBER"] = "international_phone_number";
+    PlaceField["OPENING_HOURS"] = "opening_hours";
+    PlaceField["WEBSITE"] = "website";
+    PlaceField["PRICE_LEVEL"] = "price_level";
+    PlaceField["RATING"] = "rating";
+    PlaceField["REVIEWS"] = "reviews";
+    PlaceField["USER_RATINGS_TOTAL"] = "user_ratings_total";
+})(PlaceField = exports.PlaceField || (exports.PlaceField = {}));
+//# sourceMappingURL=PlaceField.js.map

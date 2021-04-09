@@ -1,0 +1,193 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.saved_promotions_mapping = exports.promotions_sample = exports.users_sample = exports.schedules_sample = exports.restaurants_sample = exports.discounts_sample = void 0;
+const Discount_1 = require("../entity/Discount");
+const DiscountType_1 = require("../data/DiscountType");
+const User_1 = require("../entity/User");
+const Promotion_1 = require("../entity/Promotion");
+const PromotionType_1 = require("../data/PromotionType");
+const CuisineType_1 = require("../data/CuisineType");
+const Schedule_1 = require("../entity/Schedule");
+const Day_1 = require("../data/Day");
+const Utility_1 = require("../../test/utility/Utility");
+const Restaurant_1 = require("../entity/Restaurant");
+const discount1 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 1);
+const discount2 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 2);
+const discount3 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 3.99);
+const discount4 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 4);
+const discount5 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 5.6);
+const discount6 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 6);
+const discount7 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 7);
+const discount8 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 8);
+const discount9 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 9);
+const discount10 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 10);
+const discount11 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 11);
+const discount12 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 12);
+const discount13 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 13);
+const discount14 = new Discount_1.Discount(DiscountType_1.DiscountType.PERCENTAGE, 14);
+const discount15 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 15);
+const discount16 = new Discount_1.Discount(DiscountType_1.DiscountType.AMOUNT, 16);
+const restaurant1 = new Restaurant_1.Restaurant('ChIJ68aBlEKuEmsRHUA9oME5Zh0', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant2 = new Restaurant_1.Restaurant('ChIJA-0OPKQKhlQR8WB-1dOiRaw', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant3 = new Restaurant_1.Restaurant('ChIJGZm5K6wKhlQRCkwz2xsWlYI', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant4 = new Restaurant_1.Restaurant('ChIJyX2BLCDghVQRDtzP0tgGZqU', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant5 = new Restaurant_1.Restaurant('ChIJefz2wrUKhlQRQJO62qB-ZCg', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant6 = new Restaurant_1.Restaurant('ChIJITIhNqwKhlQR6FbiZeiU2AE', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant7 = new Restaurant_1.Restaurant('ChIJd1W_niiCC0ERUiedphae1hE', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const restaurant8 = new Restaurant_1.Restaurant('ChIJi6dre991hlQRLtGHwrL-Jos', Utility_1.randomLatitude(), Utility_1.randomLongitude());
+const schedule1 = new Schedule_1.Schedule('8:00', '11:00', Day_1.Day.MONDAY, false);
+const schedule2 = new Schedule_1.Schedule('9:00', '12:00', Day_1.Day.TUESDAY, false);
+const schedule3 = new Schedule_1.Schedule('10:00', '13:00', Day_1.Day.WEDNESDAY, false);
+const schedule4 = new Schedule_1.Schedule('11:00', '14:00', Day_1.Day.THURSDAY, false);
+const schedule5 = new Schedule_1.Schedule('12:00', '15:00', Day_1.Day.FRIDAY, false);
+const schedule6 = new Schedule_1.Schedule('13:00', '16:00', Day_1.Day.SATURDAY, false);
+const schedule7 = new Schedule_1.Schedule('14:00', '17:00', Day_1.Day.SUNDAY, false);
+const schedule8 = new Schedule_1.Schedule('15:00', '18:00', Day_1.Day.MONDAY, true);
+const schedule9 = new Schedule_1.Schedule('16:00', '19:00', Day_1.Day.TUESDAY, true);
+const schedule10 = new Schedule_1.Schedule('17:00', '20:00', Day_1.Day.WEDNESDAY, true);
+const schedule11 = new Schedule_1.Schedule('18:00', '21:00', Day_1.Day.THURSDAY, true);
+const schedule12 = new Schedule_1.Schedule('19:00', '22:00', Day_1.Day.FRIDAY, true);
+const schedule13 = new Schedule_1.Schedule('20:00', '23:00', Day_1.Day.SATURDAY, true);
+const schedule14 = new Schedule_1.Schedule('21:00', '24:00', Day_1.Day.SUNDAY, true);
+const schedule15 = new Schedule_1.Schedule('8:30', '10:30', Day_1.Day.MONDAY, true);
+const schedule16 = new Schedule_1.Schedule('9:30', '11:30', Day_1.Day.TUESDAY, true);
+const schedule17 = new Schedule_1.Schedule('10:30', '12:30', Day_1.Day.WEDNESDAY, false);
+const schedule18 = new Schedule_1.Schedule('11:30', '13:30', Day_1.Day.TUESDAY, false);
+const schedule19 = new Schedule_1.Schedule('12:30', '14:30', Day_1.Day.WEDNESDAY, false);
+const schedule20 = new Schedule_1.Schedule('13:30', '15:30', Day_1.Day.THURSDAY, false);
+const schedule21 = new Schedule_1.Schedule('14:30', '16:30', Day_1.Day.FRIDAY, false);
+const schedule22 = new Schedule_1.Schedule('15:30', '17:30', Day_1.Day.SATURDAY, false);
+const schedule23 = new Schedule_1.Schedule('16:30', '18:30', Day_1.Day.SUNDAY, false);
+const schedule24 = new Schedule_1.Schedule('1:45', '6:10', Day_1.Day.MONDAY, true);
+const schedule25 = new Schedule_1.Schedule('2:15', '7:23', Day_1.Day.TUESDAY, true);
+const schedule26 = new Schedule_1.Schedule('3:45', '8:15', Day_1.Day.WEDNESDAY, true);
+const schedule27 = new Schedule_1.Schedule('4:42', '9:16', Day_1.Day.THURSDAY, true);
+const user1 = new User_1.User('John', 'Smith', 'smith.j@sample.com', 'user1', 'user1_password');
+const user2 = new User_1.User('Asa', 'Edward', 'edward.a@sample.com', 'user2', 'user2_password');
+const user3 = new User_1.User('Harry', 'James', 'james.h@sample.com', 'user3', 'user3_password');
+const user4 = new User_1.User('Timothy', 'Dodson', 'dodson.t@sample.com', 'user4', 'user4_password');
+const user5 = new User_1.User('Yuri', 'Davis', 'davis.y@sample.com', 'user5', 'user5_password');
+const user6 = new User_1.User('Ethal', 'May', 'may.e@sample.com', 'user6', 'user6_password');
+const user7 = new User_1.User('Ruby', 'Eleanor', 'eleanor.r@sample.com', 'user7', 'user7_password');
+const promotion1 = new Promotion_1.Promotion(user1, discount1, restaurant1, [schedule1, schedule2], PromotionType_1.PromotionType.BOGO, CuisineType_1.CuisineType.CARIBBEAN, 'Fries for Good - November 10th - 30th', `From November 10th to 30th a portion of the proceeds from every order of fries sold will be donated to Ronald McDonald House Charities Canada. All fries, whether bought alone, or in a meal will help! 
+  It’s never been easier to give back - all you have to do is eat your favourite fries (120-560 cals)! You can order them in-restaurant, at the drive thru, through McDelivery or you can order ahead on the McDonald’s app.
+  If you’re looking for more ways to help families with sick children you can always round up your order - even when Fries for Good is over. When you finish placing your order, simply ask to “Round Up for RMHC” at participating McDonald’s restaurants, and your order will be rounded to the nearest dollar. The difference will be donated to RMHC Canada.`, new Date(), new Date());
+const promotion2 = new Promotion_1.Promotion(user2, discount2, restaurant1, [schedule3, schedule4], PromotionType_1.PromotionType.HAPPY_HOUR, CuisineType_1.CuisineType.VIETNAMESE, 'Happy Hour At Pearl Castle Cafe', 'Just for a limited time happy hour deals starting at 7 pm. Drinks will be 15% off!', new Date(), new Date());
+const promotion3 = new Promotion_1.Promotion(user2, discount3, restaurant1, [schedule5, schedule6], PromotionType_1.PromotionType.OTHER, CuisineType_1.CuisineType.KOREAN, 'Thanksgiving Promotion Right Now!', "Every item on the menu for Wendy's is cheaper than usual. This promotion runs every Friday", new Date(), new Date());
+const promotion4 = new Promotion_1.Promotion(user2, discount4, restaurant2, [schedule7, schedule8], PromotionType_1.PromotionType.BOGO, CuisineType_1.CuisineType.JAPANESE, 'Saffron Indian Cuisine: 10% off pickup orders over $20', 'Lifetime; 10% off pick up orders over $20.00; #5 - 4300 Kingsway, Burnaby', new Date(), new Date());
+const promotion5 = new Promotion_1.Promotion(user3, discount5, restaurant2, [schedule9, schedule10], PromotionType_1.PromotionType.HAPPY_HOUR, CuisineType_1.CuisineType.OTHER, '54th Cafe Restaurant: Free items with pick-up orders', 'Pick-up only: Over $30 order - free spring rolls (2), over $45 order - free fried rice, over $65 order: free honey or dry garlic spareribs;; address is 7088 Kerr Street', new Date(), new Date());
+const promotion6 = new Promotion_1.Promotion(user4, discount6, restaurant3, [schedule11], PromotionType_1.PromotionType.OTHER, CuisineType_1.CuisineType.CARIBBEAN, 'McDonalds $1.00 Coffee any size starting Monday Nov. 30th', 'Event starts Monday, November 30th and you can get any size McCafé premium roast coffee for $1.00.', new Date(), new Date());
+const promotion7 = new Promotion_1.Promotion(user5, discount7, restaurant4, [schedule12], PromotionType_1.PromotionType.BOGO, CuisineType_1.CuisineType.VIETNAMESE, 'Starbucks Free drink when ordering through the app', 'Make a purchase using the Starbucks app from 11/23 to 11/29 at participating stores and get a coupon code loaded to your account for a free standard menu size handcrafted drink. Excludes purchases of alcohol, Starbucks Cards and Starbucks Card reloads.', new Date(), new Date());
+const promotion8 = new Promotion_1.Promotion(user5, discount8, restaurant5, [schedule13], PromotionType_1.PromotionType.HAPPY_HOUR, CuisineType_1.CuisineType.KOREAN, 'A&W Free Coffee: One Per Day Per Person until November 30th', 'For us, great burgers come first. Since 2013 we’ve been serving beef raised without artificial hormones and steroids, and now all our beef is also grass-fed. Grass-fed beef is as simple as it sounds — cattle only graze on grass and other forage, like hay. We source our grass-fed beef from select ranches in Canada, the US, Australia and New Zealand, and are committed to offering Canadians burgers they can confidently enjoy.', new Date(), new Date());
+const promotion9 = new Promotion_1.Promotion(user6, discount9, restaurant5, [schedule14], PromotionType_1.PromotionType.OTHER, CuisineType_1.CuisineType.JAPANESE, "50% off Domino's on Mon, Tues, Wed", '50% off all pizzas- Monday, Tuesday and Wednesday Only! Online Only (Code 8722).', new Date(), new Date());
+const promotion10 = new Promotion_1.Promotion(user6, discount10, restaurant5, [schedule15, schedule16, schedule17], PromotionType_1.PromotionType.BOGO, CuisineType_1.CuisineType.OTHER, 'Quesada - 50% off 2nd large ground beef burrito until Nov 22', 'Extended until Nov 22. Buy One Large Ground Beef Burrito and get the second Large Ground Beef Burrito for 50% off when you order online at quesada.ca or through the Quesada App. Use your exclusive promo code “GROUNDBEEF” at checkout.', new Date(), new Date());
+const promotion11 = new Promotion_1.Promotion(user7, discount11, restaurant5, [schedule18], PromotionType_1.PromotionType.HAPPY_HOUR, CuisineType_1.CuisineType.CARIBBEAN, 'Katsuya 30% off Takeout @ North York, Scarborough, Yorkdale, Downtown Toronto', 'Takeout 30% off at Katsuya. Applicable on all their Katsu menu. Cash Only. Only applicable at these following locations: North York, Downtown Toronto, Scarborough, Yorkdale', new Date(), new Date());
+const promotion12 = new Promotion_1.Promotion(user7, discount12, restaurant6, [schedule19], PromotionType_1.PromotionType.OTHER, CuisineType_1.CuisineType.VIETNAMESE, '7 Eleven $5 meal deal', 'Every Wednesday in November you can get an 8 inch sub, bag of 7 select chips, and a bottle of AHA water', new Date(), new Date());
+const promotion13 = new Promotion_1.Promotion(user7, discount13, restaurant7, [schedule20], PromotionType_1.PromotionType.BOGO, CuisineType_1.CuisineType.KOREAN, 'Swiss Chalet festive special returns, now includes $10 Chalet Cash voucher. Also BOGO 591ml Pepsi products', 'Visit https://www.swisschalet.com/en.html to get more details', new Date(), new Date());
+const promotion14 = new Promotion_1.Promotion(user7, discount14, restaurant7, [schedule21, schedule22], PromotionType_1.PromotionType.HAPPY_HOUR, CuisineType_1.CuisineType.JAPANESE, 'Tea18 $2 Bubble Tea', 'The store is located at 495 Bloor St West.', new Date(), new Date());
+const promotion15 = new Promotion_1.Promotion(user7, discount15, restaurant8, [schedule23], PromotionType_1.PromotionType.OTHER, CuisineType_1.CuisineType.OTHER, 'The Old Spaghetti Factory - Buy a $25 Gift Card Get $10 Bonus Card', "From now until December 31st, for every $25 in Gift Cards purchased, get a FREE $10 Bonus Card. Click 'ORDER NOW', or purchase in-store! *Gift Cards valid in Canada only. Gift Cards are not valid on date of purchase. Bonus Cards are valid from January 1st to March 15th, 2021. One Bonus Card redemption per table visit.", new Date(), new Date());
+const promotion16 = new Promotion_1.Promotion(user7, discount16, restaurant8, [schedule24, schedule25, schedule26, schedule27], PromotionType_1.PromotionType.BOGO, CuisineType_1.CuisineType.CARIBBEAN, 'Starbucks Happy Hour – Thursdays are twice as nice', 'Get two of your favourites for the price of one during Starbucks Happy Hour on select Thursdays each month, from 2 p.m. to 7 p.m. at participating stores. Our app is the best place for Happy Hour alerts and offer redemptions. Happy Hour happens every few weeks. But it’s always a Thursday from 2 p.m. to 7 p.m. and it’s always BOGO. And don’t worry, we’ll let you know when it’s happening and add the coupons to your home screen within the app. Make sure to enable push notifications for the Starbucks app on your phone to receive Happy Hour alerts.', new Date(), new Date());
+exports.discounts_sample = [
+    discount1,
+    discount2,
+    discount3,
+    discount4,
+    discount5,
+    discount6,
+    discount7,
+    discount8,
+    discount9,
+    discount10,
+    discount11,
+    discount12,
+    discount13,
+    discount14,
+    discount14,
+    discount15,
+    discount16,
+];
+exports.restaurants_sample = [
+    restaurant1,
+    restaurant2,
+    restaurant3,
+    restaurant4,
+    restaurant5,
+    restaurant6,
+    restaurant7,
+    restaurant8,
+];
+exports.schedules_sample = [
+    schedule1,
+    schedule2,
+    schedule3,
+    schedule4,
+    schedule5,
+    schedule6,
+    schedule7,
+    schedule8,
+    schedule9,
+    schedule10,
+    schedule11,
+    schedule12,
+    schedule13,
+    schedule14,
+    schedule15,
+    schedule16,
+    schedule17,
+    schedule18,
+    schedule19,
+    schedule20,
+    schedule21,
+    schedule22,
+    schedule23,
+    schedule24,
+    schedule25,
+    schedule26,
+    schedule27,
+];
+exports.users_sample = [user1, user2, user3, user4, user5, user6, user7];
+exports.promotions_sample = [
+    promotion1,
+    promotion2,
+    promotion3,
+    promotion4,
+    promotion5,
+    promotion6,
+    promotion7,
+    promotion8,
+    promotion9,
+    promotion10,
+    promotion11,
+    promotion12,
+    promotion13,
+    promotion14,
+    promotion15,
+    promotion16,
+];
+exports.saved_promotions_mapping = new Map([
+    [
+        user1,
+        [promotion1, promotion2, promotion3, promotion4, promotion7, promotion8],
+    ],
+    [
+        user2,
+        [promotion1, promotion2, promotion3, promotion4, promotion5, promotion6],
+    ],
+    [user3, [promotion1, promotion7, promotion8]],
+    [user4, [promotion1, promotion9, promotion10]],
+    [user5, [promotion1, promotion10, promotion11, promotion2, promotion3]],
+    [
+        user6,
+        [
+            promotion1,
+            promotion11,
+            promotion12,
+            promotion13,
+            promotion14,
+            promotion15,
+            promotion16,
+        ],
+    ],
+    [user7, exports.promotions_sample],
+]);
+//# sourceMappingURL=Data.js.map
