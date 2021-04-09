@@ -12,29 +12,18 @@ import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
 import { Restaurant } from '../../main/entity/Restaurant';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { ErrorMessages } from '../../main/errors/ErrorMessages';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
   let app: Express;
   let baseController: BaseController;
-  let firebaseId = '';
-  let idToken = '';
 
   beforeAll(async () => {
     await connection.create();
     baseController = new BaseController();
     app = await baseController.registerTestApplication();
-
-    (baseController.mockFirebaseAdmin as any).autoFlush();
-
-    // create user
-    const user = await (baseController.mockFirebaseAdmin as any).createUser({
-      email: 'test@gmail.com',
-      password: 'testpassword',
-    });
-    idToken = await user.getIdToken();
-    firebaseId = user.uid;
   });
 
   afterAll(async () => {
@@ -54,7 +43,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get('/users')
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -83,7 +72,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .get(`/users/${expectedUser.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -95,11 +84,11 @@ describe('Unit tests for UserController', function () {
 
   test('GET /users/firebase/:firebaseId', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = firebaseId;
+    expectedUser.firebaseId = baseController.firebaseId;
     await userRepository.save(expectedUser);
     request(app)
       .get(`/users/firebase/${expectedUser.firebaseId}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -111,12 +100,12 @@ describe('Unit tests for UserController', function () {
 
   test('POST /users', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = firebaseId;
+    expectedUser.firebaseId = baseController.firebaseId;
     const sentObj: any = { ...expectedUser };
     delete sentObj['id'];
     request(app)
       .post('/users')
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .send(sentObj)
       .expect(201)
       .end((err, res) => {
@@ -131,7 +120,7 @@ describe('Unit tests for UserController', function () {
     const expectedUser: User = new UserFactory().generate();
     request(app)
       .post('/users')
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .send({
         ...expectedUser,
         id: undefined, // POST request to users should not contain id
@@ -159,7 +148,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .patch(`/users/${expectedUser.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .send({
         ...changedProperties,
       })
@@ -190,7 +179,7 @@ describe('Unit tests for UserController', function () {
     await userRepository.save(expectedUser);
     request(app)
       .patch(`/users/${expectedUser.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .send({
         ...changedProperties,
       })
@@ -211,55 +200,54 @@ describe('Unit tests for UserController', function () {
     userToDelete.firebaseId = 'randomfirebaseId';
 
     const authenticatedUser: User = new UserFactory().generate();
-    authenticatedUser.firebaseId = firebaseId;
+    authenticatedUser.firebaseId = baseController.firebaseId;
 
     await userRepository.save(userToDelete);
     await userRepository.save(authenticatedUser);
 
     request(app)
       .delete(`/users/${userToDelete.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(403)
       .end((err, res) => {
         const frontEndErrorObject = res.body;
         expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
         expect(frontEndErrorObject.message).toHaveLength(1);
         expect(frontEndErrorObject.message[0]).toEqual(
-          'Your account does not have sufficient privileges to perform this action.'
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
         );
         done();
       });
   });
 
-  test('DELETE /users/:id - Invalid authenticated user', async (done) => {
+  test('DELETE /users/:id - Authenticated user that does not exist in our DB should not be able to delete another user', async (done) => {
     const userToDelete: User = new UserFactory().generate();
     userToDelete.firebaseId = 'randomfirebaseId';
     await userRepository.save(userToDelete);
 
     request(app)
       .delete(`/users/${userToDelete.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(404)
       .end((err, res) => {
         const frontEndErrorObject = res.body;
-        expect(frontEndErrorObject?.errorCode).toEqual('EntityNotFound');
+        expect(frontEndErrorObject?.errorCode).toEqual('ForbiddenError');
         expect(frontEndErrorObject.message).toHaveLength(1);
-        expect(frontEndErrorObject.message[0]).toContain(
-          'Could not find any entity of type "User"'
+        expect(frontEndErrorObject.message[0]).toEqual(
+          ErrorMessages.INSUFFICIENT_PRIVILEGES
         );
-        expect(frontEndErrorObject.message[0]).toContain('firebaseId');
         done();
       });
   });
 
-  test('DELETE /users/:id, should be successful', async (done) => {
+  test('DELETE /users/:id - should be successful', async (done) => {
     const userToDelete: User = new UserFactory().generate();
-    userToDelete.firebaseId = firebaseId;
+    userToDelete.firebaseId = baseController.firebaseId;
     await userRepository.save(userToDelete);
 
     request(app)
       .delete(`/users/${userToDelete.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(204)
       .then(() => {
         return getManager().transaction(
@@ -288,7 +276,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -306,7 +294,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/savedPromotions`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -327,7 +315,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .post(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(201)
       .end((err, res) => {
         if (err) return done(err);
@@ -350,7 +338,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(204, done);
   });
 
@@ -365,7 +353,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${expectedUser.id}/savedPromotions/${promotion.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(204, done);
   });
 
@@ -387,7 +375,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${nonExistentUid}/savedPromotions/${nonExistentPid}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(204, done);
   });
 
@@ -402,7 +390,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/uploadedPromotions`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -425,7 +413,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .get(`/users/${expectedUser.id}/uploadedPromotions`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
@@ -439,7 +427,7 @@ describe('Unit tests for UserController', function () {
 
   test('DELETE /users/:id should cleanup resources of promotions uploaded by the user', async (done) => {
     const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = firebaseId;
+    expectedUser.firebaseId = baseController.firebaseId;
     const promotion1 = new PromotionFactory().generateWithRelatedEntities(
       expectedUser
     );
@@ -484,7 +472,7 @@ describe('Unit tests for UserController', function () {
 
     request(app)
       .delete(`/users/${expectedUser.id}`)
-      .set('Authorization', idToken)
+      .set('Authorization', baseController.idToken)
       .expect(204)
       .then(async () => {
         for (let i = 0; i < expectedObjects.length; i++) {

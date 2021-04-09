@@ -37,11 +37,11 @@ export class PromotionFactory {
     );
   }
 
-  generateWithRelatedEntities(user: User): Promotion {
+  generateWithRelatedEntities(user: User, restaurant?: Restaurant): Promotion {
     return this.generate(
       user,
       new DiscountFactory().generate(),
-      new RestaurantFactory().generate(),
+      restaurant ?? new RestaurantFactory().generate(),
       [new ScheduleFactory().generate()]
     );
   }

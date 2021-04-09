@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Promotion } from './Promotion';
 import { SavedPromotion } from './SavedPromotion';
+import { VoteRecord } from './VoteRecord';
 
 /*
  * Represents a user in our application.
@@ -70,4 +71,9 @@ export class User {
     unique: true,
   })
   username: string;
+
+  @OneToMany(() => VoteRecord, (voteRecord) => voteRecord.user, {
+    cascade: true,
+  })
+  votedRecord: VoteRecord[];
 }

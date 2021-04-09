@@ -6,7 +6,7 @@ import Auth = auth.Auth;
 /**
  * Middleware function to check if the request has correct client header using firebase-admin auth
  */
-export class FirebaseAuth {
+export class FirebaseAuthMiddleware {
   private admin: Auth;
 
   constructor(firebaseAdmin: Auth) {
