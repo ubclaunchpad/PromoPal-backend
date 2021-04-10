@@ -261,7 +261,7 @@ export class PromotionRepository extends Repository<Promotion> {
           .orderBy('popularity', 'DESC');
         break;
       case SortOptions.RECENCY:
-        queryBuilder.addOrderBy('date_added', 'ASC');
+        queryBuilder.addOrderBy('date_added', 'DESC');
         break;
       default:
       // No modifications to query
@@ -276,7 +276,7 @@ export class PromotionRepository extends Repository<Promotion> {
    * @param userId the id of the user
    * @param promotions the promotions we want to find out if the user saved
    * */
-  private async findPromotionsUserSaved(
+  async findPromotionsUserSaved(
     userId: string,
     promotions: Promotion[]
   ): Promise<Promotion[]> {
@@ -304,7 +304,7 @@ export class PromotionRepository extends Repository<Promotion> {
    * @param userId the id of the user
    * @param promotions the promotions we want to find out if the user voted
    */
-  private async findPromotionsUserVoted(
+  async findPromotionsUserVoted(
     userId: string,
     promotions: Promotion[]
   ): Promise<Promotion[]> {
