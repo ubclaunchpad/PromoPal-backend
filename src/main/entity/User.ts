@@ -9,29 +9,18 @@ import { VoteRecord } from './VoteRecord';
  * */
 @Entity('user_profile')
 export class User {
-  constructor(
-    firstName: string,
-    lastName: string,
-    email: string,
-    username: string,
-    firebaseId: string
-  ) {
+  constructor(firstName: string, lastName: string, username: string) {
     this.firstName = firstName;
     this.lastName = lastName;
-    this.email = email;
     this.username = username;
-    this.firebaseId = firebaseId;
   }
 
+  /**
+   * We are synchronizing the id in our database with the uid in firebase. Therefore, any userId in our database should
+   * have a respective account in firebase with the same id
+   * */
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column({
-    name: 'uid_firebase',
-    unique: true,
-    select: false,
-  })
-  firebaseId: string;
 
   /*
    * OneToMany bidirectional relationship between User and Promotion
@@ -61,11 +50,6 @@ export class User {
     name: 'last_name',
   })
   lastName: string;
-
-  @Column({
-    unique: true,
-  })
-  email: string;
 
   @Column({
     unique: true,

@@ -8,7 +8,6 @@ describe('Unit tests for UserUpdateValidation', function () {
       username: '',
       firstName: '',
       lastName: '',
-      email: '',
     };
   });
 
@@ -32,19 +31,6 @@ describe('Unit tests for UserUpdateValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"value" is required');
-    }
-  });
-
-  test('Should fail if invalid email', async () => {
-    try {
-      userUpdateDTO.email = 'invalid-email';
-      await UserUpdateValidation.schema.validateAsync(userUpdateDTO, {
-        abortEarly: false,
-      });
-      fail('Should have failed');
-    } catch (e) {
-      expect(e.details.length).toEqual(1);
-      expect(e.details[0].message).toEqual('"email" must be a valid email');
     }
   });
 });

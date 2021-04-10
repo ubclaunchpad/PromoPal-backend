@@ -51,8 +51,8 @@ describe('Unit tests for DTOConverter', function () {
       email: 'test@gmail.com',
       firstName: 'A',
       lastName: 'B',
-      firebaseId: 'test',
       username: 'AB',
+      password: 'ABC',
     };
   });
 
@@ -72,7 +72,11 @@ describe('Unit tests for DTOConverter', function () {
     const user = DTOConverter.userDTOtoUser(userDTO);
     expect(user).toBeInstanceOf(User);
 
-    expect(user).toEqual(userDTO);
+    expect(user).toEqual({
+      firstName: userDTO.firstName,
+      lastName: userDTO.lastName,
+      username: userDTO.username,
+    });
   });
 
   it('Should be able to convert PromotionDTO to Promotion', () => {

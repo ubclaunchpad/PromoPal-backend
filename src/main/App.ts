@@ -40,6 +40,7 @@ import { GeocoderConfig, GeocodingService } from './service/GeocodingService';
 import AWS, { S3 } from 'aws-sdk';
 import { ResourceCleanupService } from './service/ResourceCleanupService';
 import { FirebaseAuthMiddleware } from './middleware/FirebaseAuthMiddleware';
+import { FirebaseService } from './service/FirebaseService';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -130,7 +131,11 @@ export class App {
     const enumRouter = new EnumRouter(enumController);
     app.use(Route.ENUMS, enumRouter.getRoutes());
 
-    const userController = new UserController(resourceCleanupService);
+    const firebaseService = new FirebaseService(firebaseAdmin);
+    const userController = new UserController(
+      resourceCleanupService,
+      firebaseService
+    );
     const userRouter = new UserRouter(userController, firebaseAuthMiddleware);
     app.use(Route.USERS, userRouter.getRoutes());
 

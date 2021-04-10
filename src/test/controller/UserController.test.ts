@@ -13,6 +13,8 @@ import { Promotion } from '../../main/entity/Promotion';
 import { Restaurant } from '../../main/entity/Restaurant';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
 import { ErrorMessages } from '../../main/errors/ErrorMessages';
+import { UserDTO } from '../../main/validation/UserValidation';
+import { randomString } from '../utility/Utility';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
@@ -33,14 +35,16 @@ describe('Unit tests for UserController', function () {
 
   beforeEach(async () => {
     await connection.clear();
+    await baseController.createAuthenticatedUser();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
   });
 
-  test('GET /users', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    await userRepository.save(expectedUser);
+  afterEach(async () => {
+    await baseController.deleteAuthenticatedUser();
+  });
 
+  test('GET /users', async (done) => {
     request(app)
       .get('/users')
       .set('Authorization', baseController.idToken)
@@ -49,7 +53,7 @@ describe('Unit tests for UserController', function () {
         if (err) return done(err);
         const users = res.body;
         expect(users).toHaveLength(1);
-        compareUsers(users[0], expectedUser);
+        compareUsers(users[0], baseController.authenticatedUser);
         done();
       });
   });
@@ -82,49 +86,49 @@ describe('Unit tests for UserController', function () {
       });
   });
 
-  test('GET /users/firebase/:firebaseId', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = baseController.firebaseId;
-    await userRepository.save(expectedUser);
-    request(app)
-      .get(`/users/firebase/${expectedUser.firebaseId}`)
-      .set('Authorization', baseController.idToken)
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        const user = res.body;
-        compareUsers(user, expectedUser);
-        done();
-      });
-  });
-
   test('POST /users', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = baseController.firebaseId;
-    const sentObj: any = { ...expectedUser };
-    delete sentObj['id'];
+    const userDTO: UserDTO = {
+      email: randomString(20) + '@gmail.com',
+      password: randomString(20),
+      firstName: randomString(20),
+      lastName: randomString(20),
+      username: randomString(20),
+    };
     request(app)
       .post('/users')
-      .set('Authorization', baseController.idToken)
-      .send(sentObj)
+      .send(userDTO)
       .expect(201)
-      .end((err, res) => {
+      .end(async (err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        compareUsers(user, expectedUser);
+        const user = res.body as User;
+        expect(user.firstName).toEqual(userDTO.firstName);
+        expect(user.lastName).toEqual(userDTO.lastName);
+        expect(user.username).toEqual(userDTO.username);
+
+        // firebaseId should be the same as the userId
+        const firebaseUser = await baseController.mockFirebaseAdmin.getUser(
+          user.id
+        );
+        expect(firebaseUser).toBeDefined();
+        expect(firebaseUser.email).toEqual(userDTO.email);
         done();
       });
   });
 
   test('POST /users/ - invalid request body should be caught', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
+    const userDTO: UserDTO = {
+      email: 'test@gmail.com',
+      firstName: 'test',
+      lastName: 'test',
+      password: 'test',
+      username: 'test',
+    };
+
     request(app)
       .post('/users')
-      .set('Authorization', baseController.idToken)
       .send({
-        ...expectedUser,
-        id: undefined, // POST request to users should not contain id
-        email: 'invalid email',
+        ...userDTO,
+        lastName: 1,
       })
       .expect(400)
       .end((err, res) => {
@@ -132,7 +136,7 @@ describe('Unit tests for UserController', function () {
         expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
         expect(frontEndErrorObject.message).toHaveLength(1);
         expect(frontEndErrorObject.message[0]).toEqual(
-          '"email" must be a valid email'
+          '"lastName" must be a string'
         );
         done();
       });
@@ -142,7 +146,6 @@ describe('Unit tests for UserController', function () {
     const changedProperties = {
       firstName: 'Diff firstName',
       lastName: 'Diff lastName',
-      email: 'Diffemail@gmail.com',
     };
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
@@ -173,7 +176,7 @@ describe('Unit tests for UserController', function () {
 
   test('PATCH /users/:id - invalid request body should be caught', async (done) => {
     const changedProperties = {
-      email: 'Invalid email',
+      lastName: 1234,
     };
     const expectedUser: User = new UserFactory().generate();
     await userRepository.save(expectedUser);
@@ -189,7 +192,7 @@ describe('Unit tests for UserController', function () {
         expect(frontEndErrorObject?.errorCode).toEqual('ValidationError');
         expect(frontEndErrorObject.message).toHaveLength(1);
         expect(frontEndErrorObject.message[0]).toEqual(
-          '"email" must be a valid email'
+          '"lastName" must be a string'
         );
         done();
       });
@@ -197,14 +200,9 @@ describe('Unit tests for UserController', function () {
 
   test('DELETE /users/:id - Should not be able to delete another user', async (done) => {
     const userToDelete: User = new UserFactory().generate();
-    userToDelete.firebaseId = 'randomfirebaseId';
-
-    const authenticatedUser: User = new UserFactory().generate();
-    authenticatedUser.firebaseId = baseController.firebaseId;
-
     await userRepository.save(userToDelete);
-    await userRepository.save(authenticatedUser);
 
+    // baseController.authenticatedUser is trying to delete another user
     request(app)
       .delete(`/users/${userToDelete.id}`)
       .set('Authorization', baseController.idToken)
@@ -222,7 +220,6 @@ describe('Unit tests for UserController', function () {
 
   test('DELETE /users/:id - Authenticated user that does not exist in our DB should not be able to delete another user', async (done) => {
     const userToDelete: User = new UserFactory().generate();
-    userToDelete.firebaseId = 'randomfirebaseId';
     await userRepository.save(userToDelete);
 
     request(app)
@@ -241,12 +238,8 @@ describe('Unit tests for UserController', function () {
   });
 
   test('DELETE /users/:id - should be successful', async (done) => {
-    const userToDelete: User = new UserFactory().generate();
-    userToDelete.firebaseId = baseController.firebaseId;
-    await userRepository.save(userToDelete);
-
     request(app)
-      .delete(`/users/${userToDelete.id}`)
+      .delete(`/users/${baseController.authenticatedUser.id}`)
       .set('Authorization', baseController.idToken)
       .expect(204)
       .then(() => {
@@ -258,7 +251,9 @@ describe('Unit tests for UserController', function () {
               UserRepository
             );
             await expect(
-              userRepository.findOneOrFail({ id: userToDelete.id })
+              userRepository.findOneOrFail({
+                id: baseController.authenticatedUser.id,
+              })
             ).rejects.toThrowError();
             done();
           }
@@ -394,15 +389,16 @@ describe('Unit tests for UserController', function () {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('uploadedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.uploadedPromotions).toHaveLength(1);
-        expect(user.uploadedPromotions[0]).toMatchObject({
+        const promotions = res.body as Promotion[];
+        expect(promotions).toHaveLength(1);
+        expect(promotions[0]).toMatchObject({
           id: promotion.id,
           name: promotion.name,
           description: promotion.description,
         });
+        expect(promotions[0].discount).toBeDefined();
+        expect(promotions[0].restaurant).toBeDefined();
+        expect(promotions[0].schedules).toBeDefined();
         done();
       });
   });
@@ -417,28 +413,24 @@ describe('Unit tests for UserController', function () {
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
-        const user = res.body;
-        expect(user).toHaveProperty('uploadedPromotions');
-        compareUsers(user, expectedUser);
-        expect(user.uploadedPromotions).toHaveLength(0);
+        const promotions = res.body as Promotion[];
+        expect(promotions).toHaveLength(0);
         done();
       });
   });
 
   test('DELETE /users/:id should cleanup resources of promotions uploaded by the user', async (done) => {
-    const expectedUser: User = new UserFactory().generate();
-    expectedUser.firebaseId = baseController.firebaseId;
     const promotion1 = new PromotionFactory().generateWithRelatedEntities(
-      expectedUser
+      baseController.authenticatedUser
     );
     const promotion2 = new PromotionFactory().generateWithRelatedEntities(
-      expectedUser
+      baseController.authenticatedUser
     );
     const promotion3 = new PromotionFactory().generateWithRelatedEntities(
-      expectedUser
+      baseController.authenticatedUser
     );
 
-    await userRepository.save(expectedUser);
+    await userRepository.save(baseController.authenticatedUser);
     await promotionRepository.save(promotion1);
     await promotionRepository.save(promotion2);
     await promotionRepository.save(promotion3);
@@ -471,7 +463,7 @@ describe('Unit tests for UserController', function () {
     }
 
     request(app)
-      .delete(`/users/${expectedUser.id}`)
+      .delete(`/users/${baseController.authenticatedUser.id}`)
       .set('Authorization', baseController.idToken)
       .expect(204)
       .then(async () => {
@@ -497,12 +489,6 @@ describe('Unit tests for UserController', function () {
     const expectedObject: any = {
       ...expectedUser,
     };
-
-    if (actualUser.firebaseId) {
-      fail('Http request should not return uid of firebase user');
-    }
-    // since uid of firebase user isn't returned from http requests
-    delete expectedObject['firebaseId'];
 
     // since id is undefined in POST requests
     if (!expectedUser.id) {

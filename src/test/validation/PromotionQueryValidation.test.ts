@@ -3,6 +3,7 @@ import { PromotionQueryValidation } from '../../main/validation/PromotionQueryVa
 import { CuisineType } from '../../main/data/CuisineType';
 import { PromotionType } from '../../main/data/PromotionType';
 import { Day } from '../../main/data/Day';
+import { SortOptions } from '../../main/data/SortOptions';
 
 describe('Unit tests for PromotionQueryValidation', function () {
   // mark these types as any so that we can make them improper
@@ -286,6 +287,48 @@ describe('Unit tests for PromotionQueryValidation', function () {
     } catch (e) {
       expect(e.details.length).toEqual(1);
       expect(e.details[0].message).toEqual('"userId" must be a valid GUID');
+    }
+  });
+
+  test('Should fail specify an unsupported sort option', async () => {
+    try {
+      promotionQueryDTO.sort = 'Non-existent-sort-option';
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(1);
+      expect(e.details[0].message).toContain('"sort" must be one of');
+    }
+  });
+
+  test('Should fail if specify sort by distance, but lat and lon are missing', async () => {
+    try {
+      promotionQueryDTO.sort = SortOptions.DISTANCE;
+      promotionQueryDTO.lat = undefined;
+      promotionQueryDTO.lon = undefined;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+      fail('Should have failed');
+    } catch (e) {
+      expect(e.details.length).toEqual(2);
+      expect(e.details[0].message).toContain('"lat" is required');
+      expect(e.details[1].message).toContain('"lon" is required');
+    }
+  });
+
+  test('Should not fail if specify sort that is not distance and lat/lon are missing', async () => {
+    try {
+      promotionQueryDTO.sort = SortOptions.RECENCY;
+      promotionQueryDTO.lat = undefined;
+      promotionQueryDTO.lon = undefined;
+      await PromotionQueryValidation.schema.validateAsync(promotionQueryDTO, {
+        abortEarly: false,
+      });
+    } catch (e) {
+      fail('Should not have failed');
     }
   });
 

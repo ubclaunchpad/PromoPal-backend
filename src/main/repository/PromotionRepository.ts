@@ -11,6 +11,8 @@ import { Schedule } from '../entity/Schedule';
 import { VoteState } from '../entity/VoteRecord';
 import { VoteRecordRepository } from './VoteRecordRepository';
 import { SavedPromotionRepository } from './SavedPromotionRepository';
+import { SavedPromotion } from '../entity/SavedPromotion';
+import { SortOptions } from '../data/SortOptions';
 
 /* eslint-disable  @typescript-eslint/explicit-module-boundary-types */
 @EntityRepository(Promotion)
@@ -126,6 +128,10 @@ export class PromotionRepository extends Repository<Promotion> {
       return this.fullTextSearch(queryBuilder, promotionQuery);
     }
 
+    if (promotionQuery?.sort) {
+      this.addSortOptions(queryBuilder, promotionQuery);
+    }
+
     return queryBuilder.cache(true).getMany();
   }
 
@@ -196,6 +202,72 @@ export class PromotionRepository extends Repository<Promotion> {
     }
 
     return result;
+  }
+
+  private addSortOptions(
+    queryBuilder: SelectQueryBuilder<Promotion>,
+    promotionQuery: PromotionQueryDTO
+  ): SelectQueryBuilder<Promotion> {
+    switch (promotionQuery.sort) {
+      case SortOptions.DISTANCE: {
+        if (promotionQuery?.lat && promotionQuery?.lon) {
+          queryBuilder
+            .addSelect(
+              // Note: formatted as (lon, lat) because this is more similar to the cartesian axes (x, y)
+              `point (restaurant.lon, restaurant.lat) <@> point (${promotionQuery.lon}, ${promotionQuery.lat})`,
+              'distance'
+            )
+            .orderBy('distance', 'ASC');
+        }
+        break;
+      }
+      case SortOptions.POPULARITY:
+        /**
+         * Calculates a "popularity score" for each promotion based on the recency of saves.
+         * This query gives higher weight to promotions that have been recently saved in the past month.
+         */
+        queryBuilder
+          .addSelect((qb) => {
+            /**
+             * The sub-query finds the savedPromotion entries for each promotion and assigns a weight to them
+             * based on how long ago the entry was created (i.e. date saved):
+             *
+             * [5 points]: dateSaved <= 1 month
+             * [4 points]: 1 month < dateSaved <= 3 months
+             * [3 points]: 3 months < dateSaved <= 6 months
+             * [2 points]: 6 months < dateSaved <= 1 year
+             * [1 points]: dateSaved > 1 year
+             */
+            return qb
+              .subQuery()
+              .select(
+                `SUM(
+                    CASE
+                      WHEN SP.dateSaved >= NOW() - INTERVAL '1 month' THEN 5
+                      WHEN SP.dateSaved >= NOW() - INTERVAL '3 months' AND
+                        SP.dateSaved < NOW() - INTERVAL '1 month' THEN 4
+                      WHEN SP.dateSaved >= NOW() - INTERVAL '6 months' AND
+                        SP.dateSaved < NOW() - INTERVAL '6 months' THEN 3
+                      WHEN SP.dateSaved >= NOW() - INTERVAL '1 year' THEN 2
+                      ELSE 1
+                    END
+                  )`,
+                'score'
+              )
+              .from(SavedPromotion, 'SP')
+              .groupBy('SP.promotionId')
+              .where('"promotion"."id" = "SP"."promotionId"');
+          }, 'popularity')
+          .orderBy('popularity', 'DESC');
+        break;
+      case SortOptions.RECENCY:
+        queryBuilder.addOrderBy('date_added', 'ASC');
+        break;
+      default:
+      // No modifications to query
+    }
+
+    return queryBuilder;
   }
 
   /**

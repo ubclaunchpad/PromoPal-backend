@@ -12,15 +12,20 @@ import { SavedPromotionRepository } from '../repository/SavedPromotionRepository
 import { DTOConverter } from '../validation/DTOConverter';
 import { SavedPromotion } from '../entity/SavedPromotion';
 import { Promotion } from '../entity/Promotion';
-import { FirebaseIdValidation } from '../validation/FirebaseIdValidation';
 import { ForbiddenError } from '../errors/Error';
 import { ResourceCleanupService } from '../service/ResourceCleanupService';
+import { FirebaseService } from '../service/FirebaseService';
 
 export class UserController {
   private resourceCleanupService: ResourceCleanupService;
+  private firebaseService: FirebaseService;
 
-  constructor(resourceCleanupService: ResourceCleanupService) {
+  constructor(
+    resourceCleanupService: ResourceCleanupService,
+    firebaseService: FirebaseService
+  ) {
     this.resourceCleanupService = resourceCleanupService;
+    this.firebaseService = firebaseService;
   }
 
   /**
@@ -73,34 +78,10 @@ export class UserController {
     }
   };
 
-  // return one user by firebaseId
-  getOneByFirebaseId = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<any> => {
-    try {
-      await getManager().transaction(async (transactionalEntityManager) => {
-        const firebaseId = await FirebaseIdValidation.schema.validateAsync(
-          req.params.firebaseId,
-          {
-            abortEarly: false,
-          }
-        );
-        const userRepository = transactionalEntityManager.getCustomRepository(
-          UserRepository
-        );
-        const user = await userRepository.findByFirebaseId(firebaseId, {
-          cache: true,
-        });
-        return res.send(user);
-      });
-    } catch (e) {
-      return next(e);
-    }
-  };
-
-  // create new user
+  /**
+   * Create a new user in our database and then create a user in firebase.
+   * * To guarantee ACID properties, if creating a user in firebase fails, we must delete the user in our database
+   * */
   newUser = async (
     req: Request,
     res: Response,
@@ -119,8 +100,18 @@ export class UserController {
         const userRepository = transactionalEntityManager.getCustomRepository(
           UserRepository
         );
-        const result = await userRepository.save(user);
-        return res.status(201).send({ ...result, firebaseId: undefined });
+        const savedUser = await userRepository.save(user);
+        try {
+          await this.firebaseService.createUserFromEmailAndPassword(
+            savedUser.id,
+            userDTO.email,
+            userDTO.password
+          );
+        } catch (e) {
+          await userRepository.delete(savedUser);
+          throw e;
+        }
+        return res.status(201).send(savedUser);
       });
     } catch (e) {
       return next(e);
@@ -175,12 +166,8 @@ export class UserController {
           UserRepository
         );
 
-        const potentialUserToDelete = await userRepository.findOne({
-          id,
-          firebaseId: res.locals.firebaseUserId,
-        });
-
-        if (!potentialUserToDelete) {
+        // the firebaseId and userId should be the same if a user is trying to delete their own account
+        if (res.locals.firebaseUserId !== id) {
           throw new ForbiddenError();
         }
 
@@ -334,15 +321,19 @@ export class UserController {
         const id = await IdValidation.schema.validateAsync(req.params.id, {
           abortEarly: false,
         });
-        const userRepository = transactionalEntityManager.getCustomRepository(
-          UserRepository
-        );
-        const uploadedPromotions = await userRepository.findOneOrFail(id, {
-          relations: ['uploadedPromotions'],
-          cache: true,
-        });
 
-        return res.status(200).send(uploadedPromotions);
+        const promotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .find({
+            where: {
+              user: {
+                id,
+              },
+            },
+            relations: ['schedules', 'discount', 'restaurant'],
+            cache: true,
+          });
+        return res.status(200).send(promotions);
       });
     } catch (e) {
       next(e);
