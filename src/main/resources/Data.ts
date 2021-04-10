@@ -95,55 +95,13 @@ const schedule25 = new Schedule('2:15', '7:23', Day.TUESDAY, true);
 const schedule26 = new Schedule('3:45', '8:15', Day.WEDNESDAY, true);
 const schedule27 = new Schedule('4:42', '9:16', Day.THURSDAY, true);
 
-const user1 = new User(
-  'John',
-  'Smith',
-  'smith.j@sample.com',
-  'user1',
-  'user1_password'
-);
-const user2 = new User(
-  'Asa',
-  'Edward',
-  'edward.a@sample.com',
-  'user2',
-  'user2_password'
-);
-const user3 = new User(
-  'Harry',
-  'James',
-  'james.h@sample.com',
-  'user3',
-  'user3_password'
-);
-const user4 = new User(
-  'Timothy',
-  'Dodson',
-  'dodson.t@sample.com',
-  'user4',
-  'user4_password'
-);
-const user5 = new User(
-  'Yuri',
-  'Davis',
-  'davis.y@sample.com',
-  'user5',
-  'user5_password'
-);
-const user6 = new User(
-  'Ethal',
-  'May',
-  'may.e@sample.com',
-  'user6',
-  'user6_password'
-);
-const user7 = new User(
-  'Ruby',
-  'Eleanor',
-  'eleanor.r@sample.com',
-  'user7',
-  'user7_password'
-);
+const user1 = new User('John', 'Smith', 'user1');
+const user2 = new User('Asa', 'Edward', 'user2');
+const user3 = new User('Harry', 'James', 'user3');
+const user4 = new User('Timothy', 'Dodson', 'user4');
+const user5 = new User('Yuri', 'Davis', 'user5');
+const user6 = new User('Ethal', 'May', 'user6');
+const user7 = new User('Ruby', 'Eleanor', 'user7');
 
 const promotion1 = new Promotion(
   user1,
