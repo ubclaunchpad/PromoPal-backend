@@ -15,10 +15,17 @@ import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
 import { ErrorMessages } from '../../main/errors/ErrorMessages';
 import { UserDTO } from '../../main/validation/UserValidation';
 import { randomString } from '../utility/Utility';
+import { VoteRecord, VoteState } from '../../main/entity/VoteRecord';
+import { VoteRecordRepository } from '../../main/repository/VoteRecordRepository';
+import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
+import { SavedPromotionFactory } from '../factory/SavedPromotionFactory';
+import { VoteRecordFactory } from '../factory/VoteRecordFactory';
 
 describe('Unit tests for UserController', function () {
   let userRepository: UserRepository;
   let promotionRepository: PromotionRepository;
+  let voteRecordRepository: VoteRecordRepository;
+  let savedPromotionRepository: SavedPromotionRepository;
   let app: Express;
   let baseController: BaseController;
 
@@ -38,6 +45,8 @@ describe('Unit tests for UserController', function () {
     await baseController.createAuthenticatedUser();
     userRepository = getCustomRepository(UserRepository);
     promotionRepository = getCustomRepository(PromotionRepository);
+    voteRecordRepository = getCustomRepository(VoteRecordRepository);
+    savedPromotionRepository = getCustomRepository(SavedPromotionRepository);
   });
 
   afterEach(async () => {
@@ -379,9 +388,20 @@ describe('Unit tests for UserController', function () {
     const promotion = new PromotionFactory().generateWithRelatedEntities(
       expectedUser
     );
+    const voteRecord: VoteRecord = new VoteRecordFactory().generate(
+      expectedUser,
+      promotion
+    );
+    voteRecord.voteState = VoteState.UP;
+    const savedPromotion = new SavedPromotionFactory().generate(
+      expectedUser,
+      promotion
+    );
 
     await userRepository.save(expectedUser);
     await promotionRepository.save(promotion);
+    await voteRecordRepository.save(voteRecord);
+    await savedPromotionRepository.save(savedPromotion);
 
     request(app)
       .get(`/users/${expectedUser.id}/uploadedPromotions`)
@@ -399,6 +419,8 @@ describe('Unit tests for UserController', function () {
         expect(promotions[0].discount).toBeDefined();
         expect(promotions[0].restaurant).toBeDefined();
         expect(promotions[0].schedules).toBeDefined();
+        expect(promotions[0].isSavedByUser).toEqual(true);
+        expect(promotions[0].voteState).toEqual(VoteState.UP);
         done();
       });
   });

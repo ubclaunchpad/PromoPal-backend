@@ -322,7 +322,7 @@ export class UserController {
           abortEarly: false,
         });
 
-        const promotions = await transactionalEntityManager
+        let promotions = await transactionalEntityManager
           .getCustomRepository(PromotionRepository)
           .find({
             where: {
@@ -333,6 +333,13 @@ export class UserController {
             relations: ['schedules', 'discount', 'restaurant'],
             cache: true,
           });
+
+        promotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .findPromotionsUserSaved(id, promotions);
+        promotions = await transactionalEntityManager
+          .getCustomRepository(PromotionRepository)
+          .findPromotionsUserVoted(id, promotions);
         return res.status(200).send(promotions);
       });
     } catch (e) {
