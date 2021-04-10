@@ -261,7 +261,7 @@ export class PromotionRepository extends Repository<Promotion> {
           .orderBy('popularity', 'DESC');
         break;
       case SortOptions.RECENCY:
-        queryBuilder.addOrderBy('date_added', 'ASC');
+        queryBuilder.addOrderBy('date_added', 'DESC');
         break;
       default:
       // No modifications to query
