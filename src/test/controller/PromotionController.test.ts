@@ -243,7 +243,9 @@ describe('Unit tests for PromotionController', function () {
 
     await userRepository.save(user);
     await promotionRepository.save(expectedPromotions[0]);
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await promotionRepository.save(expectedPromotions[1]);
+    await new Promise((resolve) => setTimeout(resolve, 500));
     await promotionRepository.save(expectedPromotions[2]);
 
     request(app)
