@@ -15,11 +15,12 @@ import { getConnection } from 'typeorm';
 import { UserRepository } from '../../main/repository/UserRepository';
 import { UserFactory } from '../factory/UserFactory';
 import { randomString } from '../utility/Utility';
+import { GeocoderConfig } from '../../main/service/GeocodingService';
 
 export class BaseController {
   mockRedisClient: RedisClient;
   mockFirebaseAdmin: Auth;
-  mockGeoCoder: Geocoder;
+  mockGeocoderConfig: GeocoderConfig;
   mockS3: S3;
   axiosInstance: AxiosInstance;
   idToken: string;
@@ -28,7 +29,7 @@ export class BaseController {
   constructor() {
     this.mockRedisClient = BaseController.createRedisMock();
     this.mockFirebaseAdmin = BaseController.createFirebaseMock();
-    this.mockGeoCoder = BaseController.createMockNodeGeocoder();
+    this.mockGeocoderConfig = BaseController.createMockNodeGeocoderConfig();
     this.mockS3 = BaseController.createS3Mock();
     this.axiosInstance = axios.create();
   }
@@ -44,7 +45,7 @@ export class BaseController {
       expressApp,
       this.mockRedisClient,
       this.mockFirebaseAdmin,
-      this.mockGeoCoder,
+      this.mockGeocoderConfig,
       this.mockS3,
       this.axiosInstance
     );
@@ -93,10 +94,13 @@ export class BaseController {
     return firebaseAdmin;
   };
 
-  static createMockNodeGeocoder = (): Geocoder => {
-    return nodeGeocoder({
+  static createMockNodeGeocoderConfig = (): GeocoderConfig => {
+    const geocoder = nodeGeocoder({
       provider: 'openstreetmap',
     });
+    return {
+      geocoder: geocoder,
+    };
   };
 
   static createS3Mock = (): S3 => {
