@@ -8,7 +8,7 @@ describe('tests for Geocoding Service', function () {
 
   beforeAll(() => {
     geocodingService = new GeocodingService(
-      BaseController.createMockNodeGeocoder()
+      BaseController.createMockNodeGeocoderConfig()
     );
   });
 
