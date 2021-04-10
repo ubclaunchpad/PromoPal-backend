@@ -1,6 +1,10 @@
 import { Entry, Geocoder, Query } from 'node-geocoder';
 import { GeoCoordinate } from '../data/GeoCoordinate';
 
+/**
+ * The addition of 'countryCode' yields more accurate geocoding results
+ * However, it will be undefined in testing due to incompatibilities
+ */
 export interface GeocoderConfig {
   geocoder: Geocoder;
   countryCode?: string;

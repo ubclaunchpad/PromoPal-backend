@@ -29,10 +29,7 @@ export class BaseController {
   constructor() {
     this.mockRedisClient = BaseController.createRedisMock();
     this.mockFirebaseAdmin = BaseController.createFirebaseMock();
-    const mockGeocoder = BaseController.createMockNodeGeocoder();
-    this.mockGeocoderConfig = {
-      geocoder: mockGeocoder,
-    };
+    this.mockGeocoderConfig = BaseController.createMockNodeGeocoderConfig();
     this.mockS3 = BaseController.createS3Mock();
     this.axiosInstance = axios.create();
   }
@@ -97,10 +94,13 @@ export class BaseController {
     return firebaseAdmin;
   };
 
-  static createMockNodeGeocoder = (): Geocoder => {
-    return nodeGeocoder({
+  static createMockNodeGeocoderConfig = (): GeocoderConfig => {
+    const geocoder = nodeGeocoder({
       provider: 'openstreetmap',
     });
+    return {
+      geocoder: geocoder,
+    };
   };
 
   static createS3Mock = (): S3 => {

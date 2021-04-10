@@ -7,11 +7,9 @@ describe('tests for Geocoding Service', function () {
   let geocodingService: GeocodingService;
 
   beforeAll(() => {
-    const mockGeocoder = BaseController.createMockNodeGeocoder();
-    const geocoderConfig = {
-      geocoder: mockGeocoder,
-    };
-    geocodingService = new GeocodingService(geocoderConfig);
+    geocodingService = new GeocodingService(
+      BaseController.createMockNodeGeocoderConfig()
+    );
   });
 
   test('getting coordinates for Marutama Ramen', async () => {

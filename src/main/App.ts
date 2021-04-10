@@ -58,10 +58,11 @@ export class App {
         provider: 'locationiq',
         apiKey: process.env.GEOCODING_KEY,
       });
-      const countryCode = 'ca';
+
+      // currently defaulted to Canada
       const geocoderConfig: GeocoderConfig = {
         geocoder: geocoder,
-        countryCode: countryCode,
+        countryCode: 'ca',
       };
 
       AWS.config.update({
