@@ -131,8 +131,7 @@ export class PromotionController {
 
         if (!restaurant) {
           const geoCoordinate = await this.geocodingService.getGeoCoordinateFromAddress(
-            promotionDTO.address,
-            true
+            promotionDTO.address
           );
 
           restaurant = new Restaurant(

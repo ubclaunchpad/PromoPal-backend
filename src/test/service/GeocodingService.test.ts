@@ -7,16 +7,17 @@ describe('tests for Geocoding Service', function () {
   let geocodingService: GeocodingService;
 
   beforeAll(() => {
-    geocodingService = new GeocodingService(
-      BaseController.createMockNodeGeocoder()
-    );
+    const mockGeocoder = BaseController.createMockNodeGeocoder();
+    const geocoderConfig = {
+      geocoder: mockGeocoder,
+    };
+    geocodingService = new GeocodingService(geocoderConfig);
   });
 
   test('getting coordinates for Marutama Ramen', async () => {
     try {
       const result: GeoCoordinate = await geocodingService.getGeoCoordinateFromAddress(
-        '780 Bidwell St, Vancouver, BC V6G 2J6',
-        false
+        '780 Bidwell St, Vancouver, BC V6G 2J6'
       );
       expect(result.lat).toEqual(49.2906033);
       expect(result.lon).toEqual(-123.1333902);
@@ -28,8 +29,7 @@ describe('tests for Geocoding Service', function () {
   test('getting empty object for random invalid location', async () => {
     try {
       const result: GeoCoordinate = await geocodingService.getGeoCoordinateFromAddress(
-        randomString(30),
-        false
+        randomString(30)
       );
       expect(result).toEqual({});
     } catch (e) {
@@ -40,8 +40,7 @@ describe('tests for Geocoding Service', function () {
   test('getting empty object for empty string location', async () => {
     try {
       const result: GeoCoordinate = await geocodingService.getGeoCoordinateFromAddress(
-        '',
-        false
+        ''
       );
       expect(result).toEqual({});
     } catch (e) {

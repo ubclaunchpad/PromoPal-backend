@@ -35,8 +35,8 @@ import { RestaurantController } from './controller/RestaurantController';
 import { RestaurantRouter } from './route/RestaurantRouter';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
-import nodeGeocoder, { Geocoder } from 'node-geocoder';
-import { GeocodingService } from './service/GeocodingService';
+import nodeGeocoder from 'node-geocoder';
+import { GeocoderConfig, GeocodingService } from './service/GeocodingService';
 import AWS, { S3 } from 'aws-sdk';
 import { ResourceCleanupService } from './service/ResourceCleanupService';
 import { FirebaseAuthMiddleware } from './middleware/FirebaseAuthMiddleware';
@@ -52,10 +52,16 @@ export class App {
 
       const redisClient = await this.createRedisClient();
       const firebaseAdmin = await initFirebaseAdmin();
+
       const geocoder = nodeGeocoder({
         provider: 'locationiq',
         apiKey: process.env.GEOCODING_KEY,
       });
+      const countryCode = 'ca';
+      const geocoderConfig: GeocoderConfig = {
+        geocoder: geocoder,
+        countryCode: countryCode,
+      };
 
       AWS.config.update({
         accessKeyId: process.env.S3_ACCESS_KEY_ID,
@@ -67,7 +73,7 @@ export class App {
         app,
         redisClient,
         firebaseAdmin,
-        geocoder,
+        geocoderConfig,
         s3
       );
 
@@ -92,7 +98,7 @@ export class App {
     app: Express,
     redisClient: RedisClient,
     firebaseAdmin: Auth,
-    nodeGeocoder: Geocoder,
+    geocoderConfig: GeocoderConfig,
     s3: S3,
     axiosInstance?: AxiosInstance
   ): Promise<void> {
@@ -109,7 +115,7 @@ export class App {
     const firebaseAuthMiddleware = new FirebaseAuthMiddleware(firebaseAdmin);
     app.use(Route.RESTAURANTS, restaurantRouter.getRoutes());
 
-    const geocodingService = new GeocodingService(nodeGeocoder);
+    const geocodingService = new GeocodingService(geocoderConfig);
     const promotionController = new PromotionController(
       geocodingService,
       resourceCleanupService

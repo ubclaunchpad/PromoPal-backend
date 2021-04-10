@@ -1,36 +1,34 @@
 import { Entry, Geocoder, Query } from 'node-geocoder';
 import { GeoCoordinate } from '../data/GeoCoordinate';
 
+export interface GeocoderConfig {
+  geocoder: Geocoder;
+  countryCode?: string;
+}
 /**
  * Class used for geocoding our restaurant addresses into lat/lon values
  */
 export class GeocodingService {
   private geocoder: Geocoder;
+  private countryCode?: string;
 
-  constructor(nodeGeocoder: Geocoder) {
-    this.geocoder = nodeGeocoder;
+  constructor(geocoderConfig: GeocoderConfig) {
+    this.geocoder = geocoderConfig.geocoder;
+    this.countryCode = geocoderConfig.countryCode;
   }
 
   /**
    * Geocode the address
    * NOTE: The resulting latitude and longitude values may be null
    * @param address The address of the restaurant
-   * @param includeCountryCode To include or exclude country code in query
-   * NOTE: At the moment, we only exclude when testing with openstreetmaps
    */
   public async getGeoCoordinateFromAddress(
-    address: string,
-    includeCountryCode: boolean
+    address: string
   ): Promise<GeoCoordinate> {
-    let entries: Entry[];
-
-    if (includeCountryCode) {
-      // currently set to Canada
-      const query: Query = { address, countryCode: 'ca' };
-      entries = await this.geocoder.geocode(query);
-    } else {
-      entries = await this.geocoder.geocode(address);
-    }
+    const query: Query | string = this.countryCode
+      ? { address, countryCode: this.countryCode }
+      : address;
+    const entries: Entry[] = await this.geocoder.geocode(query);
 
     const result: GeoCoordinate = {};
 
@@ -41,7 +39,6 @@ export class GeocodingService {
       result.lat = geocodeResult.latitude;
       result.lon = geocodeResult.longitude;
     }
-
     return result;
   }
 }

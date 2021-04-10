@@ -10,11 +10,12 @@ import nodeGeocoder, { Geocoder } from 'node-geocoder';
 import AWSMock from 'mock-aws-s3';
 import { S3 } from 'aws-sdk';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { GeocoderConfig } from '../../main/service/GeocodingService';
 
 export class BaseController {
   mockRedisClient: RedisClient;
   mockFirebaseAdmin: Auth;
-  mockGeoCoder: Geocoder;
+  mockGeocoderConfig: GeocoderConfig;
   mockS3: S3;
   axiosInstance: AxiosInstance;
   idToken: string;
@@ -23,7 +24,10 @@ export class BaseController {
   constructor() {
     this.mockRedisClient = BaseController.createRedisMock();
     this.mockFirebaseAdmin = BaseController.createFirebaseMock();
-    this.mockGeoCoder = BaseController.createMockNodeGeocoder();
+    const mockGeocoder = BaseController.createMockNodeGeocoder();
+    this.mockGeocoderConfig = {
+      geocoder: mockGeocoder,
+    };
     this.mockS3 = BaseController.createS3Mock();
     this.axiosInstance = axios.create();
   }
@@ -39,7 +43,7 @@ export class BaseController {
       expressApp,
       this.mockRedisClient,
       this.mockFirebaseAdmin,
-      this.mockGeoCoder,
+      this.mockGeocoderConfig,
       this.mockS3,
       this.axiosInstance
     );
