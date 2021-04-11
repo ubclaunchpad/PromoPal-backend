@@ -6,7 +6,7 @@ import Auth = auth.Auth;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const firebaseMock = require('firebase-mock');
 import axios, { AxiosInstance } from 'axios';
-import nodeGeocoder, { Geocoder } from 'node-geocoder';
+import nodeGeocoder from 'node-geocoder';
 import AWSMock from 'mock-aws-s3';
 import { S3 } from 'aws-sdk';
 import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
