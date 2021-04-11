@@ -26,49 +26,49 @@ const discount15 = new Discount(DiscountType.AMOUNT, 15);
 const discount16 = new Discount(DiscountType.AMOUNT, 16);
 
 const restaurant1 = new Restaurant(
-  'ChIJmdvOFtVzhlQRLFiPSu283kg',
+  'ChIJJzFAF9VzhlQRENeLwMlDVl8',
   49.28,
   -123.125
 );
 
 const restaurant2 = new Restaurant(
-  'ChIJNfcHist2hlQRRiXCFBk9DeY',
+  'ChIJm0jRjMt2hlQRO6rSYKwblRY',
   49.259,
   -123.044
 );
 
 const restaurant3 = new Restaurant(
-  'ChIJfdy9v39xhlQRcSrlKAr2KaE',
+  'ChIJmYf2lX9xhlQRrAQJnKcrQ_M',
   49.282,
   -123.121
 );
 
 const restaurant4 = new Restaurant(
-  'EjI0OTAtOTEwMCBCbHVuZGVsbCBSZCwgUmljaG1vbmQsIEJDIFY2WSAzWDksIENhbmFkYSIfGh0KFgoUChIJj4BZtK0KhlQRkll69FZ1-N0SAzQ5MA',
+  'ChIJt8DHkhx1hlQRhy6OkbWYEe0',
   49.1552321,
   -123.1229737
 );
 
 const restaurant5 = new Restaurant(
-  'ChIJ-WLJES93hlQRAG6DIaGMloQ',
+  'ChIJhRQlLcF3hlQRsvot6GKshBw',
   49.26445,
   -123.005998
 );
 
 const restaurant6 = new Restaurant(
-  'ChIJj_eSMmJxhlQR0SL_O74PiQw',
+  'ChIJ92h_MmJxhlQRmP1gb313vwM',
   49.2715496,
   -123.1067879
 );
 
 const restaurant7 = new Restaurant(
-  'ChIJX8UzzH1xhlQR8lcTJ2aJoNg',
+  'ChIJCRA00H1xhlQRvQswwLcVNeU',
   49.278532,
   -123.1157544
 );
 
 const restaurant8 = new Restaurant(
-  'ChIJQb7Wpn10hlQR7ryEtqUC6CU',
+  'ChIJGWYxCH10hlQRLARrdkVpCsY',
   49.2268328,
   -123.1288101
 );
