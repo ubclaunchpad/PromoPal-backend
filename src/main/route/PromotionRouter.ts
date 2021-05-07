@@ -16,14 +16,17 @@ export class PromotionRouter {
   }
 
   getRoutes(): Router {
-    this.promotionRouter.get('/', this.promotionController.getAllPromotions);
-    this.promotionRouter.get('/:id', this.promotionController.getPromotion);
-    this.promotionRouter.post('/', this.promotionController.addPromotion);
-    this.promotionRouter.delete(
-      '/:id',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.promotionController.deletePromotion
-    );
+    this.promotionRouter
+      .route('/')
+      .get(this.promotionController.getAllPromotions)
+      .post(this.promotionController.addPromotion);
+    this.promotionRouter
+      .route('/:id')
+      .get(this.promotionController.getPromotion)
+      .delete(
+        this.firebaseAuthMiddleware.isAuthorizedForProtection,
+        this.promotionController.deletePromotion
+      );
     this.promotionRouter.post(
       '/:id/upVote',
       this.promotionController.upVotePromotion

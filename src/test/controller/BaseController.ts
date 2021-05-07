@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
 import { App } from '../../main/App';
-import redisMock, { RedisClient } from 'redis-mock';
 import { auth } from 'firebase-admin/lib/auth';
 import Auth = auth.Auth;
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -18,7 +17,6 @@ import { randomString } from '../utility/Utility';
 import { GeocoderConfig } from '../../main/service/GeocodingService';
 
 export class BaseController {
-  mockRedisClient: RedisClient;
   mockFirebaseAdmin: Auth;
   mockGeocoderConfig: GeocoderConfig;
   mockS3: S3;
@@ -27,7 +25,6 @@ export class BaseController {
   authenticatedUser: User;
 
   constructor() {
-    this.mockRedisClient = BaseController.createRedisMock();
     this.mockFirebaseAdmin = BaseController.createFirebaseMock();
     this.mockGeocoderConfig = BaseController.createMockNodeGeocoderConfig();
     this.mockS3 = BaseController.createS3Mock();
@@ -43,7 +40,6 @@ export class BaseController {
     const expressApp = express();
     await app.registerHandlersAndRoutes(
       expressApp,
-      this.mockRedisClient,
       this.mockFirebaseAdmin,
       this.mockGeocoderConfig,
       this.mockS3,
@@ -52,11 +48,6 @@ export class BaseController {
     // cleanup resources from previous bucket if possible
     await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
     return expressApp;
-  };
-
-  static createRedisMock = (): RedisClient => {
-    // see https://www.npmjs.com/package/redis-mock
-    return redisMock.createClient();
   };
 
   static createFirebaseMock = (): Auth => {
@@ -135,7 +126,6 @@ export class BaseController {
   }
 
   quit = async (): Promise<void> => {
-    this.mockRedisClient.quit();
     await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
   };
 }

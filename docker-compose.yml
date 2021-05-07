@@ -8,31 +8,26 @@ services:
     image: postgres:12
     tty: true
     volumes:
-      - ./tmp/db:/var/lib/postgresql/data
+      # named volume
+      - db:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: foodies
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-foodies}
       POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
-    hostname: localhost
-    ports:
-      - '5432:5432'
+    # do not expose any ports to host machine, only web container can communicate directly with the db
+
   web:
+    # since there is both build and image, will build image using specified options in Dockerfile
+    # and name the image web with tag latest
     build: .
-    image: foodies:latest
-    volumes:
-      - .:/foodies
+    image: ericrkuo/promopal:latest
     ports:
       - '8000:8000'
+    # will start db service first before starting web service
     depends_on:
       - db
-    links:
-      - db
     environment:
+      # docker has built in DNS server that uses container name to resolve IP address. So we can use container name as host
       DB_HOST: db
-      REDIS_HOST: redis-server
-  redis-server:
-    image: redis
-    ports:
-      - '6379:6379'

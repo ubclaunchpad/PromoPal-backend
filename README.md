@@ -1,4 +1,4 @@
-# Foodies Backend Project
+# PromoPal Backend Project
 
 ## Requirements
 
@@ -8,8 +8,6 @@
    - for macOS users, suggested installation is through homebrew
 3. TypeORM Global Installation (`yarn add typeorm -g`)
    - this will install the TypeORM CLI as well
-4. Redis (https://redis.io/download)
-   - this is used for local development without Docker
 
 ## Before starting
 
@@ -18,12 +16,6 @@
 ## Configure environment variables
 
 Make a copy of `sample.env`, rename it to `.env`, and fill out the environment variables respectively.
-Likely:
-
-```
-DB_HOST=localhost
-REDIS_HOST=localhost
-```
 
 ## Setting up databases
 
@@ -103,13 +95,13 @@ The following steps assume that you already have Docker installed in your local 
 If this is your first time using Docker, run the following command at the top-level of this repository to build a docker image and activate the containers. Or if there have been any changes to the compose file or Docker file, this command will rebuild the images
 
 ```
-docker-compose up -d --build
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
 ```
 
 If you already have a Docker image, run the following command instead:
 
 ```
-docker-compose up -d
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 ```
 
 Load the back-end in a container:
@@ -154,29 +146,6 @@ Fill out with the username and password respectively
 ![image](https://user-images.githubusercontent.com/49849754/98451683-e4f45f80-20fc-11eb-8866-9dc21f3624d0.png)
 
 You should now be able to see all the databases and tables.
-
-### Loading sample data
-
-To import data from `init_data.sql`, run this command inside a command prompt. **Make sure the schema is synced, the migrations are ran, and that the tables are empty**.
-`psql` should prompt you to enter your password.
-
-E.g.
-
-```
-yarn run dropSchema
-yarn run syncSchema
-yarn run run_migration
-yarn run loadSqlData
-```
-
-If this command does not work, clear everything inside the tables (delete all tuples in `user_profile` table and cascade delete should remove everything else).
-Then open `init_data.sql` inside Intellij, select all the lines, and execute (Ctrl + Enter or Command + Enter).
-
-```
-psql -d foodies -f src/main/resources/init_data.sql --username=postgres
-or
-yarn run loadSqlData
-```
 
 ### Loading data through typeORM
 
@@ -240,25 +209,3 @@ docker run -it image_name sh
 // or if you prefer bash
 docker run -it image_name bash
 ```
-
-## If you modify any of the entities
-
-- make sure `main/resources/Data.ts` is updated accordingly.
-- generate a new `init_data.sql` script.
-  1. Load all data using `Data.ts` into the tables.
-  2. Select all tables, right click, and select the following:  
-     ![image](https://user-images.githubusercontent.com/49849754/98633000-6f8fb700-22d5-11eb-8a02-9726213ebad4.png)
-  3. Make note of the location you save these files to and click `Export to File`  
-     ![image](https://user-images.githubusercontent.com/49849754/98633026-79191f00-22d5-11eb-833b-da2372a51da8.png)
-  4. Copy all the insert statements into `init_data.sql`. Make sure the insertion order is correct (users, promotions, discounts, savedPromotions). This is critical as new IDs are created each time.  
-     ![image](https://user-images.githubusercontent.com/49849754/98633056-8504e100-22d5-11eb-9b24-54af8d87f1b1.png)
-  5. Delete the generated files.
-
-## Setting up Local Redis
-
-To get a local server setup, please refer to the docs here https://redis.io/topics/quickstart.
-
-## Connecting to Redis
-
-If you are interested in using a local Redis server, go to your `.env` and modify the REDIS_HOST field to `localhost`. <br /> <br />
-If you would like to connect to the Redis server associated with Docker, modify the REDIS_HOST field to `redis-server`.

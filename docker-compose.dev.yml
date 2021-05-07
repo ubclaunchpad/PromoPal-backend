@@ -1,0 +1,15 @@
+services:
+  web:
+    volumes:
+      # host volume
+      # Do not say .:/promopal because then this will ignore what we mentioned in .dockerignore file.
+      # This will sync the src folder in our local machine with the src folder in the docker container.
+      # This means the changes we make in src folder will reflect in the docker container. But we need to
+      # use nodemon to remember to restart the node app. Changes OUTSIDE of the src folder will not be reflected.
+      # :ro stands for read only. Do not want changes in container to reflect in changes to local machine.
+      - ./src:/promopal/src:ro
+    # In development environment, the values will be read form the .env file.
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development

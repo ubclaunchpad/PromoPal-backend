@@ -16,46 +16,34 @@ export class UserRouter {
   }
 
   getRoutes(): Router {
-    // profile endpoint
-    this.userRouter.get(
-      '/',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.listAll
-    );
-    this.userRouter.get(
-      '/:id',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.getOneById
-    );
-    // unauthorized because we are creating a user in firebase in this controller
-    this.userRouter.post('/', this.userController.newUser);
-    this.userRouter.patch(
-      '/:id',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.editUser
-    );
-    this.userRouter.delete(
-      '/:id',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.deleteUser
-    );
-    // saved promotion endpoint
+    this.userRouter
+      .route('/')
+      .get(
+        this.firebaseAuthMiddleware.isAuthorizedForProtection,
+        this.userController.listAll
+      )
+      // unauthorized because we are creating a user in firebase in this controller
+      .post(this.userController.newUser);
+
+    this.userRouter
+      .route('/:id')
+      .all(this.firebaseAuthMiddleware.isAuthorizedForProtection)
+      .get(this.userController.getOneById)
+      .patch(this.userController.editUser)
+      .delete(this.userController.deleteUser);
+
     this.userRouter.get(
       '/:id/savedPromotions/',
       this.firebaseAuthMiddleware.isAuthorizedForProtection,
       this.userController.getSaved
     );
-    this.userRouter.post(
-      '/:id/savedPromotions/:pid',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.newSaved
-    );
-    this.userRouter.delete(
-      '/:id/savedPromotions/:pid',
-      this.firebaseAuthMiddleware.isAuthorizedForProtection,
-      this.userController.deleteSaved
-    );
-    // uploaded promotion endpoint
+
+    this.userRouter
+      .route('/:id/savedPromotions/:pid')
+      .all(this.firebaseAuthMiddleware.isAuthorizedForProtection)
+      .post(this.userController.newSaved)
+      .delete(this.userController.deleteSaved);
+
     this.userRouter.get(
       '/:id/uploadedPromotions/',
       this.firebaseAuthMiddleware.isAuthorizedForProtection,
