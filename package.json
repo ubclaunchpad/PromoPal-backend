@@ -14,7 +14,7 @@
     "build": "tsc --project ./",
     "prestart": "yarn run build",
     "start": "nodemon -L src/main/Index.ts",
-    "production-start": "yarn run build && nodemon src/main/Index.ts",
+    "production-start": "nodemon src/main/Index.ts",
     "test": "jest --verbose",
     "lint": "eslint . --ext .ts,.tsx",
     "lintFix": "eslint . --ext .ts,.tsx --fix",
