@@ -1,5 +1,13 @@
+volumes:
+  db:
+
 services:
-  web:
+  db:
+    volumes:
+      # named volume
+      - db:/var/lib/postgresql/data
+
+  promopal:
     volumes:
       # host volume
       # Do not say .:/promopal because then this will ignore what we mentioned in .dockerignore file.

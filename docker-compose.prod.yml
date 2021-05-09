@@ -1,9 +1,21 @@
+volumes:
+  db:
+    driver: azure_file
+    driver_opts:
+      share_name: promopal-file-share
+      storage_account_name: promopal
+
 services:
-  web:
+  db:
+    volumes:
+      # named volume (existing issue: https://stackoverflow.com/questions/64980940/deploying-postgres-database-on-azure-container-instance)
+      - db:/var/lib/postgresql/foobar
+
+  promopal:
     command: yarn run production-start
     environment:
       # In production environment, .env file will not exist, so we inject the host machine environment variables into our
-      # web container.
+      # promopal container.
       # Note, these variables take precedence over .env file https://docs.docker.com/compose/environment-variables/#set-environment-variables-with-docker-compose-run
       NODE_ENV: production
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
@@ -16,3 +28,10 @@ services:
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       S3_BUCKET: ${S3_BUCKET}
+      GENERATE_SOURCEMAP: "false"
+      NODE_OPTIONS: "--max_old_space_size=4096"
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    domainname: promopal

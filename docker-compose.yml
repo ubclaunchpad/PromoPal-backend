@@ -1,31 +1,25 @@
 version: '3'
 
-volumes:
-  db:
-
 services:
   db:
     image: postgres:12
     tty: true
-    volumes:
-      # named volume
-      - db:/var/lib/postgresql/data
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-foodies}
       POSTGRES_INITDB_ARGS: '--encoding=UTF-8'
-    # do not expose any ports to host machine, only web container can communicate directly with the db
+    # do not expose any ports to host machine, only promopal container can communicate directly with the db
 
-  web:
+  promopal:
     # since there is both build and image, will build image using specified options in Dockerfile
-    # and name the image web with tag latest
+    # and name the image promopal with tag latest
     build: .
     image: ericrkuo/promopal:latest
     ports:
       - '8000:8000'
-    # will start db service first before starting web service
+    # will start db service first before starting promopal service
     depends_on:
       - db
     environment:
