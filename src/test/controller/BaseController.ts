@@ -8,7 +8,7 @@ import axios, { AxiosInstance } from 'axios';
 import nodeGeocoder from 'node-geocoder';
 import AWSMock from 'mock-aws-s3';
 import { S3 } from 'aws-sdk';
-import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { DEFAULT_BUCKET } from '../../main/service/ResourceCleanupService';
 import { User } from '../../main/entity/User';
 import { getConnection } from 'typeorm';
 import { UserRepository } from '../../main/repository/UserRepository';
@@ -46,7 +46,7 @@ export class BaseController {
       this.axiosInstance
     );
     // cleanup resources from previous bucket if possible
-    await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
+    await this.mockS3.deleteBucket({ Bucket: DEFAULT_BUCKET }).promise();
     return expressApp;
   };
 
@@ -126,6 +126,6 @@ export class BaseController {
   }
 
   quit = async (): Promise<void> => {
-    await this.mockS3.deleteBucket({ Bucket: S3_BUCKET }).promise();
+    await this.mockS3.deleteBucket({ Bucket: DEFAULT_BUCKET }).promise();
   };
 }

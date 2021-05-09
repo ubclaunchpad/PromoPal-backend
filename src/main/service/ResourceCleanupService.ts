@@ -8,7 +8,7 @@ import {
 } from 'aws-sdk/clients/s3';
 import { PromiseResult } from 'aws-sdk/lib/request';
 
-export const S3_BUCKET = 'promopal';
+export const DEFAULT_BUCKET = 'promopal';
 
 /**
  * Generic class used to capture external resource cleanup such as deleting files from S3
@@ -29,7 +29,7 @@ export class ResourceCleanupService {
     promotionId: string
   ): Promise<PromiseResult<DeleteObjectOutput, AWSError>> {
     const deleteObjectRequest: DeleteObjectRequest = {
-      Bucket: S3_BUCKET,
+      Bucket: process.env.S3_BUCKET ?? DEFAULT_BUCKET,
       Key: promotionId,
     };
 
@@ -48,7 +48,7 @@ export class ResourceCleanupService {
       return { Key: promotionId };
     });
     const deleteObjectsRequest: DeleteObjectsRequest = {
-      Bucket: S3_BUCKET,
+      Bucket: process.env.S3_BUCKET ?? DEFAULT_BUCKET,
       Delete: {
         Objects: objects,
       },

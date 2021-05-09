@@ -11,7 +11,7 @@ import { PromotionRepository } from '../../main/repository/PromotionRepository';
 import { SavedPromotion } from '../../main/entity/SavedPromotion';
 import { Promotion } from '../../main/entity/Promotion';
 import { Restaurant } from '../../main/entity/Restaurant';
-import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { DEFAULT_BUCKET } from '../../main/service/ResourceCleanupService';
 import { ErrorMessages } from '../../main/errors/ErrorMessages';
 import { UserDTO } from '../../main/validation/UserValidation';
 import { randomString } from '../utility/Utility';
@@ -474,12 +474,12 @@ describe('Unit tests for UserController', function () {
         .putObject({
           Key: promotion.id,
           Body: expectedObject,
-          Bucket: S3_BUCKET,
+          Bucket: DEFAULT_BUCKET,
         })
         .promise();
       // check object put correctly
       const object = await baseController.mockS3
-        .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+        .getObject({ Key: promotion.id, Bucket: DEFAULT_BUCKET })
         .promise();
       expect(object.Body!.toString()).toEqual(expectedObject);
     }
@@ -493,7 +493,7 @@ describe('Unit tests for UserController', function () {
           try {
             const promotion = expectedPromotions[i];
             await baseController.mockS3
-              .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+              .getObject({ Key: promotion.id, Bucket: DEFAULT_BUCKET })
               .promise();
             fail('Should have thrown error');
           } catch (e) {
