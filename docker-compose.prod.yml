@@ -1,8 +1,9 @@
 volumes:
   db:
+#     uncomment these lines to test prod docker compose locally
     driver: azure_file
     driver_opts:
-      share_name: promopal-file-share
+      share_name: db-file-share
       storage_account_name: promopal
 
 services:

@@ -15,7 +15,9 @@ services:
   promopal:
     # since there is both build and image, will build image using specified options in Dockerfile
     # and name the image promopal with tag latest
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: ericrkuo/promopal:latest
     ports:
       - '8000:8000'
