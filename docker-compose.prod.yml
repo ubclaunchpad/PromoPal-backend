@@ -1,10 +1,5 @@
 volumes:
   db:
-#     uncomment these lines to test prod docker compose locally
-    driver: azure_file
-    driver_opts:
-      share_name: db-file-share
-      storage_account_name: promopal
 
 services:
   db:
@@ -30,4 +25,3 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       S3_BUCKET: ${S3_BUCKET}
       NODE_OPTIONS: "--max_old_space_size=4096"
-    domainname: promopal
