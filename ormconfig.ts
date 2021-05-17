@@ -21,6 +21,6 @@ export default {
   },
   // https://github.com/typeorm/typeorm/issues/278
   extra: {
-    ssl: true,
+    ssl: !!process.env.DATABASE_SSL,
   },
 };
