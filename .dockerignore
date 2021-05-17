@@ -1,2 +1,12 @@
 node_modules
-npm-debug.log
+build
+.idea
+
+.env
+Dockerfile
+.git
+.gitignore
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

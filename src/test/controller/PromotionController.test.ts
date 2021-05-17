@@ -18,7 +18,7 @@ import { VoteState } from '../../main/entity/VoteRecord';
 import { RestaurantRepository } from '../../main/repository/RestaurantRepository';
 import { SavedPromotionRepository } from '../../main/repository/SavedPromotionRepository';
 import { randomString } from '../utility/Utility';
-import { S3_BUCKET } from '../../main/service/ResourceCleanupService';
+import { DEFAULT_BUCKET } from '../../main/service/ResourceCleanupService';
 import { ErrorMessages } from '../../main/errors/ErrorMessages';
 
 describe('Unit tests for PromotionController', function () {
@@ -857,11 +857,15 @@ describe('Unit tests for PromotionController', function () {
     await promotionRepository.save(promotion);
 
     await baseController.mockS3
-      .putObject({ Key: promotion.id, Body: expectedObject, Bucket: S3_BUCKET })
+      .putObject({
+        Key: promotion.id,
+        Body: expectedObject,
+        Bucket: DEFAULT_BUCKET,
+      })
       .promise();
     // check object put correctly
     const object = await baseController.mockS3
-      .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+      .getObject({ Key: promotion.id, Bucket: DEFAULT_BUCKET })
       .promise();
     expect(object.Body!.toString()).toEqual(expectedObject);
 
@@ -872,7 +876,7 @@ describe('Unit tests for PromotionController', function () {
       .then(async () => {
         try {
           await baseController.mockS3
-            .getObject({ Key: promotion.id, Bucket: S3_BUCKET })
+            .getObject({ Key: promotion.id, Bucket: DEFAULT_BUCKET })
             .promise();
           fail('Should have thrown error');
         } catch (e) {

@@ -24,7 +24,6 @@ import { EnumRouter } from './route/EnumRouter';
 import { ScheduleRepository } from './repository/ScheduleRepository';
 import { Schedule } from './entity/Schedule';
 import { SavedPromotion } from './entity/SavedPromotion';
-import redis, { RedisClient } from 'redis';
 import { initFirebaseAdmin } from './FirebaseConfig';
 import { RestaurantRepository } from './repository/RestaurantRepository';
 import { Restaurant } from './entity/Restaurant';
@@ -41,6 +40,7 @@ import AWS, { S3 } from 'aws-sdk';
 import { ResourceCleanupService } from './service/ResourceCleanupService';
 import { FirebaseAuthMiddleware } from './middleware/FirebaseAuthMiddleware';
 import { FirebaseService } from './service/FirebaseService';
+import cors from 'cors';
 
 /* eslint-disable  no-console */
 /* eslint-disable  @typescript-eslint/no-unused-vars */
@@ -51,7 +51,6 @@ export class App {
       await createConnection();
       const app = express();
 
-      const redisClient = await this.createRedisClient();
       const firebaseAdmin = await initFirebaseAdmin();
 
       const geocoder = nodeGeocoder({
@@ -73,7 +72,6 @@ export class App {
 
       await this.registerHandlersAndRoutes(
         app,
-        redisClient,
         firebaseAdmin,
         geocoderConfig,
         s3
@@ -82,10 +80,9 @@ export class App {
       // load sample data
       // await this.loadSampleDBData();
 
-      const PORT = 8000;
-      app.listen(PORT, () => {
+      app.listen(process.env.PORT, () => {
         console.log(
-          `⚡️[server]: Server is running at http://localhost:${PORT}`
+          `⚡️[server]: Server is running at http://localhost:${process.env.PORT}`
         );
       });
     } catch (error) {
@@ -98,13 +95,13 @@ export class App {
    * */
   async registerHandlersAndRoutes(
     app: Express,
-    redisClient: RedisClient,
     firebaseAdmin: Auth,
     geocoderConfig: GeocoderConfig,
     s3: S3,
     axiosInstance?: AxiosInstance
   ): Promise<void> {
     app.use(bodyParser.json());
+    app.use(cors());
 
     app.get('/', (req, res) => res.send('Hello World'));
 
@@ -222,13 +219,6 @@ export class App {
     );
     const schedulesLazy: Schedule[] = await scheduleRepository.find({
       loadRelationIds: true,
-    });
-  }
-
-  async createRedisClient(): Promise<RedisClient> {
-    return redis.createClient({
-      host: process.env.REDIS_HOST ?? 'localhost',
-      port: 6379,
     });
   }
 }

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import path from 'path';
 import {
   ResourceCleanupService,
-  S3_BUCKET,
+  DEFAULT_BUCKET,
 } from '../../main/service/ResourceCleanupService';
 import AWSMock from 'mock-aws-s3';
 
@@ -13,12 +13,12 @@ describe('Unit tests for ResourceCleanupService', function () {
 
   beforeEach(async () => {
     s3 = new AWSMock.S3();
-    await s3.deleteBucket({ Bucket: S3_BUCKET }).promise();
+    await s3.deleteBucket({ Bucket: DEFAULT_BUCKET }).promise();
     resourceCleanupService = new ResourceCleanupService(s3);
   });
 
   afterAll(async () => {
-    await s3.deleteBucket({ Bucket: S3_BUCKET }).promise();
+    await s3.deleteBucket({ Bucket: DEFAULT_BUCKET }).promise();
   });
 
   test('Should be able to successfully cleanup resources for a promotion', async () => {
@@ -32,12 +32,12 @@ describe('Unit tests for ResourceCleanupService', function () {
         .putObject({
           Key: sampleKey,
           Body: image,
-          Bucket: S3_BUCKET,
+          Bucket: DEFAULT_BUCKET,
         })
         .promise();
 
       // should be able to successfully get the object
-      await s3.getObject({ Key: sampleKey, Bucket: S3_BUCKET }).promise();
+      await s3.getObject({ Key: sampleKey, Bucket: DEFAULT_BUCKET }).promise();
 
       await resourceCleanupService.cleanupResourceForPromotion(sampleKey);
       await checkObjectDoesNotExist(sampleKey);
@@ -65,13 +65,15 @@ describe('Unit tests for ResourceCleanupService', function () {
           .putObject({
             Key: sampleKey,
             Body: '{"hello": 1}',
-            Bucket: S3_BUCKET,
+            Bucket: DEFAULT_BUCKET,
           })
           .promise();
       }
 
       // should be able to successfully get the object
-      await s3.getObject({ Key: sampleKeys[0], Bucket: S3_BUCKET }).promise();
+      await s3
+        .getObject({ Key: sampleKeys[0], Bucket: DEFAULT_BUCKET })
+        .promise();
 
       await resourceCleanupService.cleanupResourceForPromotions(sampleKeys);
       for (const sampleKey of sampleKeys) {
@@ -84,7 +86,7 @@ describe('Unit tests for ResourceCleanupService', function () {
 
   async function checkObjectDoesNotExist(key: string) {
     try {
-      await s3.getObject({ Key: key, Bucket: S3_BUCKET }).promise();
+      await s3.getObject({ Key: key, Bucket: DEFAULT_BUCKET }).promise();
       fail('Should have thrown error');
     } catch (e) {
       expect(e.code).toEqual('NoSuchKey');

@@ -1,0 +1,33 @@
+volumes:
+  db:
+    #     uncomment these lines to test prod docker compose locally
+    driver: azure_file
+    driver_opts:
+      share_name: db-file-share
+      storage_account_name: promopal
+
+services:
+  db:
+    volumes:
+      # named volume (existing issue: https://stackoverflow.com/questions/64980940/deploying-postgres-database-on-azure-container-instance)
+      - db:/var/lib/postgresql/foobar
+
+  promopal:
+    command: yarn run production-start
+    environment:
+      # In production environment, .env file will not exist, so we inject the host machine environment variables into our
+      # promopal container.
+      # Note, these variables take precedence over .env file https://docs.docker.com/compose/environment-variables/#set-environment-variables-with-docker-compose-run
+      NODE_ENV: production
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      FIREBASE_WEB_API_KEY: ${FIREBASE_WEB_API_KEY}
+      FIREBASE_SERVICE_ACCOUNT_ID: ${FIREBASE_SERVICE_ACCOUNT_ID}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      FIREBASE_PRIVATE_KEY: ${FIREBASE_PRIVATE_KEY}
+      FIREBASE_CLIENT_EMAIL: ${FIREBASE_CLIENT_EMAIL}
+      GEOCODING_KEY: ${GEOCODING_KEY}
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
+      S3_BUCKET: ${S3_BUCKET}
+      NODE_OPTIONS: '--max_old_space_size=4096'
+    domainname: promopal

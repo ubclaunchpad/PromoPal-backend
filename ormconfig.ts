@@ -1,10 +1,11 @@
 export default {
   type: 'postgres',
-  host: process.env['DB_HOST'] ?? 'localhost',
-  port: 5432,
-  username: 'postgres',
-  password: 'postgres',
-  database: 'foodies',
+  // DATABASE_URL comes from heroku
+  url:
+    process.env.DATABASE_URL ??
+    `postgres://postgres:postgres@${
+      process.env['DB_HOST'] ?? 'localhost'
+    }:5432/foodies`,
   synchronize: true,
   dropSchema: false,
   logging: false,
@@ -17,5 +18,9 @@ export default {
     entitiesDir: 'src/main/entity',
     migrationsDir: 'src/main/migration',
     subscribersDir: 'src/main/subscriber',
+  },
+  // https://github.com/typeorm/typeorm/issues/278
+  extra: {
+    ssl: !!process.env.DATABASE_SSL,
   },
 };

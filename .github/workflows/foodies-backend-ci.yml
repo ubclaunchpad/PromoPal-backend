@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Foodies BE CI
+name: PromoPal BE CI
 
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
@@ -109,18 +109,6 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           # By mapping ports, we are running the job directly on the host machine (vs running job in container)
           - 5432:5432
-
-      redis:
-        image: redis
-        # Set health checks to wait until redis has started
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps port 6379 on service container to the host
-          - 6379:6379
 
     steps:
       - uses: actions/checkout@v2
