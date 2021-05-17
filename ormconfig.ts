@@ -19,4 +19,8 @@ export default {
     migrationsDir: 'src/main/migration',
     subscribersDir: 'src/main/subscriber',
   },
+  // https://github.com/typeorm/typeorm/issues/278
+  extra: {
+    ssl: true,
+  },
 };
