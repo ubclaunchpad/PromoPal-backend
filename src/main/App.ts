@@ -80,10 +80,9 @@ export class App {
       // load sample data
       // await this.loadSampleDBData();
 
-      const PORT = 8000;
-      app.listen(PORT, () => {
+      app.listen(process.env.PORT, () => {
         console.log(
-          `⚡️[server]: Server is running at http://localhost:${PORT}`
+          `⚡️[server]: Server is running at http://localhost:${process.env.PORT}`
         );
       });
     } catch (error) {
